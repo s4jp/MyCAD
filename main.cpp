@@ -1,6 +1,11 @@
+#define _USE_MATH_DEFINES
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include<cmath>
+#include <vector>
+
+using namespace std;
 
 // Vertex Shader source code
 const char *vertexShaderSource =
@@ -20,32 +25,19 @@ const char *fragmentShaderSource =
     "   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
     "}\n\0";
 
+void calculateTorusData(vector<GLfloat> &vertices, vector<GLint> &indices,
+                       float R1, float R2, int n1, int n2);
+
 int main() { 
+
+    vector<GLfloat> vertices;
+    vector<GLint> indices;
+    calculateTorusData(vertices, indices, 0.5, 0.2, 10, 20);
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLfloat vertices[] = {-0.5f,     -0.5f * float(sqrt(3)) / 3,    0.0f,
-                          0.5f,      -0.5f * float(sqrt(3)) / 3,    0.0f,
-                          0.0f,      0.5f * float(sqrt(3)) * 2 / 3, 0.0f,
-                          -0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f,
-                          0.5f / 2,  0.5f * float(sqrt(3)) / 6,     0.0f,
-                          0.0f,      -0.5f * float(sqrt(3)) / 3,    0.0f};
-
-    // Indices for vertices order
-    GLuint indices[] = {
-        0, 3, 
-        3, 5,
-        5, 0,
-        5, 4, 
-        4, 1, 
-        1, 5, 
-        3, 2,
-        2, 4,
-        4, 3
-    };
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "MKMG", NULL, NULL);
     if (window == NULL) {
@@ -82,10 +74,12 @@ int main() {
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(),
+                 GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLint),
+                 indices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -107,7 +101,7 @@ int main() {
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawElements(GL_LINES, 18, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
 
         glfwPollEvents();
@@ -121,4 +115,30 @@ int main() {
     glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0; 
+}
+
+void calculateTorusData(vector<GLfloat> &vertices, vector<GLint> &indices,
+                       float R1, float R2, int n1, int n2) {
+  if (R1 <= 0 || R2 <= 0 || n1 <= 0 || n2 <= 0) return;
+
+  float R1step = 2 * M_PI / n1;
+  float R2step = 2 * M_PI / n2;
+
+  for (int i = 0; i < n1; i++) {
+    float xyElem = R1 + R2 * cos(i * R1step);
+    float z = R2 * sin(i * R1step);
+
+    for (int j = 0; j < n2; j++) {
+      vertices.push_back(xyElem * cos(j * R2step)); // X
+      vertices.push_back(xyElem * sin(j * R2step)); // Y
+      vertices.push_back(z);                        // Z
+
+      // R2 loop
+      indices.push_back(i * n2 + j);                // current
+      indices.push_back(i * n2 + ((j + 1) % n2));   // next
+      // R1 loop
+      indices.push_back(i * n2 + j);                // current
+      indices.push_back(((i + 1) % n1) * n2 + j);   // next
+    }
+  }
 }
