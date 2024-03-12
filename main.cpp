@@ -44,7 +44,7 @@ int main() {
     VBO VBO1(vertices.data(), vertices.size() * sizeof(GLfloat));
     EBO EBO1(indices.data(), indices.size() * sizeof(GLint));
 
-    VAO1.LinkVBO(VBO1, 0);
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 0, (void *)0);
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
