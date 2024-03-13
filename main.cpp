@@ -86,8 +86,6 @@ int main() {
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
 
-    int i = 0;
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -107,15 +105,12 @@ int main() {
 
 		shaderProgram.Activate();
 
-       double crntTime = glfwGetTime();
-       if (crntTime - prevTime >= 1 / 60) 
-       {
-         rotation += 0.05f;
-         prevTime = crntTime;
-       }
-        i++;
-        n2 = 10 + (int)i / 1000;
-        n1 = 20 + (int)i / 1000;
+        double crntTime = glfwGetTime();
+        if (crntTime - prevTime >= 1 / 60) 
+        {
+            rotation += 0.05f;
+            prevTime = crntTime;
+        }
 
         calculateTorusData(vertices, indices, R1, R2, n1, n2);
         VBO1.ReplaceBufferData(vertices.data(),
@@ -132,7 +127,10 @@ int main() {
         glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
         ImGui::Begin("Options");
-        ImGui::Text("placeholder");
+        ImGui::SliderFloat("R1", &R1, 0.01f, 10.f, "%.3f");
+        ImGui::SliderFloat("R2", &R2, 0.01f, 10.f, "%.3f");
+        ImGui::SliderInt("n1", &n1, 1, 100);
+        ImGui::SliderInt("n2", &n2, 1, 100);
         ImGui::End();
 
         ImGui::Render();
@@ -140,7 +138,6 @@ int main() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-    
     }
 
     ImGui_ImplOpenGL3_Shutdown();
