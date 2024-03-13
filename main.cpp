@@ -4,6 +4,9 @@
 #include<GLFW/glfw3.h>
 #include<cmath>
 #include<vector>
+#include<glm/glm.hpp>
+#include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/type_ptr.hpp>
 
 #include"shaderClass.h"
 #include"VAO.h"
@@ -11,6 +14,9 @@
 #include"EBO.h"
 
 using namespace std;
+
+const unsigned int width = 800;
+const unsigned int height = 600;
 
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2);
@@ -25,7 +31,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "MKMG", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(width, height, "MKMG", NULL, NULL);
     if (window == NULL) {
       std::cout << "Failed to create GLFW window" << std::endl;
       glfwTerminate();
@@ -34,7 +40,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     gladLoadGL();
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, width, height);
 
     Shader shaderProgram("default.vert", "default.frag");
 
@@ -49,12 +55,38 @@ int main() {
     VBO1.Unbind();
     EBO1.Unbind();
 
+    float rotation = 0.0f;
+    double prevTime = glfwGetTime();
+
     while (!glfwWindowShouldClose(window)) 
     {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
 		shaderProgram.Activate();
+
+       double crntTime = glfwGetTime();
+       if (crntTime - prevTime >= 1 / 60) 
+       {
+         rotation += 0.5f;
+         prevTime = crntTime;
+       }
+
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 proj = glm::mat4(1.0f);
+
+        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
+        proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+
+        int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
         VAO1.Bind();
         glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
