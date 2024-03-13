@@ -31,6 +31,10 @@ float R2 = 0.2f;
 int n1 = 10;
 int n2 = 20;
 
+int rotating = 1;
+
+glm::vec3 scale = glm::vec3(1.0f);
+
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2);
 glm::mat4 createXrotationMatrix(float angle);
@@ -38,7 +42,7 @@ glm::mat4 createYrotationMatrix(float angle);
 glm::mat4 createZrotationMatrix(float angle);
 glm::mat4 rotate(glm::mat4 matrix, float angleX, float angleY, float angleZ);
 glm::mat4 projection(float fov, float ratio, float near, float far);
-glm::mat4 scale(glm::mat4 matrix, glm::vec3 scale);
+glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale);
 
 int main() { 
     vector<GLfloat> vertices;
@@ -117,7 +121,8 @@ int main() {
                               vertices.size() * sizeof(GLfloat));
         EBO1.ReplaceBufferData(indices.data(), indices.size() * sizeof(GLint));
 
-        model = rotate(glm::mat4(1.0f), 0, glm::radians(rotation), 0);
+        model = rotate(scaling(glm::mat4(1.0f), scale), 0,
+                       glm::radians(rotation), 0);
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -126,11 +131,26 @@ int main() {
         VAO1.Bind();
         glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
-        ImGui::Begin("Options");
-        ImGui::SliderFloat("R1", &R1, 0.01f, 10.f, "%.3f");
-        ImGui::SliderFloat("R2", &R2, 0.01f, 10.f, "%.3f");
-        ImGui::SliderInt("n1", &n1, 1, 100);
-        ImGui::SliderInt("n2", &n2, 1, 100);
+        if (ImGui::Begin("Options"))
+        {
+          ImGui::SeparatorText("Torus parameters");
+
+          ImGui::SliderFloat("R1", &R1, 0.01f, 10.f, "%.2f");
+          ImGui::SliderFloat("R2", &R2, 0.01f, 10.f, "%.2f");
+          ImGui::SliderInt("n1", &n1, 1, 100);
+          ImGui::SliderInt("n2", &n2, 1, 100);
+
+          ImGui::SeparatorText("Transform mode");
+
+          ImGui::RadioButton("rotate", &rotating, 1);
+          ImGui::RadioButton("move", &rotating, 0);
+
+          ImGui::SeparatorText("Scaling");
+
+          ImGui::SliderFloat("Sx", &scale[0], 0.01f, 5.f, "%.2f");
+          ImGui::SliderFloat("Sy", &scale[1], 0.01f, 5.f, "%.2f");
+          ImGui::SliderFloat("Sz", &scale[2], 0.01f, 5.f, "%.2f");
+        }
         ImGui::End();
 
         ImGui::Render();
@@ -236,7 +256,7 @@ glm::mat4 projection(float fov, float ratio, float near, float far) {
   return result;
 }
 
-glm::mat4 scale(glm::mat4 matrix, glm::vec3 scale)
+glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale)
 {
   glm::mat4 scaleMatrix = glm::mat4(1.0f);
   scaleMatrix[0][0] = scale[0];
