@@ -70,6 +70,13 @@ int main() {
 
     glLineWidth(5.0f);
 
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
+    glm::mat4 proj = projection(fov, (float)width / height, near, far);
+    int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+    int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+    int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+
     while (!glfwWindowShouldClose(window)) 
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -84,17 +91,10 @@ int main() {
          prevTime = crntTime;
        }
 
-        glm::mat4 model = glm::mat4(1.0f);
+        model = rotate(glm::mat4(1.0f), 0, glm::radians(rotation), 0);
 
-        model = rotate(model, 0, glm::radians(rotation), 0);
-        glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
-        glm::mat4 proj = projection(fov, (float)width / height, near, far);
-
-        int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
         VAO1.Bind();
