@@ -17,9 +17,19 @@ using namespace std;
 
 const unsigned int width = 800;
 const unsigned int height = 600;
+const glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f);
+const float fov = M_PI / 4.0f;
+const float near = 0.1f;
+const float far = 100.0f;
 
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2);
+glm::mat4 createXrotationMatrix(float angle);
+glm::mat4 createYrotationMatrix(float angle);
+glm::mat4 createZrotationMatrix(float angle);
+glm::mat4 rotate(glm::mat4 matrix, float angleX, float angleY, float angleZ);
+glm::mat4 projection(float fov, float ratio, float near, float far);
+glm::mat4 scale(glm::mat4 matrix, glm::vec3 scale);
 
 int main() { 
     vector<GLfloat> vertices;
@@ -58,9 +68,11 @@ int main() {
     float rotation = 0.0f;
     double prevTime = glfwGetTime();
 
+    glLineWidth(5.0f);
+
     while (!glfwWindowShouldClose(window)) 
     {
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
 		shaderProgram.Activate();
@@ -68,17 +80,15 @@ int main() {
        double crntTime = glfwGetTime();
        if (crntTime - prevTime >= 1 / 60) 
        {
-         rotation += 0.5f;
+         rotation += 0.05f;
          prevTime = crntTime;
        }
 
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 proj = glm::mat4(1.0f);
 
-        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
-        proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+        model = rotate(model, 0, glm::radians(rotation), 0);
+        glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
+        glm::mat4 proj = projection(fov, (float)width / height, near, far);
 
         int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -127,4 +137,67 @@ void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
       indices.push_back(((i + 1) % n1) * n2 + j);   // next
     }
   }
+}
+
+glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector) 
+{
+  glm::mat4 translationMatrix = glm::mat4(1.0f);
+  translationMatrix[3] = glm::vec4(vector, 1.0f);
+  return translationMatrix * matrix;
+}
+
+glm::mat4 createXrotationMatrix(float angle) 
+{
+  glm::mat4 result = glm::mat4(1.0f);
+  result[1][1] = cos(angle);
+  result[1][2] = sin(angle);
+  result[2][1] = -sin(angle);
+  result[2][2] = cos(angle);
+  return result;
+}
+
+glm::mat4 createYrotationMatrix(float angle) 
+{
+  glm::mat4 result = glm::mat4(1.0f);
+  result[0][0] = cos(angle);
+  result[0][2] = -sin(angle);
+  result[2][0] = sin(angle);
+  result[2][2] = cos(angle);
+  return result;
+}
+
+glm::mat4 createZrotationMatrix(float angle) 
+{
+  glm::mat4 result = glm::mat4(1.0f);
+  result[0][0] = cos(angle);
+  result[0][1] = sin(angle);
+  result[1][0] = -sin(angle);
+  result[1][1] = cos(angle);
+  return result;
+}
+
+glm::mat4 rotate(glm::mat4 matrix, float angleX, float angleY, float angleZ) 
+{
+  return createZrotationMatrix(angleZ) * createYrotationMatrix(angleY) *
+         createXrotationMatrix(angleX) * matrix;
+}
+
+glm::mat4 projection(float fov, float ratio, float near, float far) {
+  glm::mat4 result = glm::mat4(0.0f);
+  result[0][0] = 1.0f / (tan(fov / 2.0f) * ratio);
+  result[1][1] = 1.0f / tan(fov / 2.0f);
+  result[2][2] = -(far + near) / (far - near);
+  result[3][2] = (-2.0 * far * near) / (far - near);
+  result[2][3] = -1.0f;
+  result[3][3] = 0.0f;
+  return result;
+}
+
+glm::mat4 scale(glm::mat4 matrix, glm::vec3 scale)
+{
+  glm::mat4 scaleMatrix = glm::mat4(1.0f);
+  scaleMatrix[0][0] = scale[0];
+  scaleMatrix[1][1] = scale[1];
+  scaleMatrix[2][2] = scale[2];
+  return scaleMatrix * matrix;
 }
