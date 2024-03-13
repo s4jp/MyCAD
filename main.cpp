@@ -22,6 +22,11 @@ const float fov = M_PI / 4.0f;
 const float near = 0.1f;
 const float far = 100.0f;
 
+float R1 = 0.5f;
+float R2 = 0.2f;
+int n1 = 10;
+int n2 = 20;
+
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2);
 glm::mat4 createXrotationMatrix(float angle);
@@ -34,7 +39,7 @@ glm::mat4 scale(glm::mat4 matrix, glm::vec3 scale);
 int main() { 
     vector<GLfloat> vertices;
     vector<GLuint> indices;
-    calculateTorusData(vertices, indices, 0.5, 0.2, 10, 20);
+    calculateTorusData(vertices, indices, R1, R2, n1, n2);
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -77,6 +82,8 @@ int main() {
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
 
+    int i = 0;
+
     while (!glfwWindowShouldClose(window)) 
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -90,6 +97,14 @@ int main() {
          rotation += 0.05f;
          prevTime = crntTime;
        }
+        i++;
+        n2 = 10 + (int)i / 1000;
+        n1 = 20 + (int)i / 1000;
+
+        calculateTorusData(vertices, indices, R1, R2, n1, n2);
+        VBO1.ReplaceBufferData(vertices.data(),
+                              vertices.size() * sizeof(GLfloat));
+        EBO1.ReplaceBufferData(indices.data(), indices.size() * sizeof(GLint));
 
         model = rotate(glm::mat4(1.0f), 0, glm::radians(rotation), 0);
 
@@ -116,6 +131,9 @@ int main() {
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2) {
   if (R1 <= 0 || R2 <= 0 || n1 <= 0 || n2 <= 0) return;
+
+  vertices.clear();
+  indices.clear();
 
   float R1step = 2 * M_PI / n1;
   float R2step = 2 * M_PI / n2;

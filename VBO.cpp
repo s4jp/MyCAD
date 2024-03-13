@@ -21,3 +21,9 @@ void VBO::Delete()
 {
 	glDeleteBuffers(1, &ID);
 }
+
+void VBO::ReplaceBufferData(GLfloat* vertices, GLsizeiptr size) 
+{
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
+}

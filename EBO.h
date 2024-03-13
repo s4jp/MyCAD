@@ -11,6 +11,7 @@ public:
 
 	void Bind();
 	void Unbind();
-	void Delete();
+    void Delete();
+    void ReplaceBufferData(GLuint *indices, GLsizeiptr size);
 };
 #endif
