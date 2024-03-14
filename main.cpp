@@ -21,7 +21,7 @@ using namespace std;
 
 const unsigned int width = 800;
 const unsigned int height = 600;
-const glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f);
+const glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
 const float fov = M_PI / 4.0f;
 const float near = 0.1f;
 const float far = 100.0f;
@@ -32,17 +32,27 @@ int n1 = 10;
 int n2 = 20;
 
 int rotating = 1;
+bool firstClick = true;
+bool change1 = false;
+bool change2 = false;
 
 glm::vec3 scale = glm::vec3(1.0f);
+glm::vec3 angle = glm::vec3(0.0f);
+glm::vec3 translation = glm::vec3(0.0f);
+
+const float scrollSensitivity = 30.0f;
 
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2);
+glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector);
 glm::mat4 createXrotationMatrix(float angle);
 glm::mat4 createYrotationMatrix(float angle);
 glm::mat4 createZrotationMatrix(float angle);
-glm::mat4 rotate(glm::mat4 matrix, float angleX, float angleY, float angleZ);
+glm::mat4 rotate(glm::mat4 matrix, glm::vec3 angle);
 glm::mat4 projection(float fov, float ratio, float near, float far);
 glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale);
+void HandleInputs(GLFWwindow *window);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 int main() { 
     vector<GLfloat> vertices;
@@ -61,6 +71,8 @@ int main() {
       return -1;
     }
     glfwMakeContextCurrent(window);
+
+    glfwSetScrollCallback(window, scroll_callback);
 
     gladLoadGL();
     glViewport(0, 0, width, height);
@@ -81,7 +93,7 @@ int main() {
     float rotation = 0.0f;
     double prevTime = glfwGetTime();
 
-    glLineWidth(5.0f);
+    glLineWidth(3.0f);
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
@@ -109,20 +121,22 @@ int main() {
 
 		shaderProgram.Activate();
 
-        double crntTime = glfwGetTime();
-        if (crntTime - prevTime >= 1 / 60) 
-        {
-            rotation += 0.05f;
-            prevTime = crntTime;
+        HandleInputs(window);
+
+        if (change1) {
+          calculateTorusData(vertices, indices, R1, R2, n1, n2);
+          VBO1.ReplaceBufferData(vertices.data(),
+                                 vertices.size() * sizeof(GLfloat));
+          EBO1.ReplaceBufferData(indices.data(),
+                                 indices.size() * sizeof(GLint));
+          change1 = false;
         }
-
-        calculateTorusData(vertices, indices, R1, R2, n1, n2);
-        VBO1.ReplaceBufferData(vertices.data(),
-                              vertices.size() * sizeof(GLfloat));
-        EBO1.ReplaceBufferData(indices.data(), indices.size() * sizeof(GLint));
-
-        model = rotate(scaling(glm::mat4(1.0f), scale), 0,
-                       glm::radians(rotation), 0);
+        if (change2)
+        {
+          model = translate(rotate(scaling(glm::mat4(1.0f), scale), angle),
+                            translation);
+          change2 = false;
+        }
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -135,10 +149,14 @@ int main() {
         {
           ImGui::SeparatorText("Torus parameters");
 
-          ImGui::SliderFloat("R1", &R1, 0.01f, 10.f, "%.2f");
-          ImGui::SliderFloat("R2", &R2, 0.01f, 10.f, "%.2f");
-          ImGui::SliderInt("n1", &n1, 1, 100);
-          ImGui::SliderInt("n2", &n2, 1, 100);
+          if (ImGui::SliderFloat("R1", &R1, 0.01f, 5.f, "%.2f"))
+            change1 = true;
+          if (ImGui::SliderFloat("R2", &R2, 0.01f, 5.f, "%.2f"))
+            change1 = true;
+          if (ImGui::SliderInt("major", &n2, 3, 50))
+            change1 = true;
+          if (ImGui::SliderInt("minor", &n1, 3, 50))
+            change1 = true;
 
           ImGui::SeparatorText("Transform mode");
 
@@ -147,13 +165,22 @@ int main() {
 
           ImGui::SeparatorText("Scaling");
 
-          ImGui::SliderFloat("Sx", &scale[0], 0.01f, 5.f, "%.2f");
-          ImGui::SliderFloat("Sy", &scale[1], 0.01f, 5.f, "%.2f");
-          ImGui::SliderFloat("Sz", &scale[2], 0.01f, 5.f, "%.2f");
+          if (ImGui::SliderFloat("Sx", &scale[0], 0.01f, 5.f, "%.2f"))
+            change2 = true;
+          if (ImGui::SliderFloat("Sy", &scale[1], 0.01f, 5.f, "%.2f"))
+            change2 = true;
+          if (ImGui::SliderFloat("Sz", &scale[2], 0.01f, 5.f, "%.2f"))
+            change2 = true;
+          if (ImGui::Button("Reset"))
+          {
+            scale = glm::vec3(1.0f);
+            change2 = true;
+          }
         }
         ImGui::End();
 
         ImGui::Render();
+        cout << ImGui::GetIO().Framerate << endl;
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
@@ -239,10 +266,10 @@ glm::mat4 createZrotationMatrix(float angle)
   return result;
 }
 
-glm::mat4 rotate(glm::mat4 matrix, float angleX, float angleY, float angleZ) 
+glm::mat4 rotate(glm::mat4 matrix, glm::vec3 angle) 
 {
-  return createZrotationMatrix(angleZ) * createYrotationMatrix(angleY) *
-         createXrotationMatrix(angleX) * matrix;
+  return createZrotationMatrix(angle[2]) * createYrotationMatrix(angle[1]) *
+         createXrotationMatrix(angle[0]) * matrix;
 }
 
 glm::mat4 projection(float fov, float ratio, float near, float far) {
@@ -263,4 +290,62 @@ glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale)
   scaleMatrix[1][1] = scale[1];
   scaleMatrix[2][2] = scale[2];
   return scaleMatrix * matrix;
+}
+
+void HandleInputs(GLFWwindow* window) 
+{
+  if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
+      !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) 
+    {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+          if (firstClick) {
+            glfwSetCursorPos(window, (width / 2), (height / 2));
+            firstClick = false;
+          }
+
+          double mouseX;
+          double mouseY;
+          glfwGetCursorPos(window, &mouseX, &mouseY);
+
+          float rotX = 1.0f * (float)(mouseY - (height / 2)) / height;
+          float rotY = 1.0f * (float)(mouseX - (width / 2)) / width;
+
+          if (rotating == 1) 
+          {
+            angle[0] -= rotY;
+            angle[1] += rotX;
+          }
+          else
+          {
+            translation[0] -= rotY;
+            translation[1] += rotX;
+          }
+          change2 = true;
+
+          glfwSetCursorPos(window, (width / 2), (height / 2));
+        } 
+        else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==
+                   GLFW_RELEASE) 
+        {
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          firstClick = true;
+        }
+    }
+}
+
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
+{
+    float yDiff = yoffset / 30.0f;
+
+    if (rotating == 1) 
+    {
+      angle[2] += yDiff;
+    } 
+    else 
+    {
+      translation[2] += yDiff;
+    }
+    change2 = true;
 }
