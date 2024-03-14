@@ -19,8 +19,8 @@
 
 using namespace std;
 
-const unsigned int width = 800;
-const unsigned int height = 600;
+int width = 800;
+int height = 600;
 const glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
 const float fov = M_PI / 4.0f;
 const float near = 0.1f;
@@ -35,12 +35,13 @@ int rotating = 1;
 bool firstClick = true;
 bool change1 = false;
 bool change2 = false;
+bool change3 = false;
 
 glm::vec3 scale = glm::vec3(1.0f);
 glm::vec3 angle = glm::vec3(0.0f);
 glm::vec3 translation = glm::vec3(0.0f);
 
-const float scrollSensitivity = 30.0f;
+const float scrollSensitivity = 20.0f;
 
 void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
                        float R1, float R2, int n1, int n2);
@@ -53,6 +54,7 @@ glm::mat4 projection(float fov, float ratio, float near, float far);
 glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale);
 void HandleInputs(GLFWwindow *window);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+void window_size_callback(GLFWwindow *window, int width, int height);
 
 int main() { 
     vector<GLfloat> vertices;
@@ -73,6 +75,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
 
     gladLoadGL();
     glViewport(0, 0, width, height);
@@ -137,6 +140,13 @@ int main() {
                             translation);
           change2 = false;
         }
+        if (change3)
+        {
+          glfwGetWindowSize(window, &width, &height);
+          proj = projection(fov, (float)width / height, near, far);
+          glViewport(0, 0, width, height);
+          change3 = false;
+        }
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -180,7 +190,7 @@ int main() {
         ImGui::End();
 
         ImGui::Render();
-        cout << ImGui::GetIO().Framerate << endl;
+        // cout << ImGui::GetIO().Framerate << endl;
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
@@ -348,4 +358,9 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
       translation[2] += yDiff;
     }
     change2 = true;
+}
+
+void window_size_callback(GLFWwindow* window, int width, int height) 
+{
+  change3 = true;
 }
