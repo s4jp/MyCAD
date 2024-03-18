@@ -22,6 +22,12 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{ec98dca9-c786-4dea-aa9a-3ab293baca87}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\figures">
+      <UniqueIdentifier>{023a94e8-d38c-4179-b490-0b33e9424735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\figures">
+      <UniqueIdentifier>{4d61e710-8ed8-4185-849e-34ffa8b5f302}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -62,6 +68,12 @@
     </ClCompile>
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="torus.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="matrix.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +123,12 @@
     </ClInclude>
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="figure.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="torus.h">
+      <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
