@@ -24,6 +24,7 @@
     <ProjectGuid>{bfeb9890-e817-427e-82ff-a335a155f0d7}</ProjectGuid>
     <RootNamespace>MKMGP2torusmesh</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>MKMG_CAD</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,12 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
