@@ -16,13 +16,16 @@ void Torus::Recalculate()
                            std::get<1>(data).size() * sizeof(GLint));
 }
 
-void Torus::Render(int colorLoc) 
+void Torus::Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix)
 {
+  vao.Bind();
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix * model));
+  glLineWidth(3.0f);
+
   glUniform4fv(colorLoc, 1,
                glm::value_ptr(glm::vec4(1.0f, 0.65f, 0.0f, 1.0f)));
-  glLineWidth(3.0f);
-  vao.Bind();
   glDrawElements(GL_LINES, indices_count, GL_UNSIGNED_INT, 0);
+
   vao.Unbind();
 }
 

@@ -3,9 +3,10 @@
 
 Cursor::Cursor(float lengthN) : Figure(InitializeAndCalculate(lengthN)) {}
 
-void Cursor::Render(int colorLoc) 
+void Cursor::Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix) 
 { 
-	vao.Bind(); 
+	vao.Bind();
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix * model));
 	glLineWidth(5.0f);
 
     glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));

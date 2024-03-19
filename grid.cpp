@@ -5,9 +5,10 @@
 Grid::Grid(float sizeN, int divisionN)
     : Figure(InitializeAndCalculate(sizeN, divisionN)) {};
 
-void Grid::Render(int colorLoc)
+void Grid::Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix)
 {
   vao.Bind();
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix * model));
 
   // main grid
   glLineWidth(1.0f);
@@ -22,6 +23,7 @@ void Grid::Render(int colorLoc)
   glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)));
   glDrawElements(GL_LINES, 2 * division, GL_UNSIGNED_INT,
                  (void *)((indices_count - 2 * division) * sizeof(GLuint)));
+
   vao.Unbind();
 }
 

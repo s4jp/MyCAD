@@ -1,12 +1,12 @@
 #include<glm/glm.hpp>
 
-glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector) {
+static glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector) {
   glm::mat4 translationMatrix = glm::mat4(1.0f);
   translationMatrix[3] = glm::vec4(vector, 1.0f);
   return translationMatrix * matrix;
 }
 
-glm::mat4 createXrotationMatrix(float angle) {
+static glm::mat4 createXrotationMatrix(float angle) {
   glm::mat4 result = glm::mat4(1.0f);
   result[1][1] = cos(angle);
   result[1][2] = sin(angle);
@@ -15,7 +15,7 @@ glm::mat4 createXrotationMatrix(float angle) {
   return result;
 }
 
-glm::mat4 createYrotationMatrix(float angle) {
+static glm::mat4 createYrotationMatrix(float angle) {
   glm::mat4 result = glm::mat4(1.0f);
   result[0][0] = cos(angle);
   result[0][2] = -sin(angle);
@@ -24,7 +24,7 @@ glm::mat4 createYrotationMatrix(float angle) {
   return result;
 }
 
-glm::mat4 createZrotationMatrix(float angle) {
+static glm::mat4 createZrotationMatrix(float angle) {
   glm::mat4 result = glm::mat4(1.0f);
   result[0][0] = cos(angle);
   result[0][1] = sin(angle);
@@ -33,12 +33,12 @@ glm::mat4 createZrotationMatrix(float angle) {
   return result;
 }
 
-glm::mat4 rotate(glm::mat4 matrix, glm::vec3 angle) {
+static glm::mat4 rotate(glm::mat4 matrix, glm::vec3 angle) {
   return createZrotationMatrix(angle[2]) * createYrotationMatrix(angle[1]) *
          createXrotationMatrix(angle[0]) * matrix;
 }
 
-glm::mat4 projection(float fov, float ratio, float near, float far) {
+static glm::mat4 projection(float fov, float ratio, float near, float far) {
   glm::mat4 result = glm::mat4(0.0f);
   result[0][0] = 1.0f / (tan(fov / 2.0f) * ratio);
   result[1][1] = 1.0f / tan(fov / 2.0f);
@@ -49,7 +49,7 @@ glm::mat4 projection(float fov, float ratio, float near, float far) {
   return result;
 }
 
-glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale) {
+static glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale) {
   glm::mat4 scaleMatrix = glm::mat4(1.0f);
   scaleMatrix[0][0] = scale[0];
   scaleMatrix[1][1] = scale[1];

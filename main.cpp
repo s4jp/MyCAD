@@ -85,6 +85,9 @@ int main() {
     figures.push_back(new Torus(0.5f, 0.2f, 10, 20));
     grid = new Grid(10.f, 50);
     cursor = new Cursor(0.2f);
+    glm::vec3 cursorTranslation = cursor->GetTranslation();
+    cursorTranslation.y = 1.f;
+    cursor->SetTranslation(cursorTranslation);
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
@@ -133,14 +136,15 @@ int main() {
           change3 = false;
         }
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-        grid->Render(colorLoc);
+        grid->Render(colorLoc, modelLoc, model);
         std::for_each(figures.begin(), figures.end(),
-                      [colorLoc](Figure *f) { f->Render(colorLoc); });
-        cursor->Render(colorLoc);
+                      [colorLoc, modelLoc, model](Figure *f) {
+                        f->Render(colorLoc, modelLoc, model);
+                      });
+        cursor->Render(colorLoc, modelLoc, model);
 
         if (ImGui::Begin("Options"))
         {
