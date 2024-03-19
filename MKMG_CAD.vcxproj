@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cursor.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="grid.cpp" />
@@ -162,6 +163,7 @@
     <None Include="default.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cursor.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="figure.h" />
     <ClInclude Include="grid.h" />

@@ -20,6 +20,7 @@
 #include"figure.h"
 #include"torus.h"
 #include"grid.h"
+#include"cursor.h"
 
 using namespace std;
 
@@ -46,6 +47,7 @@ double prevMousePos[2];
 
 vector<Figure*> figures;
 Grid* grid;
+Cursor *cursor;
 
 glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector);
 glm::mat4 createXrotationMatrix(float angle);
@@ -82,6 +84,7 @@ int main() {
 
     figures.push_back(new Torus(0.5f, 0.2f, 10, 20));
     grid = new Grid(10.f, 50);
+    cursor = new Cursor(0.2f);
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
@@ -137,6 +140,7 @@ int main() {
         grid->Render(colorLoc);
         std::for_each(figures.begin(), figures.end(),
                       [colorLoc](Figure *f) { f->Render(colorLoc); });
+        cursor->Render(colorLoc);
 
         if (ImGui::Begin("Options"))
         {

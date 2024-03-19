@@ -78,6 +78,9 @@
     <ClCompile Include="grid.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
+    <ClCompile Include="cursor.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -134,6 +137,9 @@
       <Filter>Header Files\figures</Filter>
     </ClInclude>
     <ClInclude Include="grid.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="cursor.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>
