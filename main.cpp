@@ -41,6 +41,8 @@ glm::vec3 angle = glm::vec3(0.0f);
 glm::vec3 translation = glm::vec3(0.0f);
 
 const float scrollSensitivity = 20.0f;
+const float mouseSensitivity = 500.0f;
+double prevMousePos[2];
 
 vector<Figure*> figures;
 Grid* grid;
@@ -155,6 +157,7 @@ int main() {
 
           ImGui::RadioButton("rotate", &rotating, 1);
           ImGui::RadioButton("move", &rotating, 0);
+          ImGui::RadioButton("cursor", &rotating, 2);
 
           ImGui::SeparatorText("Scaling");
 
@@ -198,10 +201,8 @@ void HandleInputs(GLFWwindow* window)
       !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) 
     {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
           if (firstClick) {
-            glfwSetCursorPos(window, (width / 2), (height / 2));
+            glfwGetCursorPos(window, &prevMousePos[0], &prevMousePos[1]);
             firstClick = false;
           }
 
@@ -209,27 +210,26 @@ void HandleInputs(GLFWwindow* window)
           double mouseY;
           glfwGetCursorPos(window, &mouseX, &mouseY);
 
-          float rotX = 1.0f * (float)(mouseY - (height / 2)) / height;
-          float rotY = 1.0f * (float)(mouseX - (width / 2)) / width;
+          float rotX = (float)(mouseY - prevMousePos[1]) / mouseSensitivity;
+          float rotY = (float)(mouseX - prevMousePos[0]) / mouseSensitivity;
+
+          prevMousePos[0] = mouseX;
+          prevMousePos[1] = mouseY;
 
           if (rotating == 1) 
           {
             angle[0] -= rotY;
             angle[1] += rotX;
-          }
-          else
+          } else if (rotating == 0)
           {
             translation[0] -= rotY;
             translation[1] += rotX;
           }
           change2 = true;
-
-          glfwSetCursorPos(window, (width / 2), (height / 2));
         } 
         else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==
                    GLFW_RELEASE) 
         {
-          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
           firstClick = true;
         }
     }
@@ -243,7 +243,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
     {
       angle[2] += yDiff;
     } 
-    else 
+    else if (rotating == 0)
     {
       translation[2] += yDiff;
     }
