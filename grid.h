@@ -1,21 +1,18 @@
 #pragma once
 #include "figure.h"
 
-class Torus : public Figure 
+class Grid : public Figure
 {
 public:
-  float R1;
-  float R2;
-  int n1;
-  int n2;
+  float size;
+  int division;
 
-  Torus(float R1, float R2, int n1, int n2);
+  Grid(float sizeN, int divisionN);
 
-  void Recalculate();
   void Render(int colorLoc);
 
 private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate();
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-  InitializeAndCalculate(float R1, float R2, int n1, int n2);
+  InitializeAndCalculate(float size, int division);
 };

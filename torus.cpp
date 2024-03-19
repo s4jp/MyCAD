@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <tuple>
 #include "torus.h"
+#include <glm/gtc/type_ptr.hpp>
 
 Torus::Torus(float R1n, float R2n, int n1n, int n2n)
     : Figure(InitializeAndCalculate(R1n,R2n,n1n,n2n)) {}
@@ -15,8 +16,10 @@ void Torus::Recalculate()
                            std::get<1>(data).size() * sizeof(GLint));
 }
 
-void Torus::Render() 
+void Torus::Render(int colorLoc) 
 {
+  glUniform4fv(colorLoc, 1,
+               glm::value_ptr(glm::vec4(1.0f, 0.65f, 0.0f, 1.0f)));
   glLineWidth(3.0f);
   vao.Bind();
   glDrawElements(GL_LINES, indices_count, GL_UNSIGNED_INT, 0);

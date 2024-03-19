@@ -20,8 +20,7 @@ public:
 
   int indices_count;
 
-  virtual void Render() = 0;
-  virtual void Recalculate() = 0;
+  virtual void Render(int colorLoc) = 0;
 
   void Delete() {
     vao.Delete();

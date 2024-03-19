@@ -19,6 +19,7 @@
 #include"EBO.h"
 #include"figure.h"
 #include"torus.h"
+#include"grid.h"
 
 using namespace std;
 
@@ -77,6 +78,7 @@ int main() {
     Shader shaderProgram("default.vert", "default.frag");
 
     figures.push_back(new Torus(0.5f, 0.2f, 10, 20));
+    figures.push_back(new Grid(10.f, 50));
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
@@ -84,6 +86,7 @@ int main() {
     int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+    int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -107,7 +110,7 @@ int main() {
         HandleInputs(window);
 
         if (change1) {
-          figures[0]->Recalculate();
+          dynamic_cast<Torus*>(figures[0])->Recalculate();
           change1 = false;
         }
         if (change2)
@@ -129,7 +132,7 @@ int main() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
         std::for_each(figures.begin(), figures.end(),
-                      [](Figure *f) { f->Render(); });
+                      [colorLoc](Figure *f) { f->Render(colorLoc); });
 
         if (ImGui::Begin("Options"))
         {

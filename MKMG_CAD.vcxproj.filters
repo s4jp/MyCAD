@@ -75,6 +75,9 @@
     <ClCompile Include="matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -128,6 +131,9 @@
       <Filter>Header Files\figures</Filter>
     </ClInclude>
     <ClInclude Include="torus.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>
