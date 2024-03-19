@@ -23,6 +23,7 @@ void Torus::Render(int colorLoc)
   glLineWidth(3.0f);
   vao.Bind();
   glDrawElements(GL_LINES, indices_count, GL_UNSIGNED_INT, 0);
+  vao.Unbind();
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() 

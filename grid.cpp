@@ -7,24 +7,22 @@ Grid::Grid(float sizeN, int divisionN)
 
 void Grid::Render(int colorLoc)
 {
-  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-  glLineWidth(1.0f);
   vao.Bind();
-  glDrawElements(GL_LINES, indices_count, GL_UNSIGNED_INT, 0);
 
-
-  //// main grid
-  //glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-  //glDrawElements(GL_LINES, indices_count - 4 * division, GL_UNSIGNED_INT, 0);
-  //// X axis
-  //glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-  //glDrawElements(GL_LINES, 2 * division, GL_UNSIGNED_INT,
-  //               (void *)((indices_count - 4 * division + 1) * sizeof(GLuint)));
-  //// Y axis
-  //glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)));
-  //glDrawElements(
-  //    GL_LINES, 2 * division, GL_UNSIGNED_INT,
-  //    (void *)((indices_count - 2 * division + 1) * sizeof(unsigned int)));
+  // main grid
+  glLineWidth(1.0f);
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+  glDrawElements(GL_LINES, indices_count - 4 * division, GL_UNSIGNED_INT, 0);
+  // X axis
+  glLineWidth(3.0f);
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+  glDrawElements(GL_LINES, 2 * division, GL_UNSIGNED_INT,
+                 (void *)((indices_count - 4 * division) * sizeof(GLuint)));
+  // Y axis
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)));
+  glDrawElements(GL_LINES, 2 * division, GL_UNSIGNED_INT,
+                 (void *)((indices_count - 2 * division) * sizeof(GLuint)));
+  vao.Unbind();
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Grid::Calculate() {

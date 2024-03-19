@@ -43,6 +43,7 @@ glm::vec3 translation = glm::vec3(0.0f);
 const float scrollSensitivity = 20.0f;
 
 vector<Figure*> figures;
+Grid* grid;
 
 glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector);
 glm::mat4 createXrotationMatrix(float angle);
@@ -78,7 +79,7 @@ int main() {
     Shader shaderProgram("default.vert", "default.frag");
 
     figures.push_back(new Torus(0.5f, 0.2f, 10, 20));
-    figures.push_back(new Grid(10.f, 50));
+    grid = new Grid(10.f, 50);
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
@@ -131,6 +132,7 @@ int main() {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
+        grid->Render(colorLoc);
         std::for_each(figures.begin(), figures.end(),
                       [colorLoc](Figure *f) { f->Render(colorLoc); });
 
