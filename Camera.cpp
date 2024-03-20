@@ -10,6 +10,7 @@ Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
 	Camera::width = width;
 	Camera::height = height;
 	Camera::Position = position;
+    Camera::Orientation = glm::normalize(- Camera::Position);
     Camera::FOV = FOV;
     Camera::near = near;
     Camera::far = far;

@@ -38,8 +38,10 @@ Grid* grid;
 Cursor *cursor;
 Camera camera(width, height, cameraPosition, fov, near, far);
 
+static int currentMenuItem = 0;
+const char *menuItems = "Move camera\0Place cursor";
+
 void window_size_callback(GLFWwindow *window, int width, int height);
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 int main() { 
 
@@ -67,12 +69,11 @@ int main() {
 
     // define callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
-    //glfwSetScrollCallback(window, scroll_callback);       // FIX
 
     // init figures
     figures.push_back(new Torus(0.5f, 0.2f, 10, 20));
     selected.push_back(0);
-    grid = new Grid(10.f, 50);
+    grid = new Grid(30.f, 50);
     cursor = new Cursor(0.2f);
     glm::vec3 cursorTranslation = cursor->GetTranslation();
     cursorTranslation.y = 1.f;
@@ -108,7 +109,9 @@ int main() {
         #pragma endregion
 
         // camera
-        camera.HandleInputs(window);
+        if (currentMenuItem == 0) {
+            camera.HandleInputs(window);
+        }
         camera.PrepareMatrices(viewLoc, projLoc);
 
         // objects rendering
@@ -120,6 +123,11 @@ int main() {
         cursor->Render(colorLoc, modelLoc);
 
         // imgui rendering
+        if (ImGui::Begin("Mode")) {
+          ImGui::Combo(" ", &currentMenuItem, menuItems);
+        }
+        ImGui::End();
+
         std::for_each(selected.begin(), selected.end(),
                       [](int idx) { figures[idx]->CreateImgui(); });
 
@@ -150,18 +158,4 @@ void window_size_callback(GLFWwindow *window, int width, int height) {
   camera.width = width;
   camera.height = height;
   glViewport(0, 0, width, height);
-}
-
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
-{
-    //float yDiff = yoffset / 30.0f;
-
-    //if (rotating == 1) 
-    //{
-    //  angle[2] += yDiff;
-    //} 
-    //else if (rotating == 0)
-    //{
-    //  translation[2] += yDiff;
-    //}
 }
