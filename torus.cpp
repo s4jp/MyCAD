@@ -2,6 +2,9 @@
 #include <tuple>
 #include "torus.h"
 #include <glm/gtc/type_ptr.hpp>
+#include"imgui.h"
+#include"imgui_impl_glfw.h"
+#include"imgui_impl_opengl3.h"
 
 Torus::Torus(float R1n, float R2n, int n1n, int n2n)
     : Figure(InitializeAndCalculate(R1n,R2n,n1n,n2n)) {}
@@ -16,10 +19,10 @@ void Torus::Recalculate()
                            std::get<1>(data).size() * sizeof(GLint));
 }
 
-void Torus::Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix)
+void Torus::Render(int colorLoc, int modelLoc)
 {
   vao.Bind();
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix * model));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glLineWidth(3.0f);
 
   glUniform4fv(colorLoc, 1,
@@ -69,3 +72,32 @@ Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2)
   return Calculate();
 }
 
+void Torus::CreateImgui() 
+{
+  if (ImGui::Begin("Options")) {
+    ImGui::SeparatorText("Torus parameters");
+
+    glm::vec3 scale = GetScale();
+
+    if (ImGui::SliderFloat("R1", &R1, 0.01f, 5.f, "%.2f"))
+      Recalculate();
+    if (ImGui::SliderFloat("R2", &R2, 0.01f, 5.f, "%.2f"))
+      Recalculate();
+    if (ImGui::SliderInt("major", &n2, 3, 50))
+      Recalculate();
+    if (ImGui::SliderInt("minor", &n1, 3, 50))
+      Recalculate();
+
+    ImGui::SeparatorText("Scaling");
+
+    if (ImGui::SliderFloat("Sx", &scale[0], 0.01f, 5.f, "%.2f"))
+      SetScale(scale);
+    if (ImGui::SliderFloat("Sy", &scale[1], 0.01f, 5.f, "%.2f"))
+      SetScale(scale);
+    if (ImGui::SliderFloat("Sz", &scale[2], 0.01f, 5.f, "%.2f"))
+      SetScale(scale);
+    if (ImGui::Button("Reset"))
+      SetScale(glm::vec3(1.0f));
+  }
+  ImGui::End();
+}

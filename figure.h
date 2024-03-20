@@ -25,7 +25,8 @@ protected:
 
 public:
 
-  virtual void Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix) = 0;
+  virtual void Render(int colorLoc, int modelLoc) = 0;
+  virtual void CreateImgui() = 0;
 
   void Delete() {
     vao.Delete();

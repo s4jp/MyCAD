@@ -8,7 +8,8 @@ public:
 
   Cursor(float lengthN);
 
-  void Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix);
+  void Render(int colorLoc, int modelLoc);
+  void CreateImgui(){};
 
 private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate();

@@ -5,10 +5,10 @@
 Grid::Grid(float sizeN, int divisionN)
     : Figure(InitializeAndCalculate(sizeN, divisionN)) {};
 
-void Grid::Render(int colorLoc, int modelLoc, glm::mat4 modelMatrix)
+void Grid::Render(int colorLoc, int modelLoc)
 {
   vao.Bind();
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix * model));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
   // main grid
   glLineWidth(1.0f);
