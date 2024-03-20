@@ -16,20 +16,19 @@ Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
     Camera::far = far;
 }
 
-void Camera::PrepareMatrices(int viewLoc, int projLoc) {
-  glm::mat4 view = glm::lookAt(Position, Position + Orientation, Up);
-  glm::mat4 proj = projection(FOV, (float)width / height, near, far);
-
-  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-  glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+void Camera::PrepareMatrices(glm::mat4 &view, glm::mat4 &proj) {
+  view = glm::lookAt(Position, Position + Orientation, Up);
+  proj = projection(FOV, (float)width / height, near, far);
 }
 
-void Camera::HandleInputs(GLFWwindow *window) {
+float Camera::HandleInputs(GLFWwindow *window) {
   KeyboardInputs(window);
 
   if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
       !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
     MouseInputs(window);
+
+  return glm::max(glm::abs(Position.x), glm::abs(Position.z));
 }
 
 void Camera::KeyboardInputs(GLFWwindow *window) 

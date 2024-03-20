@@ -30,8 +30,8 @@ public:
 	Camera(int width, int height, glm::vec3 position, float FOV, float near,
            float far);
 
-	void PrepareMatrices(int viewLoc, int projLoc);
-	void HandleInputs(GLFWwindow* window);
+	void PrepareMatrices(glm::mat4& view, glm::mat4& proj);
+	float HandleInputs(GLFWwindow* window);
 
 private:
     void KeyboardInputs(GLFWwindow *window);
