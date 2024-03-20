@@ -41,7 +41,7 @@ Camera camera(width, height, cameraPosition, fov, near, far);
 float cursorRadius = glm::max(glm::abs(cameraPosition.x), glm::abs(cameraPosition.z));
 
 static int currentMenuItem = 0;
-const char *menuItems = "Move camera\0Place cursor";
+const char *menuItems = "Move camera\0Place cursor\0Add element";
 
 glm::mat4 view;
 glm::mat4 proj;
@@ -81,7 +81,7 @@ int main() {
     glfwSetWindowSizeCallback(window, window_size_callback);
 
     // init figures
-    figures.push_back(new Torus(0.5f, 0.2f, 10, 20));
+    figures.push_back(new Torus());
     selected.push_back(0);
     grid = new Grid(30.f, 50);
     cursor = new Cursor(0.2f);
@@ -141,6 +141,15 @@ int main() {
         // imgui rendering
         if (ImGui::Begin("Mode")) {
           ImGui::Combo(" ", &currentMenuItem, menuItems);
+
+          if (currentMenuItem == 2) {
+            ImGui::Separator();
+            if (ImGui::Button("Torus")) {
+              figures.push_back(new Torus());
+              figures[figures.size() - 1]->SetTranslation(
+                  cursor->GetTranslation());
+            }
+          }
         }
         ImGui::End();
 

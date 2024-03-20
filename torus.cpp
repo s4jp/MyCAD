@@ -45,9 +45,16 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate()
     float z = R2 * sin(i * R1step);
 
     for (int j = 0; j < n2; j++) {
-      vertices.push_back(xyElem * cos(j * R2step)); // X
-      vertices.push_back(xyElem * sin(j * R2step)); // Y
-      vertices.push_back(z);                        // Z
+      // some work-around
+      glm::vec4 vertex = glm::vec4(
+          xyElem * cos(j * R2step),                 // X
+          xyElem * sin(j * R2step),                 // Y
+          z,                                        // Z
+          1.0f);                                       
+      vertex = rotate(glm::mat4(1.0f), glm::vec3(M_PI_2, 0.f, 0.f)) * vertex;
+      vertices.push_back(vertex.x);
+      vertices.push_back(vertex.y);
+      vertices.push_back(vertex.z);
 
       // R2 loop
       indices.push_back(i * n2 + j);              // current
