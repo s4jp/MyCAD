@@ -14,6 +14,6 @@ public:
                         GLenum type, GLsizeiptr stride, void *offset);
 	void Bind();
 	void Unbind();
-	void Delete();
+	void Delete() const;
 };
 #endif

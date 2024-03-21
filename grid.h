@@ -13,7 +13,7 @@ public:
   void CreateImgui(){};
 
 private:
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate();
+  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
   InitializeAndCalculate(float size, int division);
 };

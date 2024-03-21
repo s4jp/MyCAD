@@ -31,7 +31,7 @@ void Torus::Render(int colorLoc, int modelLoc)
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() 
+std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const 
 {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;
@@ -50,7 +50,7 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate()
           xyElem * sin(j * R2step),                 // Y
           z,                                        // Z
           1.0f);                                       
-      vertex = rotate(glm::mat4(1.0f), glm::vec3(M_PI_2, 0.f, 0.f)) * vertex;
+      vertex = CAD::rotate(glm::mat4(1.0f), glm::vec3(M_PI_2, 0.f, 0.f)) * vertex;
       vertices.push_back(vertex.x);
       vertices.push_back(vertex.y);
       vertices.push_back(vertex.z);

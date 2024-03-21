@@ -1,6 +1,6 @@
 #include"Camera.h"
 
-#include"matrix.cpp"
+#include"helpers.h"
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
@@ -18,7 +18,7 @@ Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
 
 void Camera::PrepareMatrices(glm::mat4 &view, glm::mat4 &proj) {
   view = glm::lookAt(Position, Position + Orientation, Up);
-  proj = projection(FOV, (float)width / height, near, far);
+  proj = CAD::projection(FOV, (float)width / height, near, far);
 }
 
 float Camera::HandleInputs(GLFWwindow *window) {

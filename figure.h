@@ -2,7 +2,7 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
-#include "matrix.cpp"
+#include "helpers.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -24,9 +24,9 @@ protected:
   EBO ebo;
 
   glm::mat4 model;
-  int indices_count;
+  size_t indices_count;
 
-  glm::vec4 GetColor() {
+  glm::vec4 GetColor() const {
     return selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
                     : glm::vec4(1.0f, 0.73f, 0.31f, 1.0f);
   };
@@ -46,7 +46,7 @@ public:
 
   void CalculateModelMatrix() {
     model =
-        translate(rotate(scaling(glm::mat4(1.0f), scale), angle), translation);
+        CAD::translate(CAD::rotate(CAD::scaling(glm::mat4(1.0f), scale), angle), translation);
   };
 
   Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, bool numerate = false) {

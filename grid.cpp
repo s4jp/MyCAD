@@ -26,7 +26,7 @@ void Grid::Render(int colorLoc, int modelLoc)
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Grid::Calculate() {
+std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Grid::Calculate() const {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;
 
@@ -54,7 +54,7 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Grid::Calculate() {
     }
   }
 
-  int verticesCount = vertices.size() / 3;
+  size_t verticesCount = vertices.size() / 3;
 
   // X axis
   for (int i = 0; i <= division; i++) {
@@ -92,7 +92,7 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Grid::Calculate() {
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
 Grid::InitializeAndCalculate(float size, int division) {
   this->size = size;
-  this->division = pow(2,round(log2(division)));
+  this->division = (int)pow(2,round(log2(division)));
 
   return Calculate();
 }

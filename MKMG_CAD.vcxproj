@@ -146,6 +146,7 @@
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="helpers.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -155,7 +156,6 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="matrix.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="torus.cpp" />
@@ -172,6 +172,7 @@
     <ClInclude Include="EBO.h" />
     <ClInclude Include="figure.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="helpers.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

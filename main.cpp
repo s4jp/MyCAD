@@ -211,8 +211,6 @@ int main() {
             center->SetTranslation(centerVec);
             center->Render(colorLoc, modelLoc);
             glm::vec3 centerPos = center->GetTranslation();
-            cout << centerPos.x << ' ' << centerPos.y << ' ' << centerPos.z
-                 << endl;
           }
         }
 
@@ -271,8 +269,8 @@ tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse) {
   glm::mat4 invMat = glm::inverse(proj * view);
 
-  float xMouseClip = (xMouse - camera.width / 2) / (camera.width / 2);
-  float yMouseClip = -1 * (yMouse - camera.height / 2) / (camera.height / 2);
+  float xMouseClip = (xMouse - camera.width / 2.0f) / (camera.width / 2.0f);
+  float yMouseClip = -1 * (yMouse - camera.height / 2.0f) / (camera.height / 2.0f);
 
   glm::vec4 near = glm::vec4(xMouseClip, yMouseClip, -1.0f, 1.0f);
   glm::vec4 far = glm::vec4(xMouseClip, yMouseClip, 1.0f, 1.0f);
