@@ -166,7 +166,7 @@ int main() {
               if (ImGui::Selectable(figures[i]->name.c_str(),
                   &figures[i]->selected))
               {
-                  if (!ImGui::GetIO().KeyCtrl) 
+                  if (!ImGui::GetIO().KeyShift) 
                   {
                     bool temp = figures[i]->selected;
                     std::for_each(figures.begin(), figures.end(), 
@@ -174,6 +174,16 @@ int main() {
                     figures[i]->selected = temp;
                   }
               }
+          }
+
+          ImGui::Separator();
+          if (ImGui::Button("Delete selected")) {
+            for (int i = 0; i < figures.size(); i++) {
+              if (figures[i]->selected) {
+                figures.erase(figures.begin() + i);
+                i--;
+              }
+            }
           }
         }
         ImGui::End();
