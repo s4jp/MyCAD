@@ -1,5 +1,4 @@
 #include "grid.h"
-#include <cmath>
 #include <glm/gtc/type_ptr.hpp>
 
 Grid::Grid(float sizeN, int divisionN)

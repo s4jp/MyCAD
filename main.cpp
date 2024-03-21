@@ -22,6 +22,7 @@
 #include"grid.h"
 #include"cursor.h"
 #include"Camera.h"
+#include"point.h"
 
 using namespace std;
 
@@ -47,6 +48,8 @@ glm::mat4 view;
 glm::mat4 proj;
 
 void window_size_callback(GLFWwindow *window, int width, int height);
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods);
 void cursorHandleInput(GLFWwindow *window);
 tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
@@ -77,8 +80,9 @@ int main() {
     // shader
     Shader shaderProgram("default.vert", "default.frag");
 
-    // define callbacks
+    // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetKeyCallback(window, key_callback);
 
     // init figures
     figures.push_back(new Torus());
@@ -146,6 +150,12 @@ int main() {
             ImGui::Separator();
             if (ImGui::Button("Torus")) {
               figures.push_back(new Torus());
+              figures[figures.size() - 1]->SetTranslation(
+                  cursor->GetTranslation());
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Point")) {
+              figures.push_back(new Point());
               figures[figures.size() - 1]->SetTranslation(
                   cursor->GetTranslation());
             }
@@ -231,4 +241,15 @@ vector<glm::vec3> circleIntersections(float radius, glm::vec3 center, glm::vec3 
   if (k > 0)
     result.push_back(center - k * dir);
   return result;
+}
+
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods) {
+  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+    currentMenuItem = 0;
+  } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+    currentMenuItem = 1;
+  } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+    currentMenuItem = 2;
+  }
 }
