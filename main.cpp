@@ -2,6 +2,7 @@
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
+#include"imgui_stdlib.h"
 
 #include<iostream>
 #include<glad/glad.h>
@@ -185,14 +186,27 @@ int main() {
               }
             }
           }
+
+          ImGui::Separator();
+          int selectedCounter = 0;
+          int idx = -1;
+          for (int i = 0; i < figures.size(); i++) {
+            if (figures[i]->selected) {
+              selectedCounter++;
+              idx = i;
+            }
+          }
+          if (selectedCounter == 1) {
+            ImGui::InputText("Change name", &figures[idx]->name);
+          }
         }
-        ImGui::End();
 
         std::for_each(figures.begin(), figures.end(), [](Figure *f) {
           if (f->selected)
             f->CreateImgui();
         });
 
+        ImGui::End();
         #pragma region rest
         ImGui::Render();
         // cout << ImGui::GetIO().Framerate << endl;

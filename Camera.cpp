@@ -22,11 +22,12 @@ void Camera::PrepareMatrices(glm::mat4 &view, glm::mat4 &proj) {
 }
 
 float Camera::HandleInputs(GLFWwindow *window) {
-  KeyboardInputs(window);
-
   if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
       !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+  {
+    KeyboardInputs(window);
     MouseInputs(window);
+  }
 
   return glm::max(glm::abs(Position.x), glm::abs(Position.z));
 }

@@ -80,8 +80,7 @@ Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2)
 
 void Torus::CreateImgui() 
 {
-  if (ImGui::Begin((name + " options").c_str())) {
-    ImGui::SeparatorText("Torus parameters");
+    ImGui::SeparatorText((name + " options ").c_str());
 
     glm::vec3 scale = GetScale();
 
@@ -104,6 +103,4 @@ void Torus::CreateImgui()
       SetScale(scale);
     if (ImGui::Button("Reset"))
       SetScale(glm::vec3(1.0f));
-  }
-  ImGui::End();
 }
