@@ -38,6 +38,7 @@ vector<Figure*> figures;
 Grid* grid;
 Cursor *cursor;
 Camera camera(width, height, cameraPosition, fov, near, far);
+Cursor *center;
 
 float cursorRadius = glm::max(glm::abs(cameraPosition.x), glm::abs(cameraPosition.z));
 
@@ -89,6 +90,7 @@ int main() {
     figures[0]->selected = true;
     grid = new Grid(30.f, 50);
     cursor = new Cursor(0.2f);
+    center = new Cursor(0.1f);
 
     // matrices locations
     camera.PrepareMatrices(view, proj);
@@ -188,23 +190,31 @@ int main() {
           }
 
           ImGui::Separator();
-          int selectedCounter = 0;
-          int idx = -1;
+
+          vector<int> selected;
           for (int i = 0; i < figures.size(); i++) {
-            if (figures[i]->selected) {
-              selectedCounter++;
-              idx = i;
-            }
+            if (figures[i]->selected)
+              selected.push_back(i);
           }
-          if (selectedCounter == 1) {
-            ImGui::InputText("Change name", &figures[idx]->name);
+
+          if (selected.size() >= 1) {
+            if (selected.size() == 1) {
+              ImGui::InputText("Change name", &figures[selected[0]]->name);
+              figures[selected[0]]->CreateImgui();
+            }
+
+            glm::vec3 centerVec(0.f);
+            for (int i = 0; i < selected.size(); i++) {
+              centerVec += figures[selected[i]]->GetTranslation();
+            }
+            centerVec /= selected.size();
+            center->SetTranslation(centerVec);
+            center->Render(colorLoc, modelLoc);
+            glm::vec3 centerPos = center->GetTranslation();
+            cout << centerPos.x << ' ' << centerPos.y << ' ' << centerPos.z
+                 << endl;
           }
         }
-
-        std::for_each(figures.begin(), figures.end(), [](Figure *f) {
-          if (f->selected)
-            f->CreateImgui();
-        });
 
         ImGui::End();
         #pragma region rest
