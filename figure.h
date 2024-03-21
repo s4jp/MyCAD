@@ -26,8 +26,14 @@ protected:
   glm::mat4 model;
   int indices_count;
 
+  glm::vec4 GetColor() {
+    return selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
+                    : glm::vec4(1.0f, 0.73f, 0.31f, 1.0f);
+  };
+
 public:
   std::string name;
+  bool selected = false;
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
   virtual void CreateImgui() = 0;

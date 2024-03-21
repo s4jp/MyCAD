@@ -25,8 +25,7 @@ void Torus::Render(int colorLoc, int modelLoc)
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glLineWidth(3.0f);
 
-  glUniform4fv(colorLoc, 1,
-               glm::value_ptr(glm::vec4(1.0f, 0.65f, 0.0f, 1.0f)));
+  glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
   glDrawElements(GL_LINES, indices_count, GL_UNSIGNED_INT, 0);
 
   vao.Unbind();
@@ -81,7 +80,7 @@ Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2)
 
 void Torus::CreateImgui() 
 {
-  if (ImGui::Begin("Options")) {
+  if (ImGui::Begin((name + " options").c_str())) {
     ImGui::SeparatorText("Torus parameters");
 
     glm::vec3 scale = GetScale();

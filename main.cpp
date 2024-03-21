@@ -34,7 +34,6 @@ const float near = 0.1f;
 const float far = 100.0f;
 
 vector<Figure*> figures;
-vector<int> selected;
 Grid* grid;
 Cursor *cursor;
 Camera camera(width, height, cameraPosition, fov, near, far);
@@ -86,7 +85,7 @@ int main() {
 
     // init figures
     figures.push_back(new Torus());
-    selected.push_back(0);
+    figures[0]->selected = true;
     grid = new Grid(30.f, 50);
     cursor = new Cursor(0.2f);
 
@@ -160,11 +159,29 @@ int main() {
                   cursor->GetTranslation());
             }
           }
+          
+          ImGui::Separator();
+          for (int i = 0; i < figures.size(); i++) 
+          {
+              if (ImGui::Selectable(figures[i]->name.c_str(),
+                  &figures[i]->selected))
+              {
+                  if (!ImGui::GetIO().KeyCtrl) 
+                  {
+                    bool temp = figures[i]->selected;
+                    std::for_each(figures.begin(), figures.end(), 
+                          [](Figure *f) { f->selected = false;;});
+                    figures[i]->selected = temp;
+                  }
+              }
+          }
         }
         ImGui::End();
 
-        std::for_each(selected.begin(), selected.end(),
-                      [](int idx) { figures[idx]->CreateImgui(); });
+        std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+          if (f->selected)
+            f->CreateImgui();
+        });
 
         #pragma region rest
         ImGui::Render();

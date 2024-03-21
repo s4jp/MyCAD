@@ -7,9 +7,8 @@ void Point::Render(int colorLoc, int modelLoc)
 {
   vao.Bind();
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
+  glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
   glDrawElements(GL_TRIANGLES, indices_count, GL_UNSIGNED_INT, 0);
-
   vao.Unbind();
 }
 
