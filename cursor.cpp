@@ -1,7 +1,7 @@
 #include "cursor.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Cursor::Cursor(float lengthN) : Figure(InitializeAndCalculate(lengthN)) {}
+Cursor::Cursor(float lengthN) : Figure(InitializeAndCalculate(lengthN), "Cursor") {}
 
 void Cursor::Render(int colorLoc, int modelLoc) 
 { 

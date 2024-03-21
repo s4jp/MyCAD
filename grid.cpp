@@ -2,7 +2,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Grid::Grid(float sizeN, int divisionN)
-    : Figure(InitializeAndCalculate(sizeN, divisionN)) {};
+    : Figure(InitializeAndCalculate(sizeN, divisionN), "Grid"){};
 
 void Grid::Render(int colorLoc, int modelLoc)
 {

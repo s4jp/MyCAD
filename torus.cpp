@@ -7,7 +7,7 @@
 #include"imgui_impl_opengl3.h"
 
 Torus::Torus(float R1n, float R2n, int n1n, int n2n)
-    : Figure(InitializeAndCalculate(R1n,R2n,n1n,n2n)) {}
+    : Figure(InitializeAndCalculate(R1n, R2n, n1n, n2n), "Torus", true) {}
 
 void Torus::Recalculate() 
 { 

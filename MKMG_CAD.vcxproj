@@ -143,6 +143,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="cursor.cpp" />
     <ClCompile Include="EBO.cpp" />
+    <ClCompile Include="figure.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

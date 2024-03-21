@@ -1,7 +1,7 @@
 #include "point.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Point::Point(float Rn) : Figure(InitializeAndCalculate(Rn)) {}
+Point::Point(float Rn) : Figure(InitializeAndCalculate(Rn), "Point", true) {}
 
 void Point::Render(int colorLoc, int modelLoc) 
 {
