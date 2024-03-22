@@ -48,6 +48,8 @@ const char *menuItems = "Move camera\0Place cursor\0Add element";
 glm::mat4 view;
 glm::mat4 proj;
 
+vector<int> selected;
+
 void window_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods);
@@ -56,6 +58,7 @@ tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
 vector<glm::vec3> circleIntersections(float radius, glm::vec3 center,
                                       glm::vec3 dir);
+void recalculateSelected();
 
 int main() { 
 
@@ -88,6 +91,7 @@ int main() {
     // init figures
     figures.push_back(new Torus());
     figures[0]->selected = true;
+    selected.push_back(0);
     grid = new Grid(30.f, 50);
     cursor = new Cursor(0.2f);
     center = new Cursor(0.1f);
@@ -143,11 +147,16 @@ int main() {
                         f->Render(colorLoc, modelLoc);
                       });
         cursor->Render(colorLoc, modelLoc);
+        if (selected.size() > 0) {
+          center->Render(colorLoc, modelLoc);
+        }
 
         // imgui rendering
         if (ImGui::Begin("Mode")) {
+          // mode selection
           ImGui::Combo(" ", &currentMenuItem, menuItems);
 
+          // add object buttons
           if (currentMenuItem == 2) {
             ImGui::Separator();
             if (ImGui::Button("Torus")) {
@@ -164,6 +173,7 @@ int main() {
           }
           
           ImGui::Separator();
+          // object selection
           for (int i = 0; i < figures.size(); i++) 
           {
               if (ImGui::Selectable(figures[i]->name.c_str(),
@@ -176,41 +186,28 @@ int main() {
                           [](Figure *f) { f->selected = false;;});
                     figures[i]->selected = temp;
                   }
+                  recalculateSelected();
               }
           }
 
-          ImGui::Separator();
-          if (ImGui::Button("Delete selected")) {
-            for (int i = 0; i < figures.size(); i++) {
-              if (figures[i]->selected) {
-                figures.erase(figures.begin() + i);
-                i--;
+          // delete button
+          if (selected.size() > 0) {
+            ImGui::Separator();
+            if (ImGui::Button("Delete selected")) {
+              for (int i = selected.size() - 1; i >= 0; i--) {
+                figures.erase(figures.begin() + selected[i]);
+                recalculateSelected();
               }
             }
           }
 
-          ImGui::Separator();
-
-          vector<int> selected;
-          for (int i = 0; i < figures.size(); i++) {
-            if (figures[i]->selected)
-              selected.push_back(i);
-          }
-
-          if (selected.size() >= 1) {
-            if (selected.size() == 1) {
+          // change name window
+          if (selected.size() == 1) 
+          {
+              ImGui::Separator();
               ImGui::InputText("Change name", &figures[selected[0]]->name);
+              // display selected item menu
               figures[selected[0]]->CreateImgui();
-            }
-
-            glm::vec3 centerVec(0.f);
-            for (int i = 0; i < selected.size(); i++) {
-              centerVec += figures[selected[i]]->GetTranslation();
-            }
-            centerVec /= selected.size();
-            center->SetTranslation(centerVec);
-            center->Render(colorLoc, modelLoc);
-            glm::vec3 centerPos = center->GetTranslation();
           }
         }
 
@@ -241,6 +238,7 @@ int main() {
 void window_size_callback(GLFWwindow *window, int width, int height) {
   camera.width = width;
   camera.height = height;
+  camera.PrepareMatrices(view, proj);
   glViewport(0, 0, width, height);
 }
 
@@ -301,4 +299,20 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentMenuItem = 2;
   }
+}
+
+void recalculateSelected() {
+  selected.clear();
+  for (int i = 0; i < figures.size(); i++) {
+    if (figures[i]->selected)
+      selected.push_back(i);
+  }
+  // center recalculation
+  glm::vec3 centerVec(0.f);
+  for (int i = 0; i < selected.size(); i++) {
+    centerVec += figures[selected[i]]->GetTranslation();
+  }
+  centerVec /= selected.size();
+  center->SetTranslation(centerVec);
+  glm::vec3 centerPos = center->GetTranslation();
 }
