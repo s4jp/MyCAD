@@ -21,14 +21,16 @@ void Camera::PrepareMatrices(glm::mat4 &view, glm::mat4 &proj) {
   proj = CAD::projection(FOV, (float)width / height, near, far);
 }
 
-float Camera::HandleInputs(GLFWwindow *window) {
+void Camera::HandleInputs(GLFWwindow *window) {
   if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
       !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
   {
     KeyboardInputs(window);
     MouseInputs(window);
   }
+}
 
+float Camera::GetCursorRadius() {
   return glm::max(glm::abs(Position.x), glm::abs(Position.z));
 }
 

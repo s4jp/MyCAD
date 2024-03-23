@@ -25,30 +25,21 @@
 #include"Camera.h"
 #include"point.h"
 
-using namespace std;
-
-const int width = 800;
-const int height = 600;
-const glm::vec3 cameraPosition = glm::vec3(3.0f, 3.0f, 3.0f);
-const float fov = M_PI / 4.0f;
 const float near = 0.1f;
 const float far = 100.0f;
 
-vector<Figure*> figures;
+std::vector<Figure*> figures;
+std::vector<int> selected;
 Grid* grid;
-Cursor *cursor;
-Camera camera(width, height, cameraPosition, fov, near, far);
+Camera *camera;
 Cursor *center;
-
-float cursorRadius = glm::max(glm::abs(cameraPosition.x), glm::abs(cameraPosition.z));
-
-static int currentMenuItem = 0;
-const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point";
+Cursor *cursor;
 
 glm::mat4 view;
 glm::mat4 proj;
 
-vector<int> selected;
+static int currentMenuItem = 0;
+const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point";
 
 void window_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -56,11 +47,17 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 void mouse_button_callback(GLFWwindow *window, int button, int action,
                            int mods);
 void cursorHandleInput(GLFWwindow *window);
-tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
+std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
 void recalculateSelected();
 
 int main() { 
+
+    // initial values
+    int width = 1500;
+    int height = 800;
+    glm::vec3 cameraPosition = glm::vec3(3.0f, 3.0f, 3.0f);
+    float fov = M_PI / 4.0f;
 
     #pragma region gl_boilerplate
     glfwInit();
@@ -96,9 +93,10 @@ int main() {
     grid = new Grid();
     cursor = new Cursor();
     center = new Cursor();
+    camera = new Camera(width, height, cameraPosition, fov, near, far);
 
     // matrices locations
-    camera.PrepareMatrices(view, proj);
+    camera->PrepareMatrices(view, proj);
     int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
@@ -129,8 +127,8 @@ int main() {
 
         switch (currentMenuItem) { 
         case 0:
-          cursorRadius = camera.HandleInputs(window);
-          camera.PrepareMatrices(view, proj);
+          camera->HandleInputs(window);
+          camera->PrepareMatrices(view, proj);
           break;
         case 1:
           cursorHandleInput(window);
@@ -233,9 +231,9 @@ int main() {
 }
 
 void window_size_callback(GLFWwindow *window, int width, int height) {
-  camera.width = width;
-  camera.height = height;
-  camera.PrepareMatrices(view, proj);
+  camera->width = width;
+  camera->height = height;
+  camera->PrepareMatrices(view, proj);
   glViewport(0, 0, width, height);
 }
 
@@ -248,24 +246,26 @@ void cursorHandleInput(GLFWwindow *window)
       double mouseX;
       double mouseY;
       glfwGetCursorPos(window, &mouseX, &mouseY);
-      tuple<glm::vec3, glm::vec3> projections =
+      std::tuple<glm::vec3, glm::vec3> projections =
           calculateNearFarProjections(mouseX, mouseY);
 
-      vector<glm::vec3> points = CAD::circleIntersections(
-          CAD::Sphere(get<0>(projections), cursorRadius), camera.Position,
-          glm::normalize(get<1>(projections) - get<0>(projections)));
+      std::vector<glm::vec3> points = CAD::circleIntersections(
+          CAD::Sphere(std::get<0>(projections), camera->GetCursorRadius()),
+          camera->Position,
+          glm::normalize(std::get<1>(projections) - std::get<0>(projections)));
       // take positive solution
       cursor->SetPosition(points[1]);
     }
   }
 }
 
-tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
+std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse) {
   glm::mat4 invMat = glm::inverse(proj * view);
 
-  float xMouseClip = (xMouse - camera.width / 2.0f) / (camera.width / 2.0f);
-  float yMouseClip = -1 * (yMouse - camera.height / 2.0f) / (camera.height / 2.0f);
+  float xMouseClip = (xMouse - camera->width / 2.0f) / (camera->width / 2.0f);
+  float yMouseClip =
+      -1 * (yMouse - camera->height / 2.0f) / (camera->height / 2.0f);
 
   glm::vec4 near = glm::vec4(xMouseClip, yMouseClip, -1.0f, 1.0f);
   glm::vec4 far = glm::vec4(xMouseClip, yMouseClip, 1.0f, 1.0f);
@@ -273,7 +273,7 @@ tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
   glm::vec4 farResult = invMat * far;
   nearResult /= nearResult.w;
   farResult /= farResult.w;
-  return tuple<glm::vec3, glm::vec3>(glm::vec3(nearResult),
+  return std::tuple<glm::vec3, glm::vec3>(glm::vec3(nearResult),
                                      glm::vec3(farResult));
 }
 
@@ -312,15 +312,15 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
       double mouseX;
       double mouseY;
       glfwGetCursorPos(window, &mouseX, &mouseY);
-      tuple<glm::vec3, glm::vec3> projections =
+      std::tuple<glm::vec3, glm::vec3> projections =
           calculateNearFarProjections(mouseX, mouseY);
 
       CAD::Sphere sphere;
       for (int i = 0; i < figures.size(); i++) {
         if (figures[i]->GetBoundingSphere(sphere)) {
-          if (CAD::circleIntersections(
-                  sphere, camera.Position,
-                  glm::normalize(get<1>(projections) - get<0>(projections)))
+          if (CAD::circleIntersections(sphere, camera->Position,
+                                       glm::normalize(std::get<1>(projections) -
+                                                      std::get<0>(projections)))
                   .size() > 0) {
             figures[i]->selected = !figures[i]->selected;
             recalculateSelected();
