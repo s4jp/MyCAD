@@ -299,8 +299,7 @@ void recalculateSelected() {
   // center recalculation
   glm::vec3 centerVec(0.f);
   for (int i = 0; i < selected.size(); i++) {
-    centerVec += figures[selected[i]]->GetTranslation() +
-                 figures[selected[i]]->GetPosition();
+    centerVec += figures[selected[i]]->GetPosition();
   }
   centerVec /= selected.size();
   center->SetPosition(centerVec);

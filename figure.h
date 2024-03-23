@@ -18,7 +18,7 @@ private:
   glm::vec3 scale;
   glm::vec3 angle;
   glm::vec3 translation;
-  glm::vec3 position;
+  glm::vec3 center;
 
   static int counter;
 
@@ -29,6 +29,7 @@ protected:
 
   glm::mat4 model;
   size_t indices_count;
+  bool is3D = false;
 
   glm::vec4 GetColor() const {
     return selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
@@ -41,15 +42,51 @@ public:
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
   virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
-  virtual void CreateImgui(){
-    ImGui::SeparatorText((name + " position ").c_str());
 
-    if (ImGui::InputFloat("X", &position.x, 0.01f, 0.1f))
+  virtual void CreateImgui(){
+    ImGui::SeparatorText((name + " options:").c_str());
+
+    // display position
+    glm::vec3 pos = GetPosition();
+    ImGui::Text(("Position: \nX:" + std::to_string(pos.x) + ", Y:" +
+                 std::to_string(pos.y) + ", Z:" + std::to_string(pos.z))
+                    .c_str());
+
+    // translation manipulation
+    ImGui::SeparatorText("Translation");
+    if (ImGui::InputFloat("X", &translation.x, 0.01f, 1.f, "%.2f"))
         CalculateModelMatrix();
-    if (ImGui::InputFloat("Y", &position.y, 0.01f, 0.1f))
+    if (ImGui::InputFloat("Y", &translation.y, 0.01f, 1.f, "%.2f"))
       CalculateModelMatrix();
-    if (ImGui::InputFloat("Z", &position.z, 0.01f, 0.1f))
+    if (ImGui::InputFloat("Z", &translation.z, 0.01f, 1.f, "%.2f"))
       CalculateModelMatrix();
+    if (ImGui::Button("Reset"))
+      SetTranslation(glm::vec3(0.0f));
+
+    if (!is3D)
+      return;
+
+    // scaling manipulation
+    ImGui::SeparatorText("Scale");
+    if (ImGui::InputFloat("Sx", &scale.x, 0.01f, 1.f, "%.2f"))
+      CalculateModelMatrix();
+    if (ImGui::InputFloat("Sy", &scale.y, 0.01f, 1.f, "%.2f"))
+      CalculateModelMatrix();
+    if (ImGui::InputFloat("Sz", &scale.z, 0.01f, 1.f, "%.2f"))
+      CalculateModelMatrix();
+    if (ImGui::Button("Reset"))
+      SetScale(glm::vec3(1.0f));
+
+    // rotation manipulation
+    ImGui::SeparatorText("Rotation");
+    if (ImGui::SliderAngle("X axis", &angle.x, -180.f, 180.f))
+      CalculateModelMatrix();
+    if (ImGui::SliderAngle("Y axis", &angle.y, -180.f, 180.f))
+      CalculateModelMatrix();
+    if (ImGui::SliderAngle("Z axis", &angle.z, -180.f, 180.f))
+      CalculateModelMatrix();
+    if (ImGui::Button("Reset"))
+      SetAngle(glm::vec3(0.0f));
   };
 
   void Delete() {
@@ -60,14 +97,14 @@ public:
 
   void CalculateModelMatrix() {
     model =
-        CAD::translate(CAD::rotate(CAD::scaling(glm::mat4(1.0f), scale), angle), translation + position);
+        CAD::translate(CAD::rotate(CAD::scaling(glm::mat4(1.0f), scale), angle), translation + center);
   };
 
-  Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 position, bool numerate = false) {
+  Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 center, bool numerate = false) {
     scale = glm::vec3(1.0f);
     angle = glm::vec3(0.0f);
     translation = glm::vec3(0.0f);
-    this->position = position;
+    this->center = center;
     indices_count = std::get<1>(data).size();
     model = glm::mat4(1.0f);
 
@@ -92,7 +129,7 @@ public:
   glm::vec3 GetScale() const { return scale; }
   glm::vec3 GetAngle() const { return angle; }
   glm::vec3 GetTranslation() const { return translation; }
-  glm::vec3 GetPosition() const { return position; }
+  glm::vec3 GetPosition() const { return center + translation; }
 
   void SetScale(glm::vec3 nScale) {
     scale = nScale;
@@ -107,7 +144,8 @@ public:
     CalculateModelMatrix();
   }
   void SetPosition(glm::vec3 nPosition) { 
-    position = nPosition;
+    center = nPosition;
+    translation = glm::vec3(0.f);
     CalculateModelMatrix();
   }
 };

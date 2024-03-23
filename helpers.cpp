@@ -35,9 +35,9 @@ glm::mat4 CAD::createZrotationMatrix(float angle) {
 }
 
 glm::mat4 CAD::rotate(glm::mat4 matrix, glm::vec3 angle) {
-  return CAD::createZrotationMatrix(angle[2]) *
-         CAD::createYrotationMatrix(angle[1]) *
-         CAD::createXrotationMatrix(angle[0]) * matrix;
+  return CAD::createZrotationMatrix(angle.z) *
+         CAD::createYrotationMatrix(angle.y) *
+         CAD::createXrotationMatrix(angle.x) * matrix;
 }
 
 glm::mat4 CAD::projection(float fov, float ratio, float near,
@@ -54,9 +54,9 @@ glm::mat4 CAD::projection(float fov, float ratio, float near,
 
 glm::mat4 CAD::scaling(glm::mat4 matrix, glm::vec3 scale) {
   glm::mat4 scaleMatrix = glm::mat4(1.0f);
-  scaleMatrix[0][0] = scale[0];
-  scaleMatrix[1][1] = scale[1];
-  scaleMatrix[2][2] = scale[2];
+  scaleMatrix[0][0] = scale.x;
+  scaleMatrix[1][1] = scale.y;
+  scaleMatrix[2][2] = scale.z;
   return scaleMatrix * matrix;
 }
 

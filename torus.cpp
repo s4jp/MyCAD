@@ -7,7 +7,10 @@
 #include"imgui_impl_opengl3.h"
 
 Torus::Torus(glm::vec3 position, float R1n, float R2n, int n1n, int n2n)
-    : Figure(InitializeAndCalculate(R1n, R2n, n1n, n2n), "Torus", position, true) {}
+    : Figure(InitializeAndCalculate(R1n, R2n, n1n, n2n), "Torus", position,
+             true) {
+  is3D = true;
+}
 
 void Torus::Recalculate() 
 { 
@@ -94,15 +97,4 @@ void Torus::CreateImgui()
       Recalculate();
     if (ImGui::SliderInt("minor", &n1, 3, 50))
       Recalculate();
-
-    ImGui::SeparatorText("Scaling");
-
-    if (ImGui::SliderFloat("Sx", &scale[0], 0.01f, 5.f, "%.2f"))
-      SetScale(scale);
-    if (ImGui::SliderFloat("Sy", &scale[1], 0.01f, 5.f, "%.2f"))
-      SetScale(scale);
-    if (ImGui::SliderFloat("Sz", &scale[2], 0.01f, 5.f, "%.2f"))
-      SetScale(scale);
-    if (ImGui::Button("Reset"))
-      SetScale(glm::vec3(1.0f));
 }
