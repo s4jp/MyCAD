@@ -13,7 +13,7 @@ void Point::Render(int colorLoc, int modelLoc)
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Point::Calculate() {
+std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Point::Calculate() const {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;
 

@@ -87,3 +87,13 @@ std::vector<glm::vec3> CAD::circleIntersections(CAD::Sphere sphere,
 
   return result;
 }
+
+glm::mat4 CAD::generateCenterModelMatrix(glm::vec3 center, glm::vec3 angles,
+                                         glm::vec3 scale) {
+  glm::mat4 centerTranslateM = CAD::translate(glm::mat4(1.0f), center);
+  glm::mat4 zeroScaleM = CAD::scaling(glm::mat4(1.0f), scale);
+  glm::mat4 zeroRotateM = CAD::rotate(glm::mat4(1.0f), angles);
+  glm::mat4 antyCenterTranslateM = CAD::translate(glm::mat4(1.0f), -center);
+
+  return centerTranslateM * zeroScaleM * zeroRotateM * antyCenterTranslateM;
+}

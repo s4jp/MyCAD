@@ -51,8 +51,10 @@ std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
 void recalculateSelected();
 
-int main() { 
+glm::vec3 centerScale(1.f);
+glm::vec3 centerAngle(0.f);
 
+int main() { 
     // initial values
     int width = 1500;
     int height = 800;
@@ -204,6 +206,63 @@ int main() {
               // display selected item menu
               figures[selected[0]]->CreateImgui();
           }
+
+          if (selected.size() > 1) {
+            // scaling manipulation
+            ImGui::SeparatorText("Center scale");
+            if (ImGui::InputFloat("cSx", &centerScale.x, 0.01f, 1.f, "%.2f")) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            if (ImGui::InputFloat("cSy", &centerScale.y, 0.01f, 1.f, "%.2f")) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            if (ImGui::InputFloat("cSz", &centerScale.z, 0.01f, 1.f, "%.2f")) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            if (ImGui::Button("Reset center scale")) {
+              centerScale = glm::vec3(1.f);
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            // rotation manipulation
+            ImGui::SeparatorText("Center scale");
+            if (ImGui::SliderAngle("cX axis", &centerAngle.x, -180.f, 180.f)) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            if (ImGui::SliderAngle("cY axis", &centerAngle.y, -180.f, 180.f)) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            if (ImGui::SliderAngle("cZ axis", &centerAngle.z, -180.f, 180.f)) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+            if (ImGui::Button("Reset center scale")) {
+              centerAngle = glm::vec3(0.f);
+              for (int i = 0; i < selected.size(); i++) {
+                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                    center->GetPosition(), centerAngle, centerScale));
+              }
+            }
+          }
         }
 
         ImGui::End();
@@ -291,6 +350,15 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 }
 
 void recalculateSelected() {
+  // resolve center model matrix
+  if (selected.size() > 1) {
+    for (int i = 0; i < selected.size(); i++) {
+      figures[selected[i]]->AddTempToCumulative();
+    }
+  }
+  centerScale = glm::vec3(1.f);
+  centerAngle = glm::vec3(0.f);
+  // find selected figures
   selected.clear();
   for (int i = 0; i < figures.size(); i++) {
     if (figures[i]->selected)
