@@ -9,7 +9,9 @@ public:
   int n1;
   int n2;
 
-  Torus(float R1 = 0.5f, float R2 = 0.2f, int n1 = 10, int n2 = 20);
+  Torus(glm::vec3 position = glm::vec3(0.f), float R1 = 0.5f, float R2 = 0.2f,
+        int n1 = 10,
+        int n2 = 20);
 
   void Recalculate();
   void Render(int colorLoc, int modelLoc);

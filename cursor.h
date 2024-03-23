@@ -6,7 +6,7 @@ class Cursor : public Figure
 public:
   float length;
 
-  Cursor(float lengthN);
+  Cursor(glm::vec3 position = glm::vec3(0.f), float lengthN = 0.05f);
 
   void Render(int colorLoc, int modelLoc);
   void CreateImgui(){};

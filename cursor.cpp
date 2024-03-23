@@ -1,7 +1,8 @@
 #include "cursor.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Cursor::Cursor(float lengthN) : Figure(InitializeAndCalculate(lengthN), "Cursor") {}
+Cursor::Cursor(glm::vec3 position, float lengthN)
+    : Figure(InitializeAndCalculate(lengthN), "Cursor", position) {}
 
 void Cursor::Render(int colorLoc, int modelLoc) 
 { 

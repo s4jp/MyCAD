@@ -7,7 +7,8 @@ public:
   float size;
   int division;
 
-  Grid(float sizeN, int divisionN);
+  Grid(glm::vec3 position = glm::vec3(0.f), float sizeN = 30.f,
+       int divisionN = 50);
 
   void Render(int colorLoc, int modelLoc);
   void CreateImgui(){};

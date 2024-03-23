@@ -93,9 +93,9 @@ int main() {
     figures.push_back(new Torus());
     figures[0]->selected = true;
     selected.push_back(0);
-    grid = new Grid(30.f, 50);
-    cursor = new Cursor(0.2f);
-    center = new Cursor(0.1f);
+    grid = new Grid();
+    cursor = new Cursor();
+    center = new Cursor();
 
     // matrices locations
     camera.PrepareMatrices(view, proj);
@@ -161,15 +161,11 @@ int main() {
           if (currentMenuItem == 2) {
             ImGui::Separator();
             if (ImGui::Button("Torus")) {
-              figures.push_back(new Torus());
-              figures[figures.size() - 1]->SetTranslation(
-                  cursor->GetTranslation());
+              figures.push_back(new Torus(cursor->GetPosition()));
             }
             ImGui::SameLine();
             if (ImGui::Button("Point")) {
-              figures.push_back(new Point());
-              figures[figures.size() - 1]->SetTranslation(
-                  cursor->GetTranslation());
+              figures.push_back(new Point(cursor->GetPosition()));
             }
           }
           
@@ -259,7 +255,7 @@ void cursorHandleInput(GLFWwindow *window)
           CAD::Sphere(get<0>(projections), cursorRadius), camera.Position,
           glm::normalize(get<1>(projections) - get<0>(projections)));
       // take positive solution
-      cursor->SetTranslation(points[1]);
+      cursor->SetPosition(points[1]);
     }
   }
 }
@@ -303,11 +299,11 @@ void recalculateSelected() {
   // center recalculation
   glm::vec3 centerVec(0.f);
   for (int i = 0; i < selected.size(); i++) {
-    centerVec += figures[selected[i]]->GetTranslation();
+    centerVec += figures[selected[i]]->GetTranslation() +
+                 figures[selected[i]]->GetPosition();
   }
   centerVec /= selected.size();
-  center->SetTranslation(centerVec);
-  glm::vec3 centerPos = center->GetTranslation();
+  center->SetPosition(centerVec);
 }
 
 void mouse_button_callback(GLFWwindow *window, int button, int action,

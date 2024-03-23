@@ -15,6 +15,7 @@ private:
   glm::vec3 scale;
   glm::vec3 angle;
   glm::vec3 translation;
+  glm::vec3 position;
 
   static int counter;
 
@@ -47,13 +48,14 @@ public:
 
   void CalculateModelMatrix() {
     model =
-        CAD::translate(CAD::rotate(CAD::scaling(glm::mat4(1.0f), scale), angle), translation);
+        CAD::translate(CAD::rotate(CAD::scaling(glm::mat4(1.0f), scale), angle), translation + position);
   };
 
-  Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, bool numerate = false) {
+  Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 position, bool numerate = false) {
     scale = glm::vec3(1.0f);
     angle = glm::vec3(0.0f);
     translation = glm::vec3(0.0f);
+    this->position = position;
     indices_count = std::get<1>(data).size();
     model = glm::mat4(1.0f);
 
@@ -71,11 +73,14 @@ public:
     name = type;
     if (numerate)
       name = name + " #" + std::to_string(++counter);
+
+    CalculateModelMatrix();
   }
 
   glm::vec3 GetScale() const { return scale; }
   glm::vec3 GetAngle() const { return angle; }
   glm::vec3 GetTranslation() const { return translation; }
+  glm::vec3 GetPosition() const { return position; }
 
   void SetScale(glm::vec3 nScale) {
     scale = nScale;
@@ -87,6 +92,10 @@ public:
   }
   void SetTranslation(glm::vec3 nTranslation) {
     translation = nTranslation;
+    CalculateModelMatrix();
+  }
+  void SetPosition(glm::vec3 nPosition) { 
+    position = nPosition;
     CalculateModelMatrix();
   }
 };

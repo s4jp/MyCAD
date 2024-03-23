@@ -1,8 +1,8 @@
 #include "grid.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Grid::Grid(float sizeN, int divisionN)
-    : Figure(InitializeAndCalculate(sizeN, divisionN), "Grid"){};
+Grid::Grid(glm::vec3 position, float sizeN, int divisionN)
+    : Figure(InitializeAndCalculate(sizeN, divisionN), "Grid", position){};
 
 void Grid::Render(int colorLoc, int modelLoc)
 {

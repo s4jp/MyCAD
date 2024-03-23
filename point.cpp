@@ -1,7 +1,8 @@
 #include "point.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Point::Point(float Rn) : Figure(InitializeAndCalculate(Rn), "Point", true) {}
+Point::Point(glm::vec3 position, float Rn)
+    : Figure(InitializeAndCalculate(Rn), "Point", position, true) {}
 
 void Point::Render(int colorLoc, int modelLoc) 
 {
@@ -86,6 +87,6 @@ Point::InitializeAndCalculate(float R) {
 
 
 bool Point::GetBoundingSphere(CAD::Sphere &sphere) { 
-  sphere = CAD::Sphere(GetTranslation(), R * 1.20f);
+  sphere = CAD::Sphere(GetPosition() + GetTranslation(), R * 1.20f);
   return true;
 }
