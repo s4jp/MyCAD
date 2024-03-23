@@ -11,7 +11,6 @@ public:
        int divisionN = 50);
 
   void Render(int colorLoc, int modelLoc);
-  void CreateImgui(){};
   bool GetBoundingSphere(CAD::Sphere& sphere) { return false; };
 
 private:

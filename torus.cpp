@@ -80,7 +80,9 @@ Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2)
 
 void Torus::CreateImgui() 
 {
-    ImGui::SeparatorText((name + " options ").c_str());
+    Figure::CreateImgui();
+
+    ImGui::SeparatorText("Options");
 
     glm::vec3 scale = GetScale();
 

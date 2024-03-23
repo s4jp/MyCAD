@@ -8,6 +8,9 @@
 #include <vector>
 #include <tuple>
 #include <string>
+#include"imgui.h"
+#include"imgui_impl_glfw.h"
+#include"imgui_impl_opengl3.h"
 
 class Figure
 {
@@ -37,8 +40,17 @@ public:
   bool selected = false;
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
-  virtual void CreateImgui() = 0;
   virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
+  virtual void CreateImgui(){
+    ImGui::SeparatorText((name + " position ").c_str());
+
+    if (ImGui::InputFloat("X", &position.x, 0.01f, 0.1f))
+        CalculateModelMatrix();
+    if (ImGui::InputFloat("Y", &position.y, 0.01f, 0.1f))
+      CalculateModelMatrix();
+    if (ImGui::InputFloat("Z", &position.z, 0.01f, 0.1f))
+      CalculateModelMatrix();
+  };
 
   void Delete() {
     vao.Delete();
