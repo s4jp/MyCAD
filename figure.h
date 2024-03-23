@@ -37,6 +37,7 @@ public:
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
   virtual void CreateImgui() = 0;
+  virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
 
   void Delete() {
     vao.Delete();

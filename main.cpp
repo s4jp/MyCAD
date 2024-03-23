@@ -43,7 +43,7 @@ Cursor *center;
 float cursorRadius = glm::max(glm::abs(cameraPosition.x), glm::abs(cameraPosition.z));
 
 static int currentMenuItem = 0;
-const char *menuItems = "Move camera\0Place cursor\0Add element";
+const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point";
 
 glm::mat4 view;
 glm::mat4 proj;
@@ -53,11 +53,11 @@ vector<int> selected;
 void window_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods);
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods);
 void cursorHandleInput(GLFWwindow *window);
 tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
-vector<glm::vec3> circleIntersections(float radius, glm::vec3 center,
-                                      glm::vec3 dir);
 void recalculateSelected();
 
 int main() { 
@@ -87,6 +87,7 @@ int main() {
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // init figures
     figures.push_back(new Torus());
@@ -247,18 +248,18 @@ void cursorHandleInput(GLFWwindow *window)
   if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
       !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) 
   {
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
-    {
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
       double mouseX;
       double mouseY;
       glfwGetCursorPos(window, &mouseX, &mouseY);
+      tuple<glm::vec3, glm::vec3> projections =
+          calculateNearFarProjections(mouseX, mouseY);
 
-      tuple<glm::vec3, glm::vec3> projections = calculateNearFarProjections(mouseX, mouseY);
-      vector<glm::vec3> points = circleIntersections(
-          cursorRadius, get<0>(projections),
+      vector<glm::vec3> points = CAD::circleIntersections(
+          CAD::Sphere(get<0>(projections), cursorRadius), camera.Position,
           glm::normalize(get<1>(projections) - get<0>(projections)));
       // take positive solution
-      cursor->SetTranslation(points[0]);
+      cursor->SetTranslation(points[1]);
     }
   }
 }
@@ -280,16 +281,6 @@ tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                      glm::vec3(farResult));
 }
 
-vector<glm::vec3> circleIntersections(float radius, glm::vec3 center, glm::vec3 dir) 
-{
-  vector<glm::vec3> result;
-  float k = glm::sqrt(radius * radius / glm::dot(dir, dir));
-  result.push_back(center + k * dir);
-  if (k > 0)
-    result.push_back(center - k * dir);
-  return result;
-}
-
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
@@ -298,6 +289,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     currentMenuItem = 1;
   } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentMenuItem = 2;
+  } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+    currentMenuItem = 3;
   }
 }
 
@@ -315,4 +308,30 @@ void recalculateSelected() {
   centerVec /= selected.size();
   center->SetTranslation(centerVec);
   glm::vec3 centerPos = center->GetTranslation();
+}
+
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods) {
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    if (currentMenuItem == 3) {
+      double mouseX;
+      double mouseY;
+      glfwGetCursorPos(window, &mouseX, &mouseY);
+      tuple<glm::vec3, glm::vec3> projections =
+          calculateNearFarProjections(mouseX, mouseY);
+
+      CAD::Sphere sphere;
+      for (int i = 0; i < figures.size(); i++) {
+        if (figures[i]->GetBoundingSphere(sphere)) {
+          if (CAD::circleIntersections(
+                  sphere, camera.Position,
+                  glm::normalize(get<1>(projections) - get<0>(projections)))
+                  .size() > 0) {
+            figures[i]->selected = !figures[i]->selected;
+            recalculateSelected();
+          }
+        }
+      }
+    }
+  }
 }

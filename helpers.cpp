@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include <iostream>
 
 glm::mat4 CAD::translate(glm::mat4 matrix, glm::vec3 vector) {
   glm::mat4 translationMatrix = glm::mat4(1.0f);
@@ -57,4 +58,32 @@ glm::mat4 CAD::scaling(glm::mat4 matrix, glm::vec3 scale) {
   scaleMatrix[1][1] = scale[1];
   scaleMatrix[2][2] = scale[2];
   return scaleMatrix * matrix;
+}
+
+void CAD::printVector(glm::vec3 vec) {
+  std::cout << "{ " << vec.x << " " << vec.y << " " << vec.z << " }"
+            << std::endl;
+}
+
+std::vector<glm::vec3> CAD::circleIntersections(CAD::Sphere sphere,
+                                                glm::vec3 rayCenter,
+                                                glm::vec3 rayDir) {
+  glm::vec3 centerDiff = rayCenter - sphere.center;
+  std::vector<glm::vec3> result;
+
+  float A = glm::dot(rayDir, rayDir);
+  float B = 2 * glm::dot(centerDiff, rayDir);
+  float C = glm::dot(centerDiff, centerDiff) - sphere.radius * sphere.radius;
+
+  float delta = B * B - 4 * A * C;
+  if (delta >= 0) {
+    float k = (-B - glm::sqrt(delta)) / (2 * A);
+    result.push_back(rayCenter + k * rayDir);
+    if (delta > 0) {
+      k = (-B + glm::sqrt(delta)) / (2 * A);
+      result.push_back(rayCenter + k * rayDir);
+    }
+  }
+
+  return result;
 }
