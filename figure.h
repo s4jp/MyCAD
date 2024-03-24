@@ -5,6 +5,7 @@
 #include "helpers.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <vector>
 #include <tuple>
 #include <string>
@@ -19,9 +20,6 @@ private:
   glm::vec3 angle;
   glm::vec3 translation;
   glm::vec3 center;
-
-  glm::mat4 tempCenterM;
-  glm::mat4 cumulativeCenterM;
 
   static int counter;
 
@@ -98,13 +96,13 @@ public:
     ebo.Delete();
   };
 
-  void CalculateModelMatrix() {
+  void CalculateModelMatrix(glm::mat4 centerM = glm::mat4(1.f)) {
     glm::mat4 translateM =
         CAD::translate(glm::mat4(1.0f), translation + center);
     glm::mat4 rotateM = CAD::rotate(glm::mat4(1.0f), angle);
     glm::mat4 scaleM = CAD::scaling(glm::mat4(1.0f), scale);
 
-    model = cumulativeCenterM * tempCenterM * translateM * rotateM * scaleM;
+    model = centerM * translateM * rotateM * scaleM;
   }
 
   Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 center, bool numerate = false) {
@@ -114,8 +112,6 @@ public:
     this->center = center;
     indices_count = std::get<1>(data).size();
     model = glm::mat4(1.0f);
-    tempCenterM = glm::mat4(1.0f);
-    cumulativeCenterM = glm::mat4(1.0f);
 
     vao.Bind();
     vbo = VBO(std::get<0>(data).data(),
@@ -138,9 +134,7 @@ public:
   glm::vec3 GetScale() const { return scale; }
   glm::vec3 GetAngle() const { return angle; }
   glm::vec3 GetTranslation() const { return translation; }
-  glm::vec3 GetPosition() {
-    return glm::vec3(model[3][0], model[3][1], model[3][2]);
-  }
+  glm::vec3 GetPosition() const { return center + translation; }
 
   void SetScale(glm::vec3 nScale) {
     scale = nScale;
@@ -159,13 +153,20 @@ public:
     translation = glm::vec3(0.f);
     CalculateModelMatrix();
   }
-  void SetTempCenterMatrix(glm::mat4 centerM) {
-    tempCenterM = centerM;
-    CalculateModelMatrix();
-  }
-  void AddTempToCumulative(){ 
-    cumulativeCenterM *= tempCenterM;
-    tempCenterM = glm::mat4(1.0f);
-    CalculateModelMatrix();
+  void CastModelToLocalTransformations(){
+    glm::mat4 tempModel = glm::mat4(model);
+
+    translation = glm::vec3(tempModel[3]) - center;
+    tempModel[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);
+
+    scale.x = glm::length(glm::vec3(tempModel[0]));
+    scale.y = glm::length(glm::vec3(tempModel[1]));
+    scale.z = glm::length(glm::vec3(tempModel[2]));
+
+    glm::mat4 inversed = glm::inverse(tempModel);
+    float det = glm::determinant(tempModel);
+
+    tempModel = glm::transpose(glm::inverse(tempModel));
+    angle = glm::eulerAngles(glm::quat_cast(tempModel));
   };
 };

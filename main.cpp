@@ -205,6 +205,7 @@ int main() {
               ImGui::InputText("Change name", &figures[selected[0]]->name);
               // display selected item menu
               figures[selected[0]]->CreateImgui();
+              center->SetPosition(figures[selected[0]]->GetPosition());
           }
 
           if (selected.size() > 1) {
@@ -212,26 +213,26 @@ int main() {
             ImGui::SeparatorText("Center scale");
             if (ImGui::InputFloat("cSx", &centerScale.x, 0.01f, 1.f, "%.2f")) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
             if (ImGui::InputFloat("cSy", &centerScale.y, 0.01f, 1.f, "%.2f")) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
             if (ImGui::InputFloat("cSz", &centerScale.z, 0.01f, 1.f, "%.2f")) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
             if (ImGui::Button("Reset center scale")) {
               centerScale = glm::vec3(1.f);
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
@@ -239,26 +240,26 @@ int main() {
             ImGui::SeparatorText("Center scale");
             if (ImGui::SliderAngle("cX axis", &centerAngle.x, -180.f, 180.f)) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
             if (ImGui::SliderAngle("cY axis", &centerAngle.y, -180.f, 180.f)) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
             if (ImGui::SliderAngle("cZ axis", &centerAngle.z, -180.f, 180.f)) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
-            if (ImGui::Button("Reset center scale")) {
+            if (ImGui::Button("Reset center angle")) {
               centerAngle = glm::vec3(0.f);
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->SetTempCenterMatrix(CAD::generateCenterModelMatrix(
+                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
                     center->GetPosition(), centerAngle, centerScale));
               }
             }
@@ -353,7 +354,7 @@ void recalculateSelected() {
   // resolve center model matrix
   if (selected.size() > 1) {
     for (int i = 0; i < selected.size(); i++) {
-      figures[selected[i]]->AddTempToCumulative();
+      figures[selected[i]]->CastModelToLocalTransformations();
     }
   }
   centerScale = glm::vec3(1.f);
