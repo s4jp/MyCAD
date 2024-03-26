@@ -354,6 +354,8 @@ void recalculateSelected() {
   // resolve center model matrix
   if (selected.size() > 1) {
     for (int i = 0; i < selected.size(); i++) {
+      figures[selected[i]]->CalcTranslation(center->GetPosition(), centerScale,
+                                            centerAngle);
       figures[selected[i]]->CastModelToLocalTransformations();
     }
   }

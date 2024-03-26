@@ -156,6 +156,7 @@ public:
   void CastModelToLocalTransformations(){
     glm::mat4 tempModel = glm::mat4(model);
 
+    CAD::printVector(glm::vec3(tempModel[3]));
     translation = glm::vec3(tempModel[3]) - center;
     tempModel[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);
 
@@ -169,4 +170,61 @@ public:
     tempModel = glm::transpose(glm::inverse(tempModel));
     angle = glm::eulerAngles(glm::quat_cast(tempModel));
   };
+
+  void CalcTranslation(glm::vec3 centerPosition, glm::vec3 centerScale,
+                       glm::vec3 centerAngle) { 
+
+    glm::vec3 trans = glm::vec3(0.f);
+
+    glm::vec3 pos = GetPosition();
+
+      trans.x =
+          -centerPosition.z * centerScale.x *
+              (cos(centerAngle.x) * sin(centerAngle.y) * cos(centerAngle.z) +
+               sin(centerAngle.x) * sin(centerAngle.z)) -
+          centerPosition.y * centerScale.x *
+              (sin(centerAngle.x) * sin(centerAngle.y) * cos(centerAngle.z) -
+               cos(centerAngle.x) * sin(centerAngle.z)) +
+          pos.z * centerScale.x *
+              (cos(centerAngle.x) * sin(centerAngle.y) * cos(centerAngle.z) +
+               sin(centerAngle.x) * sin(centerAngle.z)) +
+          pos.y * centerScale.x *
+              (sin(centerAngle.x) * sin(centerAngle.y) * cos(centerAngle.z) -
+               cos(centerAngle.x) * sin(centerAngle.z)) -
+          cos(centerAngle.y) * centerPosition.x * centerScale.x *
+              cos(centerAngle.z) +
+          pos.x * cos(centerAngle.y) * centerScale.x * cos(centerAngle.z) +
+          centerPosition.x - pos.x;
+
+    trans.y =
+        -centerPosition.z * centerScale.y *
+            (cos(centerAngle.x) * sin(centerAngle.y) * sin(centerAngle.z) -
+             sin(centerAngle.x) * cos(centerAngle.z)) -
+        centerPosition.y * centerScale.y *
+            (sin(centerAngle.x) * sin(centerAngle.y) * sin(centerAngle.z) +
+             cos(centerAngle.x) * cos(centerAngle.z)) +
+        pos.z * centerScale.y *
+            (cos(centerAngle.x) * sin(centerAngle.y) * sin(centerAngle.z) -
+             sin(centerAngle.x) * cos(centerAngle.z)) +
+        pos.y * centerScale.y *
+            (sin(centerAngle.x) * sin(centerAngle.y) * sin(centerAngle.z) +
+             cos(centerAngle.x) * cos(centerAngle.z)) -
+        cos(centerAngle.y) * centerPosition.x * centerScale.y *
+            sin(centerAngle.z) +
+        pos.x * cos(centerAngle.y) * centerScale.y * sin(centerAngle.z) +
+        centerPosition.y - pos.y;
+
+      trans.z =
+          -sin(centerAngle.x) * cos(centerAngle.y) * centerPosition.y *
+              centerScale.z -
+          cos(centerAngle.x) * cos(centerAngle.y) * centerPosition.z *
+              centerScale.z +
+          pos.y * sin(centerAngle.x) * cos(centerAngle.y) * centerScale.z +
+          pos.z * cos(centerAngle.x) * cos(centerAngle.y) * centerScale.z +
+          sin(centerAngle.y) * centerPosition.x * centerScale.z -
+          pos.x * sin(centerAngle.y) * centerScale.z + centerPosition.z - pos.z;
+
+      CAD::printVector(trans);
+      CAD::printVector(trans + pos);
+  }
 };
