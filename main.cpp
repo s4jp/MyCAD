@@ -7,22 +7,21 @@
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
-#include<cmath>
 #include<vector>
 #include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
-#include <algorithm>
+#include<algorithm>
 
 #include"shaderClass.h"
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
+#include"Camera.h"
+
 #include"figure.h"
 #include"torus.h"
 #include"grid.h"
 #include"cursor.h"
-#include"Camera.h"
 #include"point.h"
 
 const float near = 0.1f;
@@ -93,13 +92,6 @@ int main() {
     cursor = new Cursor();
     center = new Cursor();
     camera = new Camera(width, height, cameraPosition, fov, near, far);
-    figures.push_back(new Torus(glm::vec3(2.f, 2.f, 2.f)));
-    figures[0]->selected = true;
-    selected.push_back(0);
-    figures.push_back(new Torus(glm::vec3(3.f, 4.f, 1.f)));
-    figures[1]->selected = true;
-    selected.push_back(1);
-    recalculateSelected();
 
     // matrices locations
     camera->PrepareMatrices(view, proj);
@@ -284,7 +276,9 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
+    grid->Delete();
+    cursor->Delete();
+    center->Delete();
 	std::for_each(figures.begin(), figures.end(),
                   [](Figure* f) { f->Delete(); });
     shaderProgram.Delete();
