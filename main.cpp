@@ -49,7 +49,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
 void cursorHandleInput(GLFWwindow *window);
 std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
-void recalculateSelected();
+void recalculateSelected(bool deleting = false);
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -89,13 +89,17 @@ int main() {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // init figures
-    figures.push_back(new Torus());
-    figures[0]->selected = true;
-    selected.push_back(0);
     grid = new Grid();
     cursor = new Cursor();
     center = new Cursor();
     camera = new Camera(width, height, cameraPosition, fov, near, far);
+    figures.push_back(new Torus(glm::vec3(2.f, 2.f, 2.f)));
+    figures[0]->selected = true;
+    selected.push_back(0);
+    figures.push_back(new Torus(glm::vec3(3.f, 4.f, 1.f)));
+    figures[1]->selected = true;
+    selected.push_back(1);
+    recalculateSelected();
 
     // matrices locations
     camera->PrepareMatrices(view, proj);
@@ -193,7 +197,7 @@ int main() {
             if (ImGui::Button("Delete selected")) {
               for (int i = selected.size() - 1; i >= 0; i--) {
                 figures.erase(figures.begin() + selected[i]);
-                recalculateSelected();
+                recalculateSelected(true);
               }
             }
           }
@@ -213,54 +217,54 @@ int main() {
             ImGui::SeparatorText("Center scale");
             if (ImGui::InputFloat("cSx", &centerScale.x, 0.01f, 1.f, "%.2f")) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::InputFloat("cSy", &centerScale.y, 0.01f, 1.f, "%.2f")) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::InputFloat("cSz", &centerScale.z, 0.01f, 1.f, "%.2f")) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::Button("Reset center scale")) {
               centerScale = glm::vec3(1.f);
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             // rotation manipulation
             ImGui::SeparatorText("Center scale");
             if (ImGui::SliderAngle("cX axis", &centerAngle.x, -180.f, 180.f)) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::SliderAngle("cY axis", &centerAngle.y, -180.f, 180.f)) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::SliderAngle("cZ axis", &centerAngle.z, -180.f, 180.f)) {
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::Button("Reset center angle")) {
               centerAngle = glm::vec3(0.f);
               for (int i = 0; i < selected.size(); i++) {
-                figures[i]->CalculateModelMatrix(CAD::generateCenterModelMatrix(
-                    center->GetPosition(), centerAngle, centerScale));
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
               }
             }
           }
@@ -350,13 +354,11 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 }
 
-void recalculateSelected() {
+void recalculateSelected(bool deleting) {
   // resolve center model matrix
-  if (selected.size() > 1) {
+  if (selected.size() > 1 && !deleting) {
     for (int i = 0; i < selected.size(); i++) {
-      figures[selected[i]]->CalcTranslation(center->GetPosition(), centerScale,
-                                            centerAngle);
-      figures[selected[i]]->CastModelToLocalTransformations();
+      figures[selected[i]]->SavePivotTransformations();
     }
   }
   centerScale = glm::vec3(1.f);

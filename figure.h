@@ -1,4 +1,5 @@
 #pragma once
+#define _USE_MATH_DEFINES
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
@@ -22,6 +23,10 @@ private:
   glm::vec3 center;
 
   static int counter;
+
+  glm::vec3 cScale;
+  glm::vec3 cAngle;
+  glm::vec3 cTranslation;
 
 protected:
   VAO vao;
@@ -95,14 +100,13 @@ public:
     vbo.Delete();
     ebo.Delete();
   };
-
-  void CalculateModelMatrix(glm::mat4 centerM = glm::mat4(1.f)) {
+  void CalculateModelMatrix() {
     glm::mat4 translateM =
-        CAD::translate(glm::mat4(1.0f), translation + center);
-    glm::mat4 rotateM = CAD::rotate(glm::mat4(1.0f), angle);
-    glm::mat4 scaleM = CAD::scaling(glm::mat4(1.0f), scale);
+        CAD::translate(glm::mat4(1.0f), GetPosition());
+    glm::mat4 rotateM = CAD::rotate(glm::mat4(1.0f), GetAngle());
+    glm::mat4 scaleM = CAD::scaling(glm::mat4(1.0f), GetScale());
 
-    model = centerM * translateM * rotateM * scaleM;
+    model = translateM * rotateM * scaleM;
   }
 
   Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 center, bool numerate = false) {
@@ -112,6 +116,10 @@ public:
     this->center = center;
     indices_count = std::get<1>(data).size();
     model = glm::mat4(1.0f);
+
+    cScale = glm::vec3(1.0f);
+    cAngle = glm::vec3(0.0f);
+    cTranslation = glm::vec3(0.0f);
 
     vao.Bind();
     vbo = VBO(std::get<0>(data).data(),
@@ -131,10 +139,10 @@ public:
     CalculateModelMatrix();
   }
 
-  glm::vec3 GetScale() const { return scale; }
-  glm::vec3 GetAngle() const { return angle; }
-  glm::vec3 GetTranslation() const { return translation; }
-  glm::vec3 GetPosition() const { return center + translation; }
+  glm::vec3 GetScale() const { return scale + cScale - glm::vec3(1.f); }
+  glm::vec3 GetAngle() const { return angle + cAngle; }
+  glm::vec3 GetTranslation() const { return translation + cTranslation; }
+  glm::vec3 GetPosition() const { return center + translation + cTranslation; }
 
   void SetScale(glm::vec3 nScale) {
     scale = nScale;
@@ -142,6 +150,22 @@ public:
   }
   void SetAngle(glm::vec3 nAngle) {
     angle = nAngle;
+
+    while (angle.x > M_PI)
+      angle.x -= M_PI * 2;
+    while (angle.x < -M_PI)
+      angle.x += M_PI * 2;
+
+    while (angle.y > M_PI)
+      angle.y -= M_PI * 2;
+    while (angle.y < -M_PI)
+      angle.y += M_PI * 2;
+
+    while (angle.z > M_PI)
+      angle.z -= M_PI * 2;
+    while (angle.z < -M_PI)
+      angle.z += M_PI * 2;
+
     CalculateModelMatrix();
   }
   void SetTranslation(glm::vec3 nTranslation) {
@@ -153,32 +177,12 @@ public:
     translation = glm::vec3(0.f);
     CalculateModelMatrix();
   }
-  void CastModelToLocalTransformations(){
-    glm::mat4 tempModel = glm::mat4(model);
-
-    CAD::printVector(glm::vec3(tempModel[3]));
-    translation = glm::vec3(tempModel[3]) - center;
-    tempModel[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);
-
-    scale.x = glm::length(glm::vec3(tempModel[0]));
-    scale.y = glm::length(glm::vec3(tempModel[1]));
-    scale.z = glm::length(glm::vec3(tempModel[2]));
-
-    glm::mat4 inversed = glm::inverse(tempModel);
-    float det = glm::determinant(tempModel);
-
-    tempModel = glm::transpose(glm::inverse(tempModel));
-    angle = glm::eulerAngles(glm::quat_cast(tempModel));
-  };
-
-  void CalcTranslation(glm::vec3 centerPosition, glm::vec3 centerScale,
+  void CalculatePivotTransformation(glm::vec3 centerPosition, glm::vec3 centerScale,
                        glm::vec3 centerAngle) { 
 
-    glm::vec3 trans = glm::vec3(0.f);
+    glm::vec3 pos = center + translation;
 
-    glm::vec3 pos = GetPosition();
-
-      trans.x =
+      cTranslation.x =
           -centerPosition.z * centerScale.x *
               (cos(centerAngle.x) * sin(centerAngle.y) * cos(centerAngle.z) +
                sin(centerAngle.x) * sin(centerAngle.z)) -
@@ -196,7 +200,7 @@ public:
           pos.x * cos(centerAngle.y) * centerScale.x * cos(centerAngle.z) +
           centerPosition.x - pos.x;
 
-    trans.y =
+    cTranslation.y =
         -centerPosition.z * centerScale.y *
             (cos(centerAngle.x) * sin(centerAngle.y) * sin(centerAngle.z) -
              sin(centerAngle.x) * cos(centerAngle.z)) -
@@ -214,7 +218,7 @@ public:
         pos.x * cos(centerAngle.y) * centerScale.y * sin(centerAngle.z) +
         centerPosition.y - pos.y;
 
-      trans.z =
+      cTranslation.z =
           -sin(centerAngle.x) * cos(centerAngle.y) * centerPosition.y *
               centerScale.z -
           cos(centerAngle.x) * cos(centerAngle.y) * centerPosition.z *
@@ -224,7 +228,21 @@ public:
           sin(centerAngle.y) * centerPosition.x * centerScale.z -
           pos.x * sin(centerAngle.y) * centerScale.z + centerPosition.z - pos.z;
 
-      CAD::printVector(trans);
-      CAD::printVector(trans + pos);
+      cAngle = centerAngle;
+      cScale = centerScale;
+
+      CalculateModelMatrix();
+  }
+  void SavePivotTransformations() {
+    SetTranslation(translation + cTranslation);
+    cTranslation = glm::vec3(0.f);
+
+    SetAngle(angle + cAngle);
+    cAngle = glm::vec3(0.f);
+
+    SetScale(scale + cScale - glm::vec3(1.f));
+    cScale = glm::vec3(1.f);
+
+    CalculateModelMatrix();
   }
 };
