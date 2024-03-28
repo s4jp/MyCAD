@@ -79,7 +79,8 @@ void Camera::MouseInputs(GLFWwindow *window)
         glm::radians(85.0f)) {
       Orientation = newOrientation;
     }
-    Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
+    glm::mat4 rot = CAD::rotate(glm::mat4(1.f), glm::radians(-rotY) * Up);
+    Orientation = glm::mat3(rot) * Orientation;
     glfwSetCursorPos(window, (width / 2), (height / 2));
   } 
   else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==

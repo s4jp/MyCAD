@@ -126,6 +126,3 @@ void CAD::printMatrix(glm::mat4 mat)
     std::cout << " |" << std::endl;
   }
 }
-
-
-}
