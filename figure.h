@@ -6,13 +6,9 @@
 #include "helpers.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <vector>
 #include <tuple>
 #include <string>
 #include"imgui.h"
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
 
 class Figure
 {
@@ -48,7 +44,6 @@ public:
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
   virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
-
   virtual void CreateImgui(){
     ImGui::SeparatorText((name + " options:").c_str());
 
@@ -93,13 +88,13 @@ public:
       CalculateModelMatrix();
     if (ImGui::Button("Reset rotation"))
       SetAngle(glm::vec3(0.0f));
-  };
+  }
 
   void Delete() {
     vao.Delete();
     vbo.Delete();
     ebo.Delete();
-  };
+  }
   void CalculateModelMatrix() {
     glm::mat4 translateM =
         CAD::translate(glm::mat4(1.0f), GetPosition());
@@ -141,7 +136,6 @@ public:
 
   glm::vec3 GetScale() const { return scale + cScale - glm::vec3(1.f); }
   glm::vec3 GetAngle() const { return angle + cAngle; }
-  glm::vec3 GetTranslation() const { return translation + cTranslation; }
   glm::vec3 GetPosition() const { return center + translation + cTranslation; }
 
   void SetScale(glm::vec3 nScale) {

@@ -1,10 +1,9 @@
 #define _USE_MATH_DEFINES
-#include <tuple>
 #include "torus.h"
+
+#include <tuple>
 #include <glm/gtc/type_ptr.hpp>
-#include"imgui.h"
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
+#include "imgui.h"
 
 Torus::Torus(glm::vec3 position, float R1n, float R2n, int n1n, int n2n)
     : Figure(InitializeAndCalculate(R1n, R2n, n1n, n2n), "Torus", position,
@@ -19,7 +18,7 @@ void Torus::Recalculate()
   vbo.ReplaceBufferData(std::get<0>(data).data(),
                         std::get<0>(data).size() * sizeof(GLfloat));
   ebo.ReplaceBufferData(std::get<1>(data).data(),
-                           std::get<1>(data).size() * sizeof(GLint));
+                           std::get<1>(data).size() * sizeof(GLuint));
 }
 
 void Torus::Render(int colorLoc, int modelLoc)
@@ -86,9 +85,6 @@ void Torus::CreateImgui()
     Figure::CreateImgui();
 
     ImGui::SeparatorText("Options");
-
-    glm::vec3 scale = GetScale();
-
     if (ImGui::SliderFloat("R1", &R1, 0.01f, 5.f, "%.2f"))
       Recalculate();
     if (ImGui::SliderFloat("R2", &R2, 0.01f, 5.f, "%.2f"))

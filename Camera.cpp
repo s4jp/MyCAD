@@ -1,9 +1,7 @@
-#include"Camera.h"
+#include "Camera.h"
+#include "helpers.h"
 
-#include"helpers.h"
 #include"imgui.h"
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
 
 Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
                float far) {
@@ -62,27 +60,28 @@ void Camera::MouseInputs(GLFWwindow *window)
   {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     if (firstClick) {
-      glfwSetCursorPos(window, (width / 2), (height / 2));
+      glfwSetCursorPos(window, (double)(width / 2), (double)(height / 2));
       firstClick = false;
     }
 
     double mouseX;
     double mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
-    float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-    float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+    float rotX = sensitivity * (float)(mouseY - (double)(height / 2)) / height;
+    float rotY = sensitivity * (float)(mouseX - (double)(width / 2)) / width;
 
-    glm::vec3 newOrientation =
-        glm::rotate(Orientation, glm::radians(-rotX),
-                    glm::normalize(glm::cross(Orientation, Up)));
+    glm::mat4 rot = CAD::rotate(
+        glm::mat4(1.f),
+        glm::radians(-rotX) * glm::normalize(glm::cross(Orientation, Up)));
+    glm::vec3 newOrientation = glm::mat3(rot) * Orientation;
     if (abs(CAD::angleBetweenVectors(newOrientation, Up) -
             glm::radians(90.0f)) <=
         glm::radians(85.0f)) {
       Orientation = newOrientation;
     }
-    glm::mat4 rot = CAD::rotate(glm::mat4(1.f), glm::radians(-rotY) * Up);
-    Orientation = glm::mat3(rot) * Orientation;
-    glfwSetCursorPos(window, (width / 2), (height / 2));
+    glm::mat4 rot2 = CAD::rotate(glm::mat4(1.f), glm::radians(-rotY) * Up);
+    Orientation = glm::mat3(rot2) * Orientation;
+    glfwSetCursorPos(window, (double)(width / 2), (double)(height / 2));
   } 
   else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==
              GLFW_RELEASE) {

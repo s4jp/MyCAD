@@ -87,6 +87,6 @@ Point::InitializeAndCalculate(float R) {
 
 
 bool Point::GetBoundingSphere(CAD::Sphere &sphere) { 
-  sphere = CAD::Sphere(GetPosition() + GetTranslation(), R * 1.20f);
+  sphere = CAD::Sphere(GetPosition(), R * 1.20f);
   return true;
 }
