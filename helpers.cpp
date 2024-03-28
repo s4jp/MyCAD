@@ -126,3 +126,8 @@ void CAD::printMatrix(glm::mat4 mat)
     std::cout << " |" << std::endl;
   }
 }
+
+float CAD::angleBetweenVectors(glm::vec3 u, glm::vec3 v) 
+{ 
+    return glm::acos(glm::clamp(glm::dot(u, v) / (glm::length(u) * glm::length(v)),-1.f,1.f));
+}

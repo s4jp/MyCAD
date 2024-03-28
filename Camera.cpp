@@ -75,7 +75,8 @@ void Camera::MouseInputs(GLFWwindow *window)
     glm::vec3 newOrientation =
         glm::rotate(Orientation, glm::radians(-rotX),
                     glm::normalize(glm::cross(Orientation, Up)));
-    if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <=
+    if (abs(CAD::angleBetweenVectors(newOrientation, Up) -
+            glm::radians(90.0f)) <=
         glm::radians(85.0f)) {
       Orientation = newOrientation;
     }
