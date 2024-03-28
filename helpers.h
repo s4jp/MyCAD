@@ -27,6 +27,6 @@ namespace CAD
     std::vector<glm::vec3> circleIntersections(CAD::Sphere sphere,
                                                glm::vec3 rayCenter,
                                                glm::vec3 rayDir);
-    glm::mat4 generateCenterModelMatrix(glm::vec3 center, glm::vec3 angles,
-                                        glm::vec3 scale);
+    glm::mat4 lookAt(glm::vec3 position, glm::vec3 target, glm::vec3 up);
+    void printMatrix(glm::mat4 mat);
 }

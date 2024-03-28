@@ -1,5 +1,6 @@
 #include "helpers.h"
 #include <iostream>
+#include <iomanip>
 
 glm::mat4 CAD::translate(glm::mat4 matrix, glm::vec3 vector) {
   glm::mat4 translationMatrix = glm::mat4(1.0f);
@@ -88,12 +89,43 @@ std::vector<glm::vec3> CAD::circleIntersections(CAD::Sphere sphere,
   return result;
 }
 
-glm::mat4 CAD::generateCenterModelMatrix(glm::vec3 center, glm::vec3 angles,
-                                         glm::vec3 scale) {
-  glm::mat4 centerTranslateM = CAD::translate(glm::mat4(1.0f), center);
-  glm::mat4 zeroScaleM = CAD::scaling(glm::mat4(1.0f), scale);
-  glm::mat4 zeroRotateM = CAD::rotate(glm::mat4(1.0f), angles);
-  glm::mat4 antyCenterTranslateM = CAD::translate(glm::mat4(1.0f), -center);
+glm::mat4 CAD::lookAt(glm::vec3 position, glm::vec3 target, glm::vec3 up) {
 
-  return centerTranslateM * zeroScaleM * zeroRotateM * antyCenterTranslateM;
+  glm::vec3 f = glm::vec3(glm::normalize(target - position));
+  glm::vec3 r = glm::vec3(glm::normalize(glm::cross(f, up)));
+  glm::vec3 u = glm::vec3(glm::cross(r, f));
+  glm::vec3 t = glm::vec3(-glm::dot(r, position), -glm::dot(u, position),
+                          glm::dot(f, position));
+
+  glm::mat4 result = glm::mat4(0.f);
+
+  result[0][0] = r.x;
+  result[1][0] = r.y;
+  result[2][0] = r.z;
+
+  result[0][1] = u.x;
+  result[1][1] = u.y;
+  result[2][1] = u.z;
+
+  result[0][2] = -f.x;
+  result[1][2] = -f.y;
+  result[2][2] = -f.z;
+
+  result[3] = glm::vec4(t, 1.f);
+  return result;
+}
+
+void CAD::printMatrix(glm::mat4 mat) 
+{
+  for (int i = 0; i < 4; i++) {
+    std::cout << "| ";
+    for (int j = 0; j < 4; j++) {
+      std::cout << std::left << std::setfill(' ') << std::setw(10) << mat[j][i]
+                << " ";
+    }
+    std::cout << " |" << std::endl;
+  }
+}
+
+
 }
