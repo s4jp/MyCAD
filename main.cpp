@@ -2,71 +2,71 @@
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
+#include"imgui_stdlib.h"
 
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
-#include<cmath>
 #include<vector>
 #include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
+#include<algorithm>
 
 #include"shaderClass.h"
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
+#include"Camera.h"
 
-using namespace std;
+#include"figure.h"
+#include"torus.h"
+#include"grid.h"
+#include"cursor.h"
+#include"point.h"
 
-int width = 800;
-int height = 600;
-const glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
-const float fov = M_PI / 4.0f;
 const float near = 0.1f;
 const float far = 100.0f;
 
-float R1 = 0.5f;
-float R2 = 0.2f;
-int n1 = 10;
-int n2 = 20;
+std::vector<Figure*> figures;
+std::vector<int> selected;
+Grid* grid;
+Camera *camera;
+Cursor *center;
+Cursor *cursor;
 
-int rotating = 1;
-bool firstClick = true;
-bool change1 = false;
-bool change2 = false;
-bool change3 = false;
+glm::mat4 view;
+glm::mat4 proj;
 
-glm::vec3 scale = glm::vec3(1.0f);
-glm::vec3 angle = glm::vec3(0.0f);
-glm::vec3 translation = glm::vec3(0.0f);
+static int currentMenuItem = 0;
+const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point";
 
-const float scrollSensitivity = 20.0f;
-
-void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
-                       float R1, float R2, int n1, int n2);
-glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector);
-glm::mat4 createXrotationMatrix(float angle);
-glm::mat4 createYrotationMatrix(float angle);
-glm::mat4 createZrotationMatrix(float angle);
-glm::mat4 rotate(glm::mat4 matrix, glm::vec3 angle);
-glm::mat4 projection(float fov, float ratio, float near, float far);
-glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale);
-void HandleInputs(GLFWwindow *window);
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void window_size_callback(GLFWwindow *window, int width, int height);
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods);
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods);
+void cursorHandleInput(GLFWwindow *window);
+std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
+                                                        double yMouse);
+void recalculateSelected(bool deleting = false);
+
+glm::vec3 centerScale(1.f);
+glm::vec3 centerAngle(0.f);
 
 int main() { 
-    vector<GLfloat> vertices;
-    vector<GLuint> indices;
-    calculateTorusData(vertices, indices, R1, R2, n1, n2);
+    // initial values
+    int width = 1500;
+    int height = 800;
+    glm::vec3 cameraPosition = glm::vec3(3.0f, 3.0f, 3.0f);
+    float fov = M_PI / 4.0f;
 
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    #pragma region gl_boilerplate
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(width, height, "MKMG", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(width, height, "MKMG", NULL, NULL);
     if (window == NULL) {
       std::cout << "Failed to create GLFW window" << std::endl;
       glfwTerminate();
@@ -74,37 +74,33 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetWindowSizeCallback(window, window_size_callback);
-
     gladLoadGL();
     glViewport(0, 0, width, height);
+    glEnable(GL_DEPTH_TEST);
+    #pragma endregion
 
+    // shader
     Shader shaderProgram("default.vert", "default.frag");
 
-    VAO VAO1;
-    VAO1.Bind();
+    // callbacks
+    glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-    VBO VBO1(vertices.data(), vertices.size() * sizeof(GLfloat));
-    EBO EBO1(indices.data(), indices.size() * sizeof(GLint));
+    // init figures
+    grid = new Grid();
+    cursor = new Cursor();
+    center = new Cursor();
+    camera = new Camera(width, height, cameraPosition, fov, near, far);
 
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 0, (void *)0);
-    VAO1.Unbind();
-    VBO1.Unbind();
-    EBO1.Unbind();
-
-    float rotation = 0.0f;
-    double prevTime = glfwGetTime();
-
-    glLineWidth(3.0f);
-
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = translate(glm::mat4(1.0f), cameraPosition);
-    glm::mat4 proj = projection(fov, (float)width / height, near, far);
+    // matrices locations
+    camera->PrepareMatrices(view, proj);
     int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+    int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
 
+    #pragma region imgui_boilerplate
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -112,255 +108,292 @@ int main() {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
+    #pragma endregion
 
     while (!glfwWindowShouldClose(window)) 
     {
+        #pragma region init
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
 		shaderProgram.Activate();
+        #pragma endregion
 
-        HandleInputs(window);
-
-        if (change1) {
-          calculateTorusData(vertices, indices, R1, R2, n1, n2);
-          VBO1.ReplaceBufferData(vertices.data(),
-                                 vertices.size() * sizeof(GLfloat));
-          EBO1.ReplaceBufferData(indices.data(),
-                                 indices.size() * sizeof(GLint));
-          change1 = false;
-        }
-        if (change2)
-        {
-          model = translate(rotate(scaling(glm::mat4(1.0f), scale), angle),
-                            translation);
-          change2 = false;
-        }
-        if (change3)
-        {
-          glfwGetWindowSize(window, &width, &height);
-          proj = projection(fov, (float)width / height, near, far);
-          glViewport(0, 0, width, height);
-          change3 = false;
+        switch (currentMenuItem) { 
+        case 0:
+          camera->HandleInputs(window);
+          camera->PrepareMatrices(view, proj);
+          break;
+        case 1:
+          cursorHandleInput(window);
+          break;
         }
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        // matrices
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-        VAO1.Bind();
-        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+        // objects rendering
+        grid->Render(colorLoc, modelLoc);
+        std::for_each(figures.begin(), figures.end(),
+                      [colorLoc, modelLoc](Figure *f) {
+                        f->Render(colorLoc, modelLoc);
+                      });
+        cursor->Render(colorLoc, modelLoc);
+        if (selected.size() > 0) {
+          center->Render(colorLoc, modelLoc);
+        }
 
-        if (ImGui::Begin("Options"))
-        {
-          ImGui::SeparatorText("Torus parameters");
+        // imgui rendering
+        if (ImGui::Begin("Mode")) {
+          // mode selection
+          ImGui::Combo(" ", &currentMenuItem, menuItems);
 
-          if (ImGui::SliderFloat("R1", &R1, 0.01f, 5.f, "%.2f"))
-            change1 = true;
-          if (ImGui::SliderFloat("R2", &R2, 0.01f, 5.f, "%.2f"))
-            change1 = true;
-          if (ImGui::SliderInt("major", &n2, 3, 50))
-            change1 = true;
-          if (ImGui::SliderInt("minor", &n1, 3, 50))
-            change1 = true;
-
-          ImGui::SeparatorText("Transform mode");
-
-          ImGui::RadioButton("rotate", &rotating, 1);
-          ImGui::RadioButton("move", &rotating, 0);
-
-          ImGui::SeparatorText("Scaling");
-
-          if (ImGui::SliderFloat("Sx", &scale[0], 0.01f, 5.f, "%.2f"))
-            change2 = true;
-          if (ImGui::SliderFloat("Sy", &scale[1], 0.01f, 5.f, "%.2f"))
-            change2 = true;
-          if (ImGui::SliderFloat("Sz", &scale[2], 0.01f, 5.f, "%.2f"))
-            change2 = true;
-          if (ImGui::Button("Reset"))
+          // add object buttons
+          if (currentMenuItem == 2) {
+            ImGui::Separator();
+            if (ImGui::Button("Torus")) {
+              figures.push_back(new Torus(cursor->GetPosition()));
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Point")) {
+              figures.push_back(new Point(cursor->GetPosition()));
+            }
+          }
+          
+          ImGui::Separator();
+          // object selection
+          for (int i = 0; i < figures.size(); i++) 
           {
-            scale = glm::vec3(1.0f);
-            change2 = true;
+              if (ImGui::Selectable(figures[i]->name.c_str(),
+                  &figures[i]->selected))
+              {
+                  if (!ImGui::GetIO().KeyShift) 
+                  {
+                    bool temp = figures[i]->selected;
+                    std::for_each(figures.begin(), figures.end(), 
+                          [](Figure *f) { f->selected = false;;});
+                    figures[i]->selected = temp;
+                  }
+                  recalculateSelected();
+              }
+          }
+
+          // delete button
+          if (selected.size() > 0) {
+            ImGui::Separator();
+            if (ImGui::Button("Delete selected")) {
+              for (int i = selected.size() - 1; i >= 0; i--) {
+                figures.erase(figures.begin() + selected[i]);
+                recalculateSelected(true);
+              }
+            }
+          }
+
+          // change name window
+          if (selected.size() == 1) 
+          {
+              ImGui::Separator();
+              ImGui::InputText("Change name", &figures[selected[0]]->name);
+              // display selected item menu
+              figures[selected[0]]->CreateImgui();
+              center->SetPosition(figures[selected[0]]->GetPosition());
+          }
+
+          if (selected.size() > 1) {
+            // scaling manipulation
+            ImGui::SeparatorText("Center scale");
+            if (ImGui::InputFloat("cSx", &centerScale.x, 0.01f, 1.f, "%.2f")) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (ImGui::InputFloat("cSy", &centerScale.y, 0.01f, 1.f, "%.2f")) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (ImGui::InputFloat("cSz", &centerScale.z, 0.01f, 1.f, "%.2f")) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (ImGui::Button("Reset center scale")) {
+              centerScale = glm::vec3(1.f);
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            // rotation manipulation
+            ImGui::SeparatorText("Center scale");
+            if (ImGui::SliderAngle("cX axis", &centerAngle.x, -180.f, 180.f)) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (ImGui::SliderAngle("cY axis", &centerAngle.y, -180.f, 180.f)) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (ImGui::SliderAngle("cZ axis", &centerAngle.z, -180.f, 180.f)) {
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (ImGui::Button("Reset center angle")) {
+              centerAngle = glm::vec3(0.f);
+              for (int i = 0; i < selected.size(); i++) {
+                figures[selected[i]]->CalculatePivotTransformation(
+                    center->GetPosition(), centerScale, centerAngle);
+              }
+            }
           }
         }
-        ImGui::End();
 
+        ImGui::End();
+        #pragma region rest
         ImGui::Render();
         // cout << ImGui::GetIO().Framerate << endl;
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        #pragma endregion
     }
-
+    #pragma region exit
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-	VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
+    grid->Delete();
+    cursor->Delete();
+    center->Delete();
+	std::for_each(figures.begin(), figures.end(),
+                  [](Figure* f) { f->Delete(); });
     shaderProgram.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
+    #pragma endregion
 }
 
-void calculateTorusData(vector<GLfloat> &vertices, vector<GLuint> &indices,
-                       float R1, float R2, int n1, int n2) {
-  if (R1 <= 0 || R2 <= 0 || n1 <= 0 || n2 <= 0) return;
+void window_size_callback(GLFWwindow *window, int width, int height) {
+  camera->width = width;
+  camera->height = height;
+  camera->PrepareMatrices(view, proj);
+  glViewport(0, 0, width, height);
+}
 
-  vertices.clear();
-  indices.clear();
+void cursorHandleInput(GLFWwindow *window) 
+{
+  if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
+      !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) 
+  {
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+      double mouseX;
+      double mouseY;
+      glfwGetCursorPos(window, &mouseX, &mouseY);
+      std::tuple<glm::vec3, glm::vec3> projections =
+          calculateNearFarProjections(mouseX, mouseY);
 
-  float R1step = 2 * M_PI / n1;
-  float R2step = 2 * M_PI / n2;
-
-  for (int i = 0; i < n1; i++) {
-    float xyElem = R1 + R2 * cos(i * R1step);
-    float z = R2 * sin(i * R1step);
-
-    for (int j = 0; j < n2; j++) {
-      vertices.push_back(xyElem * cos(j * R2step)); // X
-      vertices.push_back(xyElem * sin(j * R2step)); // Y
-      vertices.push_back(z);                        // Z
-
-      // R2 loop
-      indices.push_back(i * n2 + j);                // current
-      indices.push_back(i * n2 + ((j + 1) % n2));   // next
-      // R1 loop
-      indices.push_back(i * n2 + j);                // current
-      indices.push_back(((i + 1) % n1) * n2 + j);   // next
+      std::vector<glm::vec3> points = CAD::circleIntersections(
+          CAD::Sphere(std::get<0>(projections), camera->GetCursorRadius()),
+          camera->Position,
+          glm::normalize(std::get<1>(projections) - std::get<0>(projections)));
+      // take positive solution
+      cursor->SetPosition(points[1]);
     }
   }
 }
 
-glm::mat4 translate(glm::mat4 matrix, glm::vec3 vector) 
-{
-  glm::mat4 translationMatrix = glm::mat4(1.0f);
-  translationMatrix[3] = glm::vec4(vector, 1.0f);
-  return translationMatrix * matrix;
+std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
+                                                        double yMouse) {
+  glm::mat4 invMat = glm::inverse(proj * view);
+
+  float xMouseClip = (xMouse - camera->width / 2.0f) / (camera->width / 2.0f);
+  float yMouseClip =
+      -1 * (yMouse - camera->height / 2.0f) / (camera->height / 2.0f);
+
+  glm::vec4 near = glm::vec4(xMouseClip, yMouseClip, -1.0f, 1.0f);
+  glm::vec4 far = glm::vec4(xMouseClip, yMouseClip, 1.0f, 1.0f);
+  glm::vec4 nearResult = invMat * near;
+  glm::vec4 farResult = invMat * far;
+  nearResult /= nearResult.w;
+  farResult /= farResult.w;
+  return std::tuple<glm::vec3, glm::vec3>(glm::vec3(nearResult),
+                                     glm::vec3(farResult));
 }
 
-glm::mat4 createXrotationMatrix(float angle) 
-{
-  glm::mat4 result = glm::mat4(1.0f);
-  result[1][1] = cos(angle);
-  result[1][2] = sin(angle);
-  result[2][1] = -sin(angle);
-  result[2][2] = cos(angle);
-  return result;
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods) {
+  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+    currentMenuItem = 0;
+  } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+    currentMenuItem = 1;
+  } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+    currentMenuItem = 2;
+  } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+    currentMenuItem = 3;
+  }
 }
 
-glm::mat4 createYrotationMatrix(float angle) 
-{
-  glm::mat4 result = glm::mat4(1.0f);
-  result[0][0] = cos(angle);
-  result[0][2] = -sin(angle);
-  result[2][0] = sin(angle);
-  result[2][2] = cos(angle);
-  return result;
+void recalculateSelected(bool deleting) {
+  // resolve center model matrix
+  if (selected.size() > 1 && !deleting) {
+    for (int i = 0; i < selected.size(); i++) {
+      figures[selected[i]]->SavePivotTransformations();
+    }
+  }
+  centerScale = glm::vec3(1.f);
+  centerAngle = glm::vec3(0.f);
+  // find selected figures
+  selected.clear();
+  for (int i = 0; i < figures.size(); i++) {
+    if (figures[i]->selected)
+      selected.push_back(i);
+  }
+  // center recalculation
+  glm::vec3 centerVec(0.f);
+  for (int i = 0; i < selected.size(); i++) {
+    centerVec += figures[selected[i]]->GetPosition();
+  }
+  centerVec /= selected.size();
+  center->SetPosition(centerVec);
 }
 
-glm::mat4 createZrotationMatrix(float angle) 
-{
-  glm::mat4 result = glm::mat4(1.0f);
-  result[0][0] = cos(angle);
-  result[0][1] = sin(angle);
-  result[1][0] = -sin(angle);
-  result[1][1] = cos(angle);
-  return result;
-}
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods) {
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    if (currentMenuItem == 3) {
+      double mouseX;
+      double mouseY;
+      glfwGetCursorPos(window, &mouseX, &mouseY);
+      std::tuple<glm::vec3, glm::vec3> projections =
+          calculateNearFarProjections(mouseX, mouseY);
 
-glm::mat4 rotate(glm::mat4 matrix, glm::vec3 angle) 
-{
-  return createZrotationMatrix(angle[2]) * createYrotationMatrix(angle[1]) *
-         createXrotationMatrix(angle[0]) * matrix;
-}
-
-glm::mat4 projection(float fov, float ratio, float near, float far) {
-  glm::mat4 result = glm::mat4(0.0f);
-  result[0][0] = 1.0f / (tan(fov / 2.0f) * ratio);
-  result[1][1] = 1.0f / tan(fov / 2.0f);
-  result[2][2] = -(far + near) / (far - near);
-  result[3][2] = (-2.0 * far * near) / (far - near);
-  result[2][3] = -1.0f;
-  result[3][3] = 0.0f;
-  return result;
-}
-
-glm::mat4 scaling(glm::mat4 matrix, glm::vec3 scale)
-{
-  glm::mat4 scaleMatrix = glm::mat4(1.0f);
-  scaleMatrix[0][0] = scale[0];
-  scaleMatrix[1][1] = scale[1];
-  scaleMatrix[2][2] = scale[2];
-  return scaleMatrix * matrix;
-}
-
-void HandleInputs(GLFWwindow* window) 
-{
-  if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
-      !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) 
-    {
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-          if (firstClick) {
-            glfwSetCursorPos(window, (width / 2), (height / 2));
-            firstClick = false;
+      CAD::Sphere sphere;
+      for (int i = 0; i < figures.size(); i++) {
+        if (figures[i]->GetBoundingSphere(sphere)) {
+          if (CAD::circleIntersections(sphere, camera->Position,
+                                       glm::normalize(std::get<1>(projections) -
+                                                      std::get<0>(projections)))
+                  .size() > 0) {
+            figures[i]->selected = !figures[i]->selected;
+            recalculateSelected();
           }
-
-          double mouseX;
-          double mouseY;
-          glfwGetCursorPos(window, &mouseX, &mouseY);
-
-          float rotX = 1.0f * (float)(mouseY - (height / 2)) / height;
-          float rotY = 1.0f * (float)(mouseX - (width / 2)) / width;
-
-          if (rotating == 1) 
-          {
-            angle[0] -= rotY;
-            angle[1] += rotX;
-          }
-          else
-          {
-            translation[0] -= rotY;
-            translation[1] += rotX;
-          }
-          change2 = true;
-
-          glfwSetCursorPos(window, (width / 2), (height / 2));
-        } 
-        else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==
-                   GLFW_RELEASE) 
-        {
-          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-          firstClick = true;
         }
+      }
     }
-}
-
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
-{
-    float yDiff = yoffset / 30.0f;
-
-    if (rotating == 1) 
-    {
-      angle[2] += yDiff;
-    } 
-    else 
-    {
-      translation[2] += yDiff;
-    }
-    change2 = true;
-}
-
-void window_size_callback(GLFWwindow* window, int width, int height) 
-{
-  change3 = true;
+  }
 }

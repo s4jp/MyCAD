@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MKMG_P2_torus_mesh", "MKMG_P2_torus_mesh.vcxproj", "{BFEB9890-E817-427E-82FF-A335A155F0D7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MKMG_CAD", "MKMG_CAD.vcxproj", "{BFEB9890-E817-427E-82FF-A335A155F0D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

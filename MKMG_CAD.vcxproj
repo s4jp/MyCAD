@@ -24,6 +24,7 @@
     <ProjectGuid>{bfeb9890-e817-427e-82ff-a335a155f0d7}</ProjectGuid>
     <RootNamespace>MKMGP2torusmesh</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>MKMG_CAD</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,12 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\rizez\Desktop\MKMG_P2_torus_mesh\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -139,17 +140,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="cursor.cpp" />
     <ClCompile Include="EBO.cpp" />
+    <ClCompile Include="figure.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="grid.cpp" />
+    <ClCompile Include="helpers.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="point.cpp" />
     <ClCompile Include="shaderClass.cpp" />
+    <ClCompile Include="torus.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
@@ -158,17 +167,25 @@
     <None Include="default.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="cursor.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="figure.h" />
+    <ClInclude Include="grid.h" />
+    <ClInclude Include="helpers.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imgui_stdlib.h" />
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="point.h" />
     <ClInclude Include="shaderClass.h" />
+    <ClInclude Include="torus.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>
