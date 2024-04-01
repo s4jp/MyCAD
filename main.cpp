@@ -26,6 +26,7 @@
 
 const float near = 0.1f;
 const float far = 100.0f;
+const int guiWidth = 300;
 
 std::vector<Figure*> figures;
 std::vector<int> selected;
@@ -75,7 +76,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     gladLoadGL();
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, width - guiWidth, height);
     glEnable(GL_DEPTH_TEST);
     #pragma endregion
 
@@ -119,6 +120,8 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGui::SetNextWindowSize(ImVec2(guiWidth, camera->height));
+        ImGui::SetNextWindowPos(ImVec2(camera->width - guiWidth, 0));
 
 		shaderProgram.Activate();
         #pragma endregion
@@ -149,7 +152,9 @@ int main() {
         }
 
         // imgui rendering
-        if (ImGui::Begin("Mode")) {
+        if (ImGui::Begin("Menu", 0,
+                         ImGuiWindowFlags_NoMove |
+                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
           // mode selection
           ImGui::Combo(" ", &currentMenuItem, menuItems);
 
@@ -265,7 +270,7 @@ int main() {
         ImGui::End();
         #pragma region rest
         ImGui::Render();
-        // cout << ImGui::GetIO().Framerate << endl;
+        //std::cout << ImGui::GetIO().Framerate << std::endl;
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
@@ -292,7 +297,7 @@ void window_size_callback(GLFWwindow *window, int width, int height) {
   camera->width = width;
   camera->height = height;
   camera->PrepareMatrices(view, proj);
-  glViewport(0, 0, width, height);
+  glViewport(0, 0, width - guiWidth, height);
 }
 
 void cursorHandleInput(GLFWwindow *window) 
