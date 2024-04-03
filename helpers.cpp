@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 
+
 glm::mat4 CAD::translate(glm::mat4 matrix, glm::vec3 vector) {
   glm::mat4 translationMatrix = glm::mat4(1.0f);
   translationMatrix[3] = glm::vec4(vector, 1.0f);
@@ -130,4 +131,9 @@ void CAD::printMatrix(glm::mat4 mat)
 float CAD::angleBetweenVectors(glm::vec3 u, glm::vec3 v) 
 { 
     return glm::acos(glm::clamp(glm::dot(u, v) / (glm::length(u) * glm::length(v)),-1.f,1.f));
+}
+
+std::string CAD::printPosition(glm::vec3 pos, std::string name) {
+  return name + "X: " + std::to_string(pos.x) +
+         ", Y:" + std::to_string(pos.y) + ", Z:" + std::to_string(pos.z);
 }

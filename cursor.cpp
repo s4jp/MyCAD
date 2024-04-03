@@ -22,6 +22,19 @@ void Cursor::Render(int colorLoc, int modelLoc)
 	vao.Unbind();
 }
 
+void Cursor::CreateImgui() {
+  ImGui::SeparatorText((name + " options:").c_str());
+
+  ImGui::Text("Position: ");
+  glm::vec3 pos = GetPosition();
+  if (ImGui::InputFloat("X ", &pos.x, 0.01f, 1.f, "%.5f"))
+    SetPosition(pos);
+  if (ImGui::InputFloat("Y ", &pos.y, 0.01f, 1.f, "%.5f"))
+    SetPosition(pos);
+  if (ImGui::InputFloat("Z ", &pos.z, 0.01f, 1.f, "%.5f"))
+    SetPosition(pos);
+}
+
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Cursor::Calculate() {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;

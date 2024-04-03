@@ -12,8 +12,10 @@ public:
 
 	bool firstClick = true;
 
-	int width;
-	int height;
+	int GetWidth() { return width - guiWidth; }
+    int GetHeight() { return height; }
+    void SetWidth(int nWidth) { width = nWidth; }
+    void SetHeight(int nHeight) { height = nHeight; }
 
 	float speed = 0.1f;
 	float sensitivity = 100.0f;
@@ -22,14 +24,18 @@ public:
     float near;
     float far;
 
+	int guiWidth;
+
 	Camera(int width, int height, glm::vec3 position, float FOV, float near,
-           float far);
+           float far, int guiWidth = 0);
 
 	void PrepareMatrices(glm::mat4 &view, glm::mat4 &proj);
 	void HandleInputs(GLFWwindow* window);
-    float GetCursorRadius();
 
 private:
     void KeyboardInputs(GLFWwindow *window);
 	void MouseInputs(GLFWwindow *window);
+
+    int width;
+    int height;
 };

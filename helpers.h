@@ -2,6 +2,7 @@
 
 #include<glm/glm.hpp>
 #include<vector>
+#include <string>
 
 namespace CAD 
 {
@@ -30,4 +31,5 @@ namespace CAD
     glm::mat4 lookAt(glm::vec3 position, glm::vec3 target, glm::vec3 up);
     void printMatrix(glm::mat4 mat);
     float angleBetweenVectors(glm::vec3 u, glm::vec3 v);
+    std::string printPosition(glm::vec3 pos, std::string name = "");
     }

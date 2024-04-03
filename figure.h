@@ -48,10 +48,7 @@ public:
     ImGui::SeparatorText((name + " options:").c_str());
 
     // display position
-    glm::vec3 pos = GetPosition();
-    ImGui::Text(("Position: \nX:" + std::to_string(pos.x) + ", Y:" +
-                 std::to_string(pos.y) + ", Z:" + std::to_string(pos.z))
-                    .c_str());
+    ImGui::Text(CAD::printPosition(GetPosition(), "Position: \n").c_str());
 
     // translation manipulation
     ImGui::SeparatorText("Translation");
