@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bezierC0.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="cursor.cpp" />
     <ClCompile Include="EBO.cpp" />
@@ -167,6 +168,7 @@
     <None Include="default.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bezierC0.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="cursor.h" />
     <ClInclude Include="EBO.h" />

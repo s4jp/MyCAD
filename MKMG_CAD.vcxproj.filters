@@ -93,6 +93,9 @@
     <ClCompile Include="helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bezierC0.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -165,6 +168,9 @@
     </ClInclude>
     <ClInclude Include="helpers.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bezierC0.h">
+      <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

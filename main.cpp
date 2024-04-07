@@ -23,6 +23,7 @@
 #include"grid.h"
 #include"cursor.h"
 #include"point.h"
+#include"bezierC0.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -45,7 +46,6 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods);
 void mouse_button_callback(GLFWwindow *window, int button, int action,
                            int mods);
-void cursorHandleInput(GLFWwindow *window);
 std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
                                                         double yMouse);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
@@ -54,6 +54,9 @@ void recalculateSelected(bool deleting = false);
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
 int cursorRadius = 5;
+
+std::vector<BezierC0 *> curves;
+bool bezierSelection = false;
 
 int main() { 
     // initial values
@@ -129,14 +132,9 @@ int main() {
 		shaderProgram.Activate();
         #pragma endregion
 
-        switch (currentMenuItem) { 
-        case 0:
+        if (currentMenuItem == 0){
           camera->HandleInputs(window);
           camera->PrepareMatrices(view, proj);
-          break;
-        case 1:
-          cursorHandleInput(window);
-          break;
         }
 
         // matrices
@@ -149,6 +147,10 @@ int main() {
                       [colorLoc, modelLoc](Figure *f) {
                         f->Render(colorLoc, modelLoc);
                       });
+        std::for_each(curves.begin(), curves.end(),
+            [colorLoc, modelLoc](BezierC0 *c) { 
+                c->Render(colorLoc, modelLoc); 
+            });
         cursor->Render(colorLoc, modelLoc);
         if (selected.size() > 0) {
           center->Render(colorLoc, modelLoc);
@@ -159,7 +161,11 @@ int main() {
                          ImGuiWindowFlags_NoMove |
                              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
           // mode selection
-          ImGui::Combo(" ", &currentMenuItem, menuItems);
+          if (ImGui::Combo(" ", &currentMenuItem, menuItems)) {
+            if (currentMenuItem != 2) {
+              bezierSelection = false;
+            }
+          }
 
           // cursor position & radius slider
           cursor->CreateImgui();
@@ -176,6 +182,17 @@ int main() {
             ImGui::SameLine();
             if (ImGui::Button("Point")) {
               figures.push_back(new Point(cursor->GetPosition()));
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Bezier C0")) {
+              bezierSelection = !bezierSelection;
+              if (bezierSelection) {
+                curves.push_back(new BezierC0(cursor->GetPosition(),
+                                               std::vector<Point*>()));
+              }
+            }
+            if (bezierSelection) {
+              ImGui::Text("Bezier selection active!");
             }
           }
           
@@ -214,32 +231,46 @@ int main() {
               ImGui::Separator();
               ImGui::InputText("Change name", &figures[selected[0]]->name);
               // display selected item menu
-              figures[selected[0]]->CreateImgui();
-              center->SetPosition(figures[selected[0]]->GetPosition());
+              if (figures[selected[0]]->CreateImgui()) {
+                center->SetPosition(figures[selected[0]]->GetPosition());
+                for (int i = 0; i < curves.size(); i++) {
+                  std::vector<Point *> points = curves[i]->GetControlPoints();
+                  for (int j = 0; j < points.size(); j++) {
+                    if (figures[selected[0]] == points[j]) {
+                      curves[i]->RefreshBuffers();
+                    }
+                  }
+                }
+              }
           }
 
           if (selected.size() > 1) {
+            bool change = false;
             // scaling manipulation
             ImGui::SeparatorText("Center scale");
             if (ImGui::InputFloat("cSx", &centerScale.x, 0.01f, 1.f, "%.2f")) {
+              change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::InputFloat("cSy", &centerScale.y, 0.01f, 1.f, "%.2f")) {
+              change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::InputFloat("cSz", &centerScale.z, 0.01f, 1.f, "%.2f")) {
+              change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::Button("Reset center scale")) {
+              change = true;
               centerScale = glm::vec3(1.f);
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
@@ -249,28 +280,44 @@ int main() {
             // rotation manipulation
             ImGui::SeparatorText("Center scale");
             if (ImGui::SliderAngle("cX axis", &centerAngle.x, -180.f, 180.f)) {
+              change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::SliderAngle("cY axis", &centerAngle.y, -180.f, 180.f)) {
+              change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::SliderAngle("cZ axis", &centerAngle.z, -180.f, 180.f)) {
+              change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
               }
             }
             if (ImGui::Button("Reset center angle")) {
+              change = true;
               centerAngle = glm::vec3(0.f);
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
                     center->GetPosition(), centerScale, centerAngle);
+              }
+            }
+            if (change) {
+              for (int h = 0; h < selected.size(); h++) {
+                for (int i = 0; i < curves.size(); i++) {
+                  std::vector<Point*> points = curves[i]->GetControlPoints();
+                  for (int j = 0; j < points.size(); j++) {
+                    if (figures[selected[h]] == points[j]) {
+                      curves[i]->RefreshBuffers();
+                    }
+                  }
+                }
               }
             }
           }
@@ -307,28 +354,6 @@ void window_size_callback(GLFWwindow *window, int width, int height) {
   camera->SetHeight(height);
   camera->PrepareMatrices(view, proj);
   glViewport(0, 0, width - camera->guiWidth, height);
-}
-
-void cursorHandleInput(GLFWwindow *window) 
-{
-  if (!ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) &&
-      !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) 
-  {
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-      double mouseX;
-      double mouseY;
-      glfwGetCursorPos(window, &mouseX, &mouseY);
-      std::tuple<glm::vec3, glm::vec3> projections =
-          calculateNearFarProjections(mouseX, mouseY);
-
-      std::vector<glm::vec3> points = CAD::circleIntersections(
-          CAD::Sphere(std::get<0>(projections), cursorRadius),
-          camera->Position,
-          glm::normalize(std::get<1>(projections) - std::get<0>(projections)));
-      // take positive solution
-      cursor->SetPosition(points[1]);
-    }
-  }
 }
 
 std::tuple<glm::vec3, glm::vec3> calculateNearFarProjections(double xMouse,
@@ -395,23 +420,47 @@ void recalculateSelected(bool deleting) {
 
 void mouse_button_callback(GLFWwindow *window, int button, int action,
                            int mods) {
-  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-    if (currentMenuItem == 3) {
-      double mouseX;
-      double mouseY;
-      glfwGetCursorPos(window, &mouseX, &mouseY);
-      std::tuple<glm::vec3, glm::vec3> projections =
-          calculateNearFarProjections(mouseX, mouseY);
+  if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+      if (currentMenuItem == 1 || bezierSelection) {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+          double mouseX;
+          double mouseY;
+          glfwGetCursorPos(window, &mouseX, &mouseY);
+          std::tuple<glm::vec3, glm::vec3> projections =
+              calculateNearFarProjections(mouseX, mouseY);
 
-      CAD::Sphere sphere;
-      for (int i = 0; i < figures.size(); i++) {
-        if (figures[i]->GetBoundingSphere(sphere)) {
-          if (CAD::circleIntersections(sphere, camera->Position,
-                                       glm::normalize(std::get<1>(projections) -
-                                                      std::get<0>(projections)))
-                  .size() > 0) {
-            figures[i]->selected = !figures[i]->selected;
-            recalculateSelected();
+          std::vector<glm::vec3> points = CAD::circleIntersections(
+              CAD::Sphere(std::get<0>(projections), cursorRadius),
+              camera->Position,
+              glm::normalize(std::get<1>(projections) -
+                             std::get<0>(projections)));
+          // take positive solution
+          cursor->SetPosition(points[1]);
+          if (bezierSelection) {
+            figures.push_back(new Point(cursor->GetPosition()));
+            curves[curves.size() - 1]->AddControlPoint(
+                dynamic_cast<Point*>(figures[figures.size() - 1]));
+          }
+        }
+      } else if (currentMenuItem == 3) {
+        double mouseX;
+        double mouseY;
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+        std::tuple<glm::vec3, glm::vec3> projections =
+            calculateNearFarProjections(mouseX, mouseY);
+
+        CAD::Sphere sphere;
+        for (int i = 0; i < figures.size(); i++) {
+          if (figures[i]->GetBoundingSphere(sphere)) {
+            if (CAD::circleIntersections(
+                    sphere, camera->Position,
+                    glm::normalize(std::get<1>(projections) -
+                                   std::get<0>(projections)))
+                    .size() > 0) {
+              figures[i]->selected = !figures[i]->selected;
+              recalculateSelected();
+            }
           }
         }
       }
