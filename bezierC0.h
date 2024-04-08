@@ -11,10 +11,12 @@ private:
 
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-  InitializeAndCalculate(std::vector<Point*> cps);
+  InitializeAndCalculate(std::vector<Point*> cps, int cpCountLoc);
 
 public:
-  BezierC0(glm::vec3 position, std::vector<Point*> cps);
+  int cpCountLoc;
+
+  BezierC0(std::vector<Point*> cps, int cpCountLoc);
 
   void Render(int colorLoc, int modelLoc);
   bool CreateImgui();

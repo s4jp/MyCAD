@@ -3,26 +3,45 @@ layout (isolines) in;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
+uniform int cpCount;
 void main()
 {
     float t = gl_TessCoord.x;
+    float minT = (1.0 - t);
 
-    vec3 p0 = gl_in[0].gl_Position.xyz;
-    vec3 p1 = gl_in[1].gl_Position.xyz;
-    vec3 p2 = gl_in[2].gl_Position.xyz;
-    vec3 p3 = gl_in[3].gl_Position.xyz;
+    vec3 result;
 
-    float t1 = (1.0 - t);
-    float t2 = t * t;
+    if (cpCount == 4){
+        vec3 p0 = gl_in[0].gl_Position.xyz;
+        vec3 p1 = gl_in[1].gl_Position.xyz;
+        vec3 p2 = gl_in[2].gl_Position.xyz;
+        vec3 p3 = gl_in[3].gl_Position.xyz;
 
-    // Bernstein polynomials
-    float b3 = t2 * t;
-    float b2 = 3.0 * t2 * t1;
-    float b1 = 3.0 * t * t1 * t1;
-    float b0 = t1 * t1 * t1;
+        float b3_3 = t * t * t;
+        float b3_2 = 3.0 * minT * t * t;
+        float b3_1 = 3.0 * minT * minT * t;
+        float b3_0 = minT * minT * minT;
 
-    // Cubic Bezier interpolation
-    vec3 p = p0 * b0 + p1 * b1 + p2 * b2 + p3 * b3;
+        result = b3_0 * p0 + b3_1 * p1 + b3_2 * p2 + b3_3 * p3;
+    } else if (cpCount == 3) {
+        vec3 p0 = gl_in[0].gl_Position.xyz;
+        vec3 p1 = gl_in[1].gl_Position.xyz;
+        vec3 p2 = gl_in[2].gl_Position.xyz;
 
-    gl_Position = proj * view * model * vec4(p, 1.0);
+        float b2_2 = t * t;
+        float b2_1 = 2.0 * minT * t;
+        float b2_0 = minT * minT;
+
+        result = b2_0 * p0 + b2_1 * p1 + b2_2 * p2;
+    } else if (cpCount == 2) {
+        vec3 p0 = gl_in[0].gl_Position.xyz;
+        vec3 p1 = gl_in[1].gl_Position.xyz;
+
+        float b1_1 = t;
+        float b1_0 = minT;
+
+        result = b1_0 * p0 + b1_1 * p1;
+    }
+
+    gl_Position = proj * view * model * vec4(result, 1.0);
 }

@@ -116,6 +116,7 @@ int main() {
     int tessColorLoc = glGetUniformLocation(tessShaderProgram.ID, "color");
     int tessDivisionLoc =
         glGetUniformLocation(tessShaderProgram.ID, "division");
+    int tessCpCountLoc = glGetUniformLocation(tessShaderProgram.ID, "cpCount");
 
     #pragma region imgui_boilerplate
     IMGUI_CHECKVERSION();
@@ -177,9 +178,7 @@ int main() {
                              glm::value_ptr(tessProj));
           glUniform1i(tessDivisionLoc, division);
           for (int i = 0; i < curves.size(); i++) {
-            if (curves[i]->GetControlPoints().size() == 4) {
-              curves[i]->Render(tessColorLoc, tessModelLoc);
-            }
+            curves[i]->Render(tessColorLoc, tessModelLoc);
           }
         }
         // imgui rendering
@@ -192,6 +191,8 @@ int main() {
               bezierSelection = false;
             }
           }
+
+          ImGui::SliderInt("Bezier", &division, 1, 10);
 
           // cursor position & radius slider
           cursor->CreateImgui();
@@ -213,8 +214,8 @@ int main() {
             if (ImGui::Button("Bezier C0")) {
               bezierSelection = !bezierSelection;
               if (bezierSelection) {
-                curves.push_back(new BezierC0(cursor->GetPosition(),
-                                               std::vector<Point*>()));
+                curves.push_back(
+                    new BezierC0(std::vector<Point*>(), tessCpCountLoc));
               }
             }
             if (bezierSelection) {
@@ -411,12 +412,15 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentMenuItem = 0;
+    bezierSelection = false;
   } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentMenuItem = 1;
+    bezierSelection = false;
   } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentMenuItem = 2;
   } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentMenuItem = 3;
+    bezierSelection = false;
   }
 }
 
