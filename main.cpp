@@ -12,7 +12,7 @@
 #include<glm/gtc/type_ptr.hpp>
 #include<algorithm>
 
-#include"shaderClass.h"
+#include"Shader.h"
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
@@ -57,6 +57,7 @@ int cursorRadius = 5;
 
 std::vector<BezierC0 *> curves;
 bool bezierSelection = false;
+int division = 5;
 
 int main() { 
     // initial values
@@ -85,8 +86,10 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     #pragma endregion
 
-    // shader
+    // shaders
     Shader shaderProgram("default.vert", "default.frag");
+    Shader tessShaderProgram("tessellation.vert", "default.frag",
+                             "tessellation.tesc", "tessellation.tese");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -106,6 +109,13 @@ int main() {
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
     int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
+
+    int tessModelLoc = glGetUniformLocation(tessShaderProgram.ID, "model");
+    int tessViewLoc = glGetUniformLocation(tessShaderProgram.ID, "view");
+    int tessProjLoc = glGetUniformLocation(tessShaderProgram.ID, "proj");
+    int tessColorLoc = glGetUniformLocation(tessShaderProgram.ID, "color");
+    int tessDivisionLoc =
+        glGetUniformLocation(tessShaderProgram.ID, "division");
 
     #pragma region imgui_boilerplate
     IMGUI_CHECKVERSION();
@@ -147,15 +157,31 @@ int main() {
                       [colorLoc, modelLoc](Figure *f) {
                         f->Render(colorLoc, modelLoc);
                       });
-        std::for_each(curves.begin(), curves.end(),
-            [colorLoc, modelLoc](BezierC0 *c) { 
-                c->Render(colorLoc, modelLoc); 
-            });
         cursor->Render(colorLoc, modelLoc);
         if (selected.size() > 0) {
           center->Render(colorLoc, modelLoc);
         }
-
+        if (curves.size() > 0) {
+          for (int i = 0; i < curves.size(); i++) {
+            if (curves[i]->selected) {
+              curves[i]->RenderPolyline(colorLoc, modelLoc);
+            }
+          }
+          tessShaderProgram.Activate();
+          // work-around
+          glm::mat4 tessView = glm::mat4(view);
+          glm::mat4 tessProj = glm::mat4(proj);
+          glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE,
+                             glm::value_ptr(tessView));
+          glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE,
+                             glm::value_ptr(tessProj));
+          glUniform1i(tessDivisionLoc, division);
+          for (int i = 0; i < curves.size(); i++) {
+            if (curves[i]->GetControlPoints().size() == 4) {
+              curves[i]->Render(tessColorLoc, tessModelLoc);
+            }
+          }
+        }
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
                          ImGuiWindowFlags_NoMove |

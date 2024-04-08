@@ -11,6 +11,17 @@ void BezierC0::RefreshBuffers() {
                         std::get<1>(data).size() * sizeof(GLuint));
 }
 
+void BezierC0::RenderPolyline(int colorLoc, int modelLoc) {
+  vao.Bind();
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  glLineWidth(3.0f);
+
+  glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
+  glDrawElements(GL_LINE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
+
+  vao.Unbind();
+}
+
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
 BezierC0::Calculate() const {
   std::vector<GLfloat> vertices;
@@ -36,15 +47,18 @@ BezierC0::InitializeAndCalculate(std::vector<Point *> cps) {
 }
 
 BezierC0::BezierC0(glm::vec3 position, std::vector<Point *> cps)
-    : Figure(InitializeAndCalculate(cps), "Bezier C0", position, true) {}
+    : Figure(InitializeAndCalculate(cps), "Bezier C0", position, true) {
+  //selected = true;
+}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {
   vao.Bind();
+  glPatchParameteri(GL_PATCH_VERTICES, 4);
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glLineWidth(3.0f);
 
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
-  glDrawElements(GL_LINE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
+  glDrawArrays(GL_PATCHES, 0, 4);
 
   vao.Unbind();
 }
