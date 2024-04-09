@@ -1,6 +1,7 @@
 #include "bezierC0.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 void BezierC0::RefreshBuffers() {
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
@@ -72,7 +73,20 @@ void BezierC0::Render(int colorLoc, int modelLoc) {
   vao.Unbind();
 }
 
-bool BezierC0::CreateImgui() { return false; }
+bool BezierC0::CreateImgui() {
+  bool change = false;
+
+  if (ImGui::BeginListBox("Control points")) {
+    for (int i = 0; i < controlPoints.size(); i++) {
+      if (ImGui::Selectable((controlPoints[i]->name + ' ').c_str())) {
+        RemoveControlPoint(i);
+        change = true;
+      }
+    }
+    ImGui::EndListBox();
+  }
+  return change;
+}
 
 void BezierC0::AddControlPoint(Figure *cp) {
   controlPoints.push_back(cp);

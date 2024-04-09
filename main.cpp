@@ -49,7 +49,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 void recalculateSelected(bool deleting = false);
-void updateCurvesSelectedChange();
+void updateCurvesSelectedChange(bool deleting = false);
 std::vector<int> GetClickedFigures(GLFWwindow *window);
 
 glm::vec3 centerScale(1.f);
@@ -286,6 +286,7 @@ int main() {
           if (selected.size() > 0 || selectedCurveIdx != -1) {
             ImGui::Separator();
             if (ImGui::Button("Delete selected")) {
+              updateCurvesSelectedChange(true);
               for (int i = selected.size() - 1; i >= 0; i--) {
                 figures.erase(figures.begin() + selected[i]);
               }
@@ -306,7 +307,7 @@ int main() {
             }
           }
 
-          if (selected.size() == 1) 
+          if (selected.size() == 1 && selectedCurveIdx == -1) 
           {
               ImGui::Separator();
               // change name window
@@ -317,6 +318,19 @@ int main() {
               if (figures[selected[0]]->CreateImgui()) {
                 updateCurvesSelectedChange();
               }
+          }
+          if (selected.size() == 0 && selectedCurveIdx != -1) {
+            ImGui::Separator();
+            // change name window
+            ImGui::InputText("Change name", &curves[selectedCurveIdx]->name);
+            // display selected curve menu
+            if (curves[selectedCurveIdx]->CreateImgui()) {
+              if (curves[selectedCurveIdx]->GetControlPoints().size() == 0) {
+                curves.erase(curves.begin() + selectedCurveIdx);
+                selectedCurveIdx = -1;
+                recalculateSelected(true);
+              }
+            };
           }
 
           // multiple figures manipulation
@@ -504,6 +518,8 @@ void recalculateSelected(bool deleting) {
   }
   centerScale = glm::vec3(1.f);
   centerAngle = glm::vec3(0.f);
+  // resolve vertex deletion in regards to bezier curve
+  updateCurvesSelectedChange();
   // find selected figures
   selected.clear();
   for (int i = 0; i < figures.size(); i++) {
@@ -519,13 +535,20 @@ void recalculateSelected(bool deleting) {
   center->SetPosition(centerVec);
 }
 
-void updateCurvesSelectedChange() {
+void updateCurvesSelectedChange(bool deleting) {
   for (int i = 0; i < selected.size(); i++) {
     for (int j = 0; j < curves.size(); j++) {
       std::vector<Figure*> points = curves[j]->GetControlPoints();
-      for (int k = 0; k < points.size(); k++) {
+      int deleted = 0;
+      for (int k = 0; k < points.size() - deleted; k++) {
         if (figures[selected[i]] == points[k]) {
-          curves[j]->RefreshBuffers();
+          if (deleting) {
+            curves[j]->RemoveControlPoint(k);
+            k--;
+          } else {
+            // 'else' because otherwise we would refresh buffors twice
+            curves[j]->RefreshBuffers();
+          }
         }
       }
     }
