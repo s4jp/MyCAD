@@ -237,6 +237,7 @@ int main() {
                   // if bezier was created from selected figures, then creation
                   // mode is not enabled
                   bezierSelection = !bezierSelection;
+                  selectedCurveIdx = curves.size() - 1;
                 }
               } else {
                 bezierSelection = !bezierSelection;
@@ -478,7 +479,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
         }
         
         for (int i = 0; i < newCPs.size(); i++) {
-          curves[curves.size() - 1]->AddControlPoint(newCPs[i]);
+          curves[selectedCurveIdx]->AddControlPoint(newCPs[i]);
         }
       }
     }

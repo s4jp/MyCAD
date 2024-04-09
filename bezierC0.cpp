@@ -63,8 +63,10 @@ void BezierC0::Render(int colorLoc, int modelLoc) {
     int size = glm::min(4, (int)indices_count - offset);
     glUniform1i(cpCountLoc, size);
     glPatchParameteri(GL_PATCH_VERTICES, size);
-    glDrawElements(GL_PATCHES, size,
-                   GL_UNSIGNED_INT, (void *)(offset * sizeof(GLuint)));
+    //glDrawElements(GL_PATCHES, size,
+    //               GL_UNSIGNED_INT, (void *)(offset * sizeof(GLuint)));
+    glDrawElements(GL_PATCHES, 4, GL_UNSIGNED_INT,
+                   (void *)(offset * sizeof(GLuint)));
   }
 
   vao.Unbind();
