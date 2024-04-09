@@ -48,9 +48,7 @@ BezierC0::InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc) {
 }
 
 BezierC0::BezierC0(std::vector<Figure*> cps, int cpCountLoc)
-    : Figure(InitializeAndCalculate(cps,cpCountLoc), "Bezier C0", glm::vec3(0.f), true) {
-  selected = true;
-}
+    : Figure(InitializeAndCalculate(cps,cpCountLoc), "Bezier C0", glm::vec3(0.f), true) {}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {
   vao.Bind();

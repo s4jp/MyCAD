@@ -59,6 +59,7 @@ int cursorRadius = 5;
 std::vector<BezierC0*> curves;
 bool bezierSelection = false;
 int division = 5;
+int selectedCurveIdx = -1;
 
 int main() { 
     // initial values
@@ -214,24 +215,30 @@ int main() {
             ImGui::Separator();
             // torus
             if (ImGui::Button("Torus")) {
+              bezierSelection = false;
               figures.push_back(new Torus(cursor->GetPosition()));
             }
             // point
             ImGui::SameLine();
             if (ImGui::Button("Point")) {
+              bezierSelection = false;
               figures.push_back(new Point(cursor->GetPosition()));
             }
             // bezier C0
             ImGui::SameLine();
             if (ImGui::Button("Bezier C0")) {
-              std::vector<Figure *> newCPs;
-              for (int i = 0; i < selected.size(); i++) {
-                newCPs.push_back(figures[selected[i]]);
-              }
-              curves.push_back(new BezierC0(newCPs, tessCpCountLoc));
-
-              if (selected.size() == 0) {
-                // if bezier was created from selected figures, then creation mode is not enabled
+              if (!bezierSelection) {
+                std::vector<Figure *> newCPs;
+                for (int i = 0; i < selected.size(); i++) {
+                  newCPs.push_back(figures[selected[i]]);
+                }
+                curves.push_back(new BezierC0(newCPs, tessCpCountLoc));
+                if (selected.size() == 0) {
+                  // if bezier was created from selected figures, then creation
+                  // mode is not enabled
+                  bezierSelection = !bezierSelection;
+                }
+              } else {
                 bezierSelection = !bezierSelection;
               }
             }
@@ -242,11 +249,28 @@ int main() {
           
           ImGui::Separator();
           // object selection
+          for (int i = 0; i < curves.size(); i++) {
+            if (ImGui::Selectable(curves[i]->name.c_str(),
+                                  &curves[i]->selected)) {
+              bool temp = curves[i]->selected;
+              std::for_each(curves.begin(), curves.end(), [](Figure *f) {
+                f->selected = false;;});
+              curves[i]->selected = temp;
+
+              std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+                f->selected = false;;});
+
+              bezierSelection = temp;
+              selectedCurveIdx = temp ? i : -1;
+              recalculateSelected();
+            }
+          }
           for (int i = 0; i < figures.size(); i++) 
           {
               if (ImGui::Selectable(figures[i]->name.c_str(),
                   &figures[i]->selected))
               {
+                  bezierSelection = false;
                   if (!ImGui::GetIO().KeyShift) 
                   {
                     bool temp = figures[i]->selected;
@@ -259,13 +283,17 @@ int main() {
           }
 
           // delete button
-          if (selected.size() > 0) {
+          if (selected.size() > 0 || selectedCurveIdx != -1) {
             ImGui::Separator();
             if (ImGui::Button("Delete selected")) {
               for (int i = selected.size() - 1; i >= 0; i--) {
                 figures.erase(figures.begin() + selected[i]);
-                recalculateSelected(true);
               }
+              if (selectedCurveIdx != -1) {
+                curves.erase(curves.begin() + selectedCurveIdx);
+                selectedCurveIdx = -1;
+              }
+              recalculateSelected(true);
             }
           }
 
