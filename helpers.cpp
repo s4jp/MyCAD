@@ -2,7 +2,6 @@
 #include <iostream>
 #include <iomanip>
 
-
 glm::mat4 CAD::translate(glm::mat4 matrix, glm::vec3 vector) {
   glm::mat4 translationMatrix = glm::mat4(1.0f);
   translationMatrix[3] = glm::vec4(vector, 1.0f);
@@ -136,4 +135,24 @@ float CAD::angleBetweenVectors(glm::vec3 u, glm::vec3 v)
 std::string CAD::printPosition(glm::vec3 pos, std::string name) {
   return name + "X: " + std::to_string(pos.x) +
          ", Y:" + std::to_string(pos.y) + ", Z:" + std::to_string(pos.z);
+}
+
+std::tuple<glm::vec3, glm::vec3>
+CAD::calculateNearFarProjections(double xMouse, double yMouse, glm::mat4 proj,
+                            glm::mat4 view, Camera *camera) {
+  glm::mat4 invMat = glm::inverse(proj * view);
+
+  float xMouseClip =
+      (xMouse - camera->GetWidth() / 2.0f) / (camera->GetWidth() / 2.0f);
+  float yMouseClip =
+      -1 * (yMouse - camera->GetHeight() / 2.0f) / (camera->GetHeight() / 2.0f);
+
+  glm::vec4 near = glm::vec4(xMouseClip, yMouseClip, -1.0f, 1.0f);
+  glm::vec4 far = glm::vec4(xMouseClip, yMouseClip, 1.0f, 1.0f);
+  glm::vec4 nearResult = invMat * near;
+  glm::vec4 farResult = invMat * far;
+  nearResult /= nearResult.w;
+  farResult /= farResult.w;
+  return std::tuple<glm::vec3, glm::vec3>(glm::vec3(nearResult),
+                                          glm::vec3(farResult));
 }
