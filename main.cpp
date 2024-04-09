@@ -224,10 +224,15 @@ int main() {
             // bezier C0
             ImGui::SameLine();
             if (ImGui::Button("Bezier C0")) {
-              bezierSelection = !bezierSelection;
-              if (bezierSelection) {
-                curves.push_back(
-                    new BezierC0(std::vector<Figure*>(), tessCpCountLoc));
+              std::vector<Figure *> newCPs;
+              for (int i = 0; i < selected.size(); i++) {
+                newCPs.push_back(figures[selected[i]]);
+              }
+              curves.push_back(new BezierC0(newCPs, tessCpCountLoc));
+
+              if (selected.size() == 0) {
+                // if bezier was created from selected figures, then creation mode is not enabled
+                bezierSelection = !bezierSelection;
               }
             }
             if (bezierSelection) {
