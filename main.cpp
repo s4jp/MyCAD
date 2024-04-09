@@ -50,6 +50,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 void recalculateSelected(bool deleting = false);
 void updateCurvesSelectedChange();
+std::vector<int> GetClickedFigures(GLFWwindow *window);
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -409,49 +410,40 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 void mouse_button_callback(GLFWwindow *window, int button, int action,
                            int mods) {
   if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-      if (currentMenuItem == 1 || bezierSelection) {
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-          double mouseX;
-          double mouseY;
-          glfwGetCursorPos(window, &mouseX, &mouseY);
-          std::tuple<glm::vec3, glm::vec3> projections =
-              CAD::calculateNearFarProjections(mouseX, mouseY, proj, view,
-                                               camera);
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
+    {
+      glm::vec3 newCursorPos =
+          CAD::calculateNewCursorPos(window, proj, view, camera, cursorRadius);
+      std::vector<int> clickedFigures = GetClickedFigures(window);
 
-          std::vector<glm::vec3> points = CAD::circleIntersections(
-              CAD::Sphere(std::get<0>(projections), cursorRadius),
-              camera->Position,
-              glm::normalize(std::get<1>(projections) -
-                             std::get<0>(projections)));
-          // take positive solution
-          cursor->SetPosition(points[1]);
-          if (bezierSelection) {
-            figures.push_back(new Point(cursor->GetPosition()));
-            curves[curves.size() - 1]->AddControlPoint(
-                dynamic_cast<Point*>(figures[figures.size() - 1]));
-          }
+      // cursor movement
+      if (currentMenuItem == 1) {
+        cursor->SetPosition(newCursorPos);
+      } 
+      // point selection
+      else if (currentMenuItem == 3) {
+        for (int i = 0; i < clickedFigures.size(); i++) {
+          figures[clickedFigures[i]]->selected = !figures[clickedFigures[i]]->selected;
+          recalculateSelected();
         }
-      } else if (currentMenuItem == 3) {
-        double mouseX;
-        double mouseY;
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-        std::tuple<glm::vec3, glm::vec3> projections =
-            CAD::calculateNearFarProjections(mouseX, mouseY, proj, view,
-                                             camera);
-
-        CAD::Sphere sphere;
-        for (int i = 0; i < figures.size(); i++) {
-          if (figures[i]->GetBoundingSphere(sphere)) {
-            if (CAD::circleIntersections(
-                    sphere, camera->Position,
-                    glm::normalize(std::get<1>(projections) -
-                                   std::get<0>(projections)))
-                    .size() > 0) {
-              figures[i]->selected = !figures[i]->selected;
-              recalculateSelected();
-            }
+      }
+      // add point to curve being created
+      if (bezierSelection) {
+        std::vector<Point*> newCPs;
+        // if any points have been clicked - add them
+        if (clickedFigures.size() > 0) {
+          for (int i = 0; i < clickedFigures.size(); i++) {
+            newCPs.push_back(dynamic_cast<Point *>(figures[clickedFigures[i]]));
           }
+        } 
+        // if none - add *only* newCursorPos
+        else {
+          newCPs.push_back(new Point(newCursorPos));
+          figures.push_back(newCPs[newCPs.size() - 1]);
+        }
+        
+        for (int i = 0; i < newCPs.size(); i++) {
+          curves[curves.size() - 1]->AddControlPoint(newCPs[i]);
         }
       }
     }
@@ -494,4 +486,21 @@ void updateCurvesSelectedChange() {
       }
     }
   }
+}
+
+std::vector<int> GetClickedFigures(GLFWwindow *window) {
+  std::vector<int> result;
+
+  CAD::Sphere sphere;
+  for (int i = 0; i < figures.size(); i++) {
+    if (figures[i]->GetBoundingSphere(sphere)) {
+      if (CAD::circleIntersections(
+              sphere, camera->Position,
+              CAD::calculateCameraRay(window, proj, view, camera))
+              .size() > 0) {
+        result.push_back(i);
+      }
+    }
+  }
+  return result;
 }

@@ -156,3 +156,25 @@ CAD::calculateNearFarProjections(double xMouse, double yMouse, glm::mat4 proj,
   return std::tuple<glm::vec3, glm::vec3>(glm::vec3(nearResult),
                                           glm::vec3(farResult));
 }
+
+glm::vec3 CAD::calculateNewCursorPos(GLFWwindow *window, glm::mat4 proj,
+                                     glm::mat4 view, Camera *camera,
+                                     int cursorRadius) {
+  std::vector<glm::vec3> points = CAD::circleIntersections(
+      CAD::Sphere(camera->Position, cursorRadius), camera->Position,
+      CAD::calculateCameraRay(window, proj, view, camera));
+
+  return points[1];
+}
+
+glm::vec3 CAD::calculateCameraRay(GLFWwindow *window, glm::mat4 proj,
+                                  glm::mat4 view, Camera *camera) {
+  double mouseX;
+  double mouseY;
+  glfwGetCursorPos(window, &mouseX, &mouseY);
+
+  std::tuple<glm::vec3, glm::vec3> projections =
+      CAD::calculateNearFarProjections(mouseX, mouseY, proj, view, camera);
+
+  return glm::normalize(std::get<1>(projections) - std::get<0>(projections));
+}

@@ -37,4 +37,8 @@ namespace CAD
     std::tuple<glm::vec3, glm::vec3>
     calculateNearFarProjections(double xMouse, double yMouse, glm::mat4 proj,
                                 glm::mat4 view, Camera *camera);
+    glm::vec3 calculateNewCursorPos(GLFWwindow *window, glm::mat4 proj,
+                                    glm::mat4 view, Camera *camera, int cursorRadius);
+    glm::vec3 calculateCameraRay(GLFWwindow *window, glm::mat4 proj,
+                                 glm::mat4 view, Camera *camera);
 }
