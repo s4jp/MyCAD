@@ -40,14 +40,14 @@ BezierC0::Calculate() const {
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-BezierC0::InitializeAndCalculate(std::vector<Point *> cps, int cpCountLoc) {
+BezierC0::InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc) {
   this->controlPoints = cps;
   this->cpCountLoc = cpCountLoc;
 
   return Calculate();
 }
 
-BezierC0::BezierC0(std::vector<Point*> cps, int cpCountLoc)
+BezierC0::BezierC0(std::vector<Figure*> cps, int cpCountLoc)
     : Figure(InitializeAndCalculate(cps,cpCountLoc), "Bezier C0", glm::vec3(0.f), true) {
   selected = true;
 }
@@ -74,7 +74,7 @@ void BezierC0::Render(int colorLoc, int modelLoc) {
 
 bool BezierC0::CreateImgui() { return false; }
 
-void BezierC0::AddControlPoint(Point *cp) {
+void BezierC0::AddControlPoint(Figure *cp) {
   controlPoints.push_back(cp);
   RefreshBuffers();
 }

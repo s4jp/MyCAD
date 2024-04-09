@@ -227,7 +227,7 @@ int main() {
               bezierSelection = !bezierSelection;
               if (bezierSelection) {
                 curves.push_back(
-                    new BezierC0(std::vector<Point*>(), tessCpCountLoc));
+                    new BezierC0(std::vector<Figure*>(), tessCpCountLoc));
               }
             }
             if (bezierSelection) {
@@ -387,8 +387,10 @@ void window_size_callback(GLFWwindow *window, int width, int height) {
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
 {
-  cursorRadius = glm::clamp((int)(cursorRadius + yoffset),
-                            glm::max((int)near, 1), glm::max((int)far, 1));
+  if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) {
+    cursorRadius = glm::clamp((int)(cursorRadius + yoffset),
+                              glm::max((int)near, 1), glm::max((int)far, 1));
+  }
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -429,11 +431,11 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
       }
       // add point to curve being created
       if (bezierSelection) {
-        std::vector<Point*> newCPs;
+        std::vector<Figure*> newCPs;
         // if any points have been clicked - add them
         if (clickedFigures.size() > 0) {
           for (int i = 0; i < clickedFigures.size(); i++) {
-            newCPs.push_back(dynamic_cast<Point *>(figures[clickedFigures[i]]));
+            newCPs.push_back(figures[clickedFigures[i]]);
           }
         } 
         // if none - add *only* newCursorPos
@@ -478,7 +480,7 @@ void recalculateSelected(bool deleting) {
 void updateCurvesSelectedChange() {
   for (int i = 0; i < selected.size(); i++) {
     for (int j = 0; j < curves.size(); j++) {
-      std::vector<Point *> points = curves[j]->GetControlPoints();
+      std::vector<Figure*> points = curves[j]->GetControlPoints();
       for (int k = 0; k < points.size(); k++) {
         if (figures[selected[i]] == points[k]) {
           curves[j]->RefreshBuffers();
