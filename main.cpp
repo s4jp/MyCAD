@@ -57,7 +57,6 @@ glm::vec3 centerAngle(0.f);
 int cursorRadius = 5;
 
 std::vector<BezierC0*> curves;
-int division = 5;
 int selectedCurveIdx = -1;
 
 int main() { 
@@ -100,9 +99,9 @@ int main() {
     int tessViewLoc = glGetUniformLocation(tessShaderProgram.ID, "view");
     int tessProjLoc = glGetUniformLocation(tessShaderProgram.ID, "proj");
     int tessColorLoc = glGetUniformLocation(tessShaderProgram.ID, "color");
-    int tessDivisionLoc =
-        glGetUniformLocation(tessShaderProgram.ID, "division");
     int tessCpCountLoc = glGetUniformLocation(tessShaderProgram.ID, "cpCount");
+    int tessResolutionLoc =
+        glGetUniformLocation(tessShaderProgram.ID, "resolution");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -178,9 +177,7 @@ int main() {
         glm::mat4 tessProj = glm::mat4(proj);
         glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
         glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
-
-        // TEMP (to be deleted when adaptivity will get implemented)
-        glUniform1i(tessDivisionLoc, division);
+        glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
 
         // curves rendering with tessellation shader
         for (int i = 0; i < curves.size(); i++) {
@@ -197,9 +194,6 @@ int main() {
               selectedCurveIdx = -1;
             }
           }
-
-          // TEMP (to be deleted when adaptivity will get implemented)
-          ImGui::SliderInt("Bezier", &division, 1, 10);
 
           // cursor position & radius slider
           {

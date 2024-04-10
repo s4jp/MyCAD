@@ -1,8 +1,10 @@
 #version 460 core
+
 layout (isolines) in;
-uniform mat4 view;
+
 uniform mat4 proj;
 uniform int cpCount;
+
 void main()
 {
     float t = gl_TessCoord.x;
@@ -42,5 +44,5 @@ void main()
         result = b1_0 * p0 + b1_1 * p1;
     }
 
-    gl_Position = proj * view * vec4(result, 1.0);
+    gl_Position = proj * vec4(result, 1.0);
 }
