@@ -22,7 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{bfeb9890-e817-427e-82ff-a335a155f0d7}</ProjectGuid>
-    <RootNamespace>MKMGP2torusmesh</RootNamespace>
+    <RootNamespace>MKMG</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>MKMG_CAD</ProjectName>
   </PropertyGroup>
