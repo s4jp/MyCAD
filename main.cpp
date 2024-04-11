@@ -226,19 +226,22 @@ int main() {
               if (selectedCurveIdx != -1) {
                 deselectCurve();
               }
-              std::vector<Figure *> newCPs;
-              for (int i = 0; i < selected.size(); i++) {
-                newCPs.push_back(figures[selected[i]]);
-              }
-              curves.push_back(new BezierC0(newCPs, tessCpCountLoc,
-                                            tessSegmentCountLoc,
+              curves.push_back(new BezierC0(tessCpCountLoc, tessSegmentCountLoc,
                                             tessSegmentIdxLoc));
+              selectedCurveIdx = curves.size() - 1;
+              curves[selectedCurveIdx]->selected = true;
+              for (int i = 0; i < selected.size(); i++) {
+                curves[selectedCurveIdx]->AddControlPoint(figures[selected[i]]);
+              }
               if (selected.size() == 0) {
                 // if curve was created from selected figures then 
                 // it doesnt get activated
-                selectedCurveIdx = curves.size() - 1;
-                curves[selectedCurveIdx]->selected = true;
                 clickingOutCurve = true;
+              } else {
+                std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+                  f->selected = false;;
+                    });
+                recalculateSelected();
               }
             }
           }
@@ -289,7 +292,7 @@ int main() {
           if (selected.size() > 0 || selectedCurveIdx != -1) {
             ImGui::Separator();
             if (ImGui::Button("Delete selected")) {
-              //updateCurvesSelectedChange(true);
+              updateCurvesSelectedChange(true);
               for (int i = selected.size() - 1; i >= 0; i--) {
                 figures.erase(figures.begin() + selected[i]);
               }
@@ -553,11 +556,10 @@ void updateCurvesSelectedChange(bool deleting) {
     for (int j = 0; j < curves.size(); j++) {
       std::vector<Figure*> points = curves[j]->GetControlPoints();
       int deleted = 0;
-      for (int k = 0; k < points.size() - deleted; k++) {
+      for (int k = 0; k < points.size(); k++) {
         if (figures[selected[i]] == points[k]) {
           if (deleting) {
-            curves[j]->RemoveControlPoint(k);
-            k--;
+            curves[j]->RemoveControlPoint(k + deleted);
           } else {
             // 'else' because otherwise we would refresh buffors twice
             curves[j]->RefreshBuffers();

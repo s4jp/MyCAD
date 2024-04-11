@@ -43,9 +43,8 @@ BezierC0::Calculate() const {
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-BezierC0::InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc,
-                                 int segmentCountLoc, int segmentIdxLoc) {
-  this->controlPoints = cps;
+BezierC0::InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
+                                 int segmentIdxLoc) {
   this->cpCountLoc = cpCountLoc;
   this->segmentCountLoc = segmentCountLoc;
   this->segmentIdxLoc = segmentIdxLoc;
@@ -53,10 +52,8 @@ BezierC0::InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc,
   return Calculate();
 }
 
-BezierC0::BezierC0(std::vector<Figure *> cps, int cpCountLoc,
-                   int segmentCountLoc, int segmentIdxLoc)
-    : Figure(InitializeAndCalculate(cps, cpCountLoc, segmentCountLoc,
-                                    segmentIdxLoc),
+BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
+    : Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc),
              "Bezier C0", glm::vec3(0.f), true) {}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {

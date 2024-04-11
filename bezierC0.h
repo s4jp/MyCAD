@@ -11,15 +11,15 @@ private:
 
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-  InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc,
-                         int segmentCountLoc, int segmentIdxLoc);
+  InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
+                         int segmentIdxLoc);
 
 public:
   int cpCountLoc;
   int segmentCountLoc;
   int segmentIdxLoc;
 
-  BezierC0(std::vector<Figure*> cps, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc);
+  BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc);
 
   void Render(int colorLoc, int modelLoc);
   bool CreateImgui();
