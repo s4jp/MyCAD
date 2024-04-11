@@ -1,7 +1,10 @@
 #pragma once
 
-#include<glm/glm.hpp>
-#include<vector>
+#include <glm/glm.hpp>
+#include <vector>
+#include <string>
+#include "Camera.h"
+#include <tuple>
 
 namespace CAD 
 {
@@ -30,4 +33,12 @@ namespace CAD
     glm::mat4 lookAt(glm::vec3 position, glm::vec3 target, glm::vec3 up);
     void printMatrix(glm::mat4 mat);
     float angleBetweenVectors(glm::vec3 u, glm::vec3 v);
-    }
+    std::string printPosition(glm::vec3 pos, std::string name = "");
+    std::tuple<glm::vec3, glm::vec3>
+    calculateNearFarProjections(double xMouse, double yMouse, glm::mat4 proj,
+                                glm::mat4 view, Camera *camera);
+    glm::vec3 calculateNewCursorPos(GLFWwindow *window, glm::mat4 proj,
+                                    glm::mat4 view, Camera *camera, int cursorRadius);
+    glm::vec3 calculateCameraRay(GLFWwindow *window, glm::mat4 proj,
+                                 glm::mat4 view, Camera *camera);
+}

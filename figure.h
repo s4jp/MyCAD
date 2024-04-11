@@ -44,50 +44,74 @@ public:
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
   virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
-  virtual void CreateImgui(){
+  virtual bool CreateImgui(){
+    bool change = false;
     ImGui::SeparatorText((name + " options:").c_str());
 
     // display position
-    glm::vec3 pos = GetPosition();
-    ImGui::Text(("Position: \nX:" + std::to_string(pos.x) + ", Y:" +
-                 std::to_string(pos.y) + ", Z:" + std::to_string(pos.z))
-                    .c_str());
+    ImGui::Text(CAD::printPosition(GetPosition(), "Position: \n").c_str());
 
     // translation manipulation
     ImGui::SeparatorText("Translation");
-    if (ImGui::InputFloat("X", &translation.x, 0.01f, 1.f, "%.2f"))
-        CalculateModelMatrix();
-    if (ImGui::InputFloat("Y", &translation.y, 0.01f, 1.f, "%.2f"))
+    if (ImGui::InputFloat("X", &translation.x, 0.01f, 1.f, "%.2f")) {
       CalculateModelMatrix();
-    if (ImGui::InputFloat("Z", &translation.z, 0.01f, 1.f, "%.2f"))
+      change = true;
+    }
+    if (ImGui::InputFloat("Y", &translation.y, 0.01f, 1.f, "%.2f")) {
       CalculateModelMatrix();
-    if (ImGui::Button("Reset translation"))
+      change = true;
+    }
+    if (ImGui::InputFloat("Z", &translation.z, 0.01f, 1.f, "%.2f")) {
+      CalculateModelMatrix();
+      change = true;
+    }
+    if (ImGui::Button("Reset translation")) {
       SetTranslation(glm::vec3(0.0f));
+      change = true;
+    }
 
     if (!is3D)
-      return;
+      return change;
 
     // scaling manipulation
     ImGui::SeparatorText("Scale");
-    if (ImGui::InputFloat("Sx", &scale.x, 0.01f, 1.f, "%.2f"))
+    if (ImGui::InputFloat("Sx", &scale.x, 0.01f, 1.f, "%.2f")) {
       CalculateModelMatrix();
-    if (ImGui::InputFloat("Sy", &scale.y, 0.01f, 1.f, "%.2f"))
+      change = true;
+    }
+    if (ImGui::InputFloat("Sy", &scale.y, 0.01f, 1.f, "%.2f")) {
       CalculateModelMatrix();
-    if (ImGui::InputFloat("Sz", &scale.z, 0.01f, 1.f, "%.2f"))
+      change = true;
+    }
+    if (ImGui::InputFloat("Sz", &scale.z, 0.01f, 1.f, "%.2f")) {
       CalculateModelMatrix();
-    if (ImGui::Button("Reset scale"))
+      change = true;
+    }
+    if (ImGui::Button("Reset scale")) {
       SetScale(glm::vec3(1.0f));
+      change = true;
+    }
 
     // rotation manipulation
     ImGui::SeparatorText("Rotation");
-    if (ImGui::SliderAngle("X axis", &angle.x, -180.f, 180.f))
+    if (ImGui::SliderAngle("X axis", &angle.x, -180.f, 180.f)) {
       CalculateModelMatrix();
-    if (ImGui::SliderAngle("Y axis", &angle.y, -180.f, 180.f))
+      change = true;
+    }
+    if (ImGui::SliderAngle("Y axis", &angle.y, -180.f, 180.f)) {
       CalculateModelMatrix();
-    if (ImGui::SliderAngle("Z axis", &angle.z, -180.f, 180.f))
+      change = true;
+    }
+    if (ImGui::SliderAngle("Z axis", &angle.z, -180.f, 180.f)) {
       CalculateModelMatrix();
-    if (ImGui::Button("Reset rotation"))
+      change = true;
+    }
+    if (ImGui::Button("Reset rotation")) {
       SetAngle(glm::vec3(0.0f));
+      change = true;
+    }
+     
+    return change;
   }
 
   void Delete() {

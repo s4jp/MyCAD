@@ -80,17 +80,27 @@ Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2)
   return Calculate();
 }
 
-void Torus::CreateImgui() 
+bool Torus::CreateImgui() 
 {
-    Figure::CreateImgui();
+    bool change = Figure::CreateImgui();
 
     ImGui::SeparatorText("Options");
-    if (ImGui::SliderFloat("R1", &R1, 0.01f, 5.f, "%.2f"))
+    if (ImGui::SliderFloat("R1", &R1, 0.01f, 5.f, "%.2f")) {
       Recalculate();
-    if (ImGui::SliderFloat("R2", &R2, 0.01f, 5.f, "%.2f"))
+      change = true;
+    }
+    if (ImGui::SliderFloat("R2", &R2, 0.01f, 5.f, "%.2f")) {
       Recalculate();
-    if (ImGui::SliderInt("major", &n2, 3, 50))
+      change = true;
+    }
+    if (ImGui::SliderInt("major", &n2, 3, 50)) {
       Recalculate();
-    if (ImGui::SliderInt("minor", &n1, 3, 50))
+      change = true;
+    }
+    if (ImGui::SliderInt("minor", &n1, 3, 50)) {
       Recalculate();
+      change = true;
+    }
+
+    return change;
 }

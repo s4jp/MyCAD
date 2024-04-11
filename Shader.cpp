@@ -1,4 +1,6 @@
-#include"shaderClass.h"
+#include"Shader.h"
+
+#include<vector>
 
 std::string get_file_contents(const char* filename)
 {
@@ -16,36 +18,29 @@ std::string get_file_contents(const char* filename)
 	throw(errno);
 }
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile)
-{
-	std::string vertexCode = get_file_contents(vertexFile);
-	std::string fragmentCode = get_file_contents(fragmentFile);
-
-	const char* vertexSource = vertexCode.c_str();
-	const char* fragmentSource = fragmentCode.c_str();
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(vertexShader);
-    compileErrors(vertexShader, "VERTEX");
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	glCompileShader(fragmentShader);
-    compileErrors(fragmentShader, "FRAGMENT");
+Shader::Shader(const char *vertexFile, const char *fragmentFile,
+               const char *tcFile, const char *teFile) {
+	std::vector<GLuint> shaders;
+    shaders.push_back(compileShader(GL_VERTEX_SHADER, vertexFile));
+    shaders.push_back(compileShader(GL_FRAGMENT_SHADER, fragmentFile));
+    if (tcFile != nullptr && teFile != nullptr) {
+      shaders.push_back(compileShader(GL_TESS_CONTROL_SHADER, tcFile));
+      shaders.push_back(compileShader(GL_TESS_EVALUATION_SHADER, teFile));
+    }
 
 	ID = glCreateProgram();
-	glAttachShader(ID, vertexShader);
-	glAttachShader(ID, fragmentShader);
+    for (int i = 0; i < shaders.size(); i++) {
+       glAttachShader(ID, shaders[i]);
+    }
 	glLinkProgram(ID);
     compileErrors(ID, "PROGRAM");
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	for (int i = 0; i < shaders.size(); i++) {
+      glDeleteShader(shaders[i]);
+    }
 }
 
-void Shader::Activate()
-{
+void Shader::Activate() {
 	glUseProgram(ID);
 }
 
@@ -77,4 +72,15 @@ void Shader::compileErrors(unsigned int shader, const char *type)
 			          << infoLog << std::endl;
 		}
 	}
+}
+
+GLuint Shader::compileShader(GLenum type, const char *file) {
+  std::string code = get_file_contents(file);
+  const char *source = code.c_str();
+
+  GLuint shader = glCreateShader(type);
+  glShaderSource(shader, 1, &source, NULL);
+  glCompileShader(shader);
+  compileErrors(shader, file);
+  return shader;
 }

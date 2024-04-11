@@ -4,7 +4,7 @@
 #include"imgui.h"
 
 Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
-               float far) {
+               float far, int guiWidth) {
 	Camera::width = width;
 	Camera::height = height;
 	Camera::Position = position;
@@ -12,11 +12,12 @@ Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
     Camera::FOV = FOV;
     Camera::near = near;
     Camera::far = far;
+    Camera::guiWidth = guiWidth;
 }
 
 void Camera::PrepareMatrices(glm::mat4 &view, glm::mat4 &proj) {
   view = CAD::lookAt(Position, Position + Orientation, Up);
-  proj = CAD::projection(FOV, (float)width / height, near, far);
+  proj = CAD::projection(FOV, (float)(width - guiWidth) / height, near, far);
 }
 
 void Camera::HandleInputs(GLFWwindow *window) {
@@ -26,10 +27,6 @@ void Camera::HandleInputs(GLFWwindow *window) {
     KeyboardInputs(window);
     MouseInputs(window);
   }
-}
-
-float Camera::GetCursorRadius() {
-  return glm::max(glm::abs(Position.x), glm::abs(Position.z));
 }
 
 void Camera::KeyboardInputs(GLFWwindow *window) 
@@ -51,6 +48,12 @@ void Camera::KeyboardInputs(GLFWwindow *window)
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
     Position += speed * -Up;
+  }
+  if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+    speed = glm::max(speed + speedStep, speedStep);
+  }
+  if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+    speed = glm::max(speed - speedStep, speedStep);
   }
 }
 
