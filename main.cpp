@@ -51,6 +51,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void recalculateSelected(bool deleting = false);
 void updateCurvesSelectedChange(bool deleting = false);
 std::vector<int> GetClickedFigures(GLFWwindow *window);
+void deselectCurve();
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -58,6 +59,7 @@ int cursorRadius = 5;
 
 std::vector<BezierC0*> curves;
 int selectedCurveIdx = -1;
+bool clickingOutCurve = false;
 
 int main() { 
     // initial values
@@ -191,7 +193,7 @@ int main() {
           // mode selection
           if (ImGui::Combo(" ", &currentMenuItem, menuItems)) {
             if (currentMenuItem != 2) {
-              selectedCurveIdx = -1;
+              clickingOutCurve = false;
             }
           }
 
@@ -207,35 +209,31 @@ int main() {
             ImGui::Separator();
             // torus
             if (ImGui::Button("Torus")) {
-              selectedCurveIdx = -1;
               figures.push_back(new Torus(cursor->GetPosition()));
             }
             // point
             ImGui::SameLine();
             if (ImGui::Button("Point")) {
-              selectedCurveIdx = -1;
               figures.push_back(new Point(cursor->GetPosition()));
             }
             // bezier C0
             ImGui::SameLine();
             if (ImGui::Button("Bezier C0")) {
-              if (selectedCurveIdx == -1) {
-                std::vector<Figure *> newCPs;
-                for (int i = 0; i < selected.size(); i++) {
-                  newCPs.push_back(figures[selected[i]]);
-                }
-                curves.push_back(new BezierC0(newCPs, tessCpCountLoc));
-                if (selected.size() == 0) {
-                  // if bezier was created from selected figures, then creation
-                  // mode is not enabled
-                  selectedCurveIdx = curves.size() - 1;
-                }
-              } else {
-                selectedCurveIdx = -1;
+              if (selectedCurveIdx != -1) {
+                deselectCurve();
               }
-            }
-            if (selectedCurveIdx != -1) {
-              ImGui::Text("Bezier selection active!");
+              std::vector<Figure *> newCPs;
+              for (int i = 0; i < selected.size(); i++) {
+                newCPs.push_back(figures[selected[i]]);
+              }
+              curves.push_back(new BezierC0(newCPs, tessCpCountLoc));
+              if (selected.size() == 0) {
+                // if curve was created from selected figures then 
+                // it doesnt get activated
+                selectedCurveIdx = curves.size() - 1;
+                curves[selectedCurveIdx]->selected = true;
+                clickingOutCurve = true;
+              }
             }
           }
           
@@ -252,6 +250,7 @@ int main() {
               curves[i]->selected = temp;
 
               selectedCurveIdx = temp ? i : -1;
+              clickingOutCurve = temp;
               recalculateSelected();
             }
           }
@@ -264,7 +263,6 @@ int main() {
               if (ImGui::Selectable(figures[i]->name.c_str(),
                   &figures[i]->selected))
               {
-                  selectedCurveIdx = -1;
                   if (!ImGui::GetIO().KeyShift) 
                   {
                     bool temp = figures[i]->selected;
@@ -280,13 +278,13 @@ int main() {
           if (selected.size() > 0 || selectedCurveIdx != -1) {
             ImGui::Separator();
             if (ImGui::Button("Delete selected")) {
-              updateCurvesSelectedChange(true);
+              //updateCurvesSelectedChange(true);
               for (int i = selected.size() - 1; i >= 0; i--) {
                 figures.erase(figures.begin() + selected[i]);
               }
               if (selectedCurveIdx != -1) {
                 curves.erase(curves.begin() + selectedCurveIdx);
-                selectedCurveIdx = -1;
+                deselectCurve();
               }
               recalculateSelected(true);
             }
@@ -297,8 +295,13 @@ int main() {
             if (ImGui::Button("Add points to curve")) {
               for (int i = 0; i < selected.size(); i++) {
                 curves[selectedCurveIdx]->AddControlPoint(figures[selected[i]]);
+                clickingOutCurve = false;
               }
             }
+          }
+          // clicking out curve checkbox
+          if (selectedCurveIdx != -1) {
+            ImGui::Checkbox("Click-out curve", &clickingOutCurve);
           }
 
           if (selected.size() == 1 && selectedCurveIdx == -1) 
@@ -321,14 +324,14 @@ int main() {
             if (curves[selectedCurveIdx]->CreateImgui()) {
               if (curves[selectedCurveIdx]->GetControlPoints().size() == 0) {
                 curves.erase(curves.begin() + selectedCurveIdx);
-                selectedCurveIdx = -1;
+                deselectCurve();
                 recalculateSelected(true);
               }
             };
           }
 
           // multiple figures manipulation
-          if (selected.size() > 1) {
+          if (selected.size() > 1 && selectedCurveIdx == -1) {
             bool change = false;
             // scaling manipulation
             ImGui::SeparatorText("Center scale");
@@ -447,16 +450,18 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
     currentMenuItem = 0;
-    selectedCurveIdx = -1;
+    clickingOutCurve = false;
   } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
     currentMenuItem = 1;
-    selectedCurveIdx = -1;
+    clickingOutCurve = false;
   } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
     currentMenuItem = 2;
   } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentMenuItem = 3;
-    selectedCurveIdx = -1;
+    clickingOutCurve = false;
   }
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    clickingOutCurve = false;
 }
 
 void mouse_button_callback(GLFWwindow *window, int button, int action,
@@ -480,7 +485,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
         }
       }
       // add point to curve being created
-      if (selectedCurveIdx != -1) {
+      if (clickingOutCurve) {
         std::vector<Figure*> newCPs;
         // if any points have been clicked - add them
         if (clickedFigures.size() > 0) {
@@ -500,6 +505,9 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
       }
     }
   }
+
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    clickingOutCurve = false;
 }
 
 // other functions
@@ -564,4 +572,9 @@ std::vector<int> GetClickedFigures(GLFWwindow *window) {
     }
   }
   return result;
+}
+
+void deselectCurve() {
+  selectedCurveIdx = -1;
+  clickingOutCurve = false;
 }
