@@ -18,12 +18,15 @@ void main()
 
 float CalcTessLevel()
 {
-	float x_min = 1.0;
-	float x_max = -1.0;
-	float y_min = 1.0;
-	float y_max = -1.0;
+	vec4 p0 = proj * gl_in[0].gl_Position;
+	p0 /= p0.w;
 
-	for (int i = 0; i < cpCount; i++)
+	float x_min = p0.x;
+	float x_max = p0.x;
+	float y_min = p0.y;
+	float y_max = p0.y;
+
+	for (int i = 1; i < cpCount; i++)
 	{
 		vec4 clipped = proj * gl_in[i].gl_Position;
 		clipped /= clipped.w;
@@ -47,8 +50,8 @@ float CalcTessLevel()
 	float clipbox_width = x_max - x_min;
 	float clipbox_height = y_max - y_min;
 
-	float width_scale = min(1.0, clipbox_width / 2.0);
-	float height_scale = min(1.0, clipbox_height / 2.0);
+	float width_scale = clipbox_width / 2.0;
+	float height_scale = clipbox_height / 2.0;
 	
 	return max(width_scale * resolution.x, height_scale * resolution.y);
 }

@@ -19,6 +19,7 @@ public:
 
 	float speed = 0.1f;
 	float sensitivity = 100.0f;
+    const float speedStep = 0.01f;
 
 	float FOV;
     float near;

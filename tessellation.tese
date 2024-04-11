@@ -4,10 +4,12 @@ layout (isolines) in;
 
 uniform mat4 proj;
 uniform int cpCount;
+uniform int segmentCount;
+uniform int segmentIdx;
 
 void main()
 {
-    float t = gl_TessCoord.x;
+    float t = (gl_TessCoord.x * (1 + segmentIdx)) / segmentCount;
     float minT = (1.0 - t);
 
     vec3 result;

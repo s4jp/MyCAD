@@ -3,7 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 
-const int instances = 100;
+const int renderSegments = 10;
 
 void BezierC0::RefreshBuffers() {
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
@@ -43,21 +43,28 @@ BezierC0::Calculate() const {
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-BezierC0::InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc) {
+BezierC0::InitializeAndCalculate(std::vector<Figure *> cps, int cpCountLoc,
+                                 int segmentCountLoc, int segmentIdxLoc) {
   this->controlPoints = cps;
   this->cpCountLoc = cpCountLoc;
+  this->segmentCountLoc = segmentCountLoc;
+  this->segmentIdxLoc = segmentIdxLoc;
 
   return Calculate();
 }
 
-BezierC0::BezierC0(std::vector<Figure*> cps, int cpCountLoc)
-    : Figure(InitializeAndCalculate(cps,cpCountLoc), "Bezier C0", glm::vec3(0.f), true) {}
+BezierC0::BezierC0(std::vector<Figure *> cps, int cpCountLoc,
+                   int segmentCountLoc, int segmentIdxLoc)
+    : Figure(InitializeAndCalculate(cps, cpCountLoc, segmentCountLoc,
+                                    segmentIdxLoc),
+             "Bezier C0", glm::vec3(0.f), true) {}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {
   vao.Bind();
 
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
+  glUniform1i(segmentCountLoc, renderSegments);
   glLineWidth(3.0f);
 
   int count = glm::ceil((indices_count - 1) / 3.0f);
@@ -66,8 +73,12 @@ void BezierC0::Render(int colorLoc, int modelLoc) {
     int size = glm::min(4, (int)indices_count - offset);
     glUniform1i(cpCountLoc, size);
     glPatchParameteri(GL_PATCH_VERTICES, size);
-    glDrawElementsInstanced(GL_PATCHES, 4, GL_UNSIGNED_INT,
-                            (void *)(offset * sizeof(GLuint)), instances);
+
+    for (int j = 0; j < renderSegments; j++) {
+      glUniform1i(segmentIdxLoc, j);
+      glDrawElements(GL_PATCHES, 4, GL_UNSIGNED_INT,
+                     (void *)(offset * sizeof(GLuint)));
+    }
   }
 
   vao.Unbind();

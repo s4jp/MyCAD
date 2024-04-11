@@ -51,7 +51,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void recalculateSelected(bool deleting = false);
 void updateCurvesSelectedChange(bool deleting = false);
 std::vector<int> GetClickedFigures(GLFWwindow *window);
-void deselectCurve();
+void deselectCurve(bool deleting = false);
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -104,6 +104,10 @@ int main() {
     int tessCpCountLoc = glGetUniformLocation(tessShaderProgram.ID, "cpCount");
     int tessResolutionLoc =
         glGetUniformLocation(tessShaderProgram.ID, "resolution");
+    int tessSegmentCountLoc =
+        glGetUniformLocation(tessShaderProgram.ID, "segmentCount");
+    int tessSegmentIdxLoc =
+        glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -226,7 +230,9 @@ int main() {
               for (int i = 0; i < selected.size(); i++) {
                 newCPs.push_back(figures[selected[i]]);
               }
-              curves.push_back(new BezierC0(newCPs, tessCpCountLoc));
+              curves.push_back(new BezierC0(newCPs, tessCpCountLoc,
+                                            tessSegmentCountLoc,
+                                            tessSegmentIdxLoc));
               if (selected.size() == 0) {
                 // if curve was created from selected figures then 
                 // it doesnt get activated
@@ -249,8 +255,13 @@ int main() {
                 f->selected = false;;});
               curves[i]->selected = temp;
 
-              selectedCurveIdx = temp ? i : -1;
-              clickingOutCurve = temp;
+              if (!temp) {
+                deselectCurve();
+              } else {
+                selectedCurveIdx = i;
+                clickingOutCurve = temp;
+              }
+
               recalculateSelected();
             }
           }
@@ -284,7 +295,7 @@ int main() {
               }
               if (selectedCurveIdx != -1) {
                 curves.erase(curves.begin() + selectedCurveIdx);
-                deselectCurve();
+                deselectCurve(true);
               }
               recalculateSelected(true);
             }
@@ -324,7 +335,7 @@ int main() {
             if (curves[selectedCurveIdx]->CreateImgui()) {
               if (curves[selectedCurveIdx]->GetControlPoints().size() == 0) {
                 curves.erase(curves.begin() + selectedCurveIdx);
-                deselectCurve();
+                deselectCurve(true);
                 recalculateSelected(true);
               }
             };
@@ -574,7 +585,13 @@ std::vector<int> GetClickedFigures(GLFWwindow *window) {
   return result;
 }
 
-void deselectCurve() {
+void deselectCurve(bool deleting) {
+  if (selectedCurveIdx != -1 && !deleting) {
+    curves[selectedCurveIdx]->selected = false;
+    if (curves[selectedCurveIdx]->GetControlPoints().size() == 0) {
+      curves.erase(curves.begin() + selectedCurveIdx);
+    }
+  }
   selectedCurveIdx = -1;
   clickingOutCurve = false;
 }

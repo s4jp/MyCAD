@@ -49,6 +49,12 @@ void Camera::KeyboardInputs(GLFWwindow *window)
   if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
     Position += speed * -Up;
   }
+  if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+    speed = glm::max(speed + speedStep, speedStep);
+  }
+  if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+    speed = glm::max(speed - speedStep, speedStep);
+  }
 }
 
 void Camera::MouseInputs(GLFWwindow *window) 
