@@ -42,7 +42,9 @@ void BezierC2::CalculateBspline() const {
   // sending data to bSpline
   bSpline->ClearControlPoints();
   for (int i = 0; i < nCPs.size(); i++) {
-    bSpline->AddControlPoint(new Point(nCPs[i],0.02F));
+    Point* cp = new Point(nCPs[i], 0.02F, false);
+    cp->name = "Bezier cp #" + i;
+    bSpline->AddControlPoint(cp);
   }
 }
 
