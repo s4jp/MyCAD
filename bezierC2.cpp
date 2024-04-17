@@ -47,6 +47,7 @@ void BezierC2::CalculateBspline() const {
 }
 
 void BezierC2::Render(int colorLoc, int modelLoc) {
+  bSpline->selected = selected;
   bSpline->Render(colorLoc, modelLoc);
 }
 
