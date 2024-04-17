@@ -25,7 +25,7 @@ public:
            const char *name = "Bezier C0");
 
   void virtual Render(int colorLoc, int modelLoc);
-  bool CreateImgui();
+  bool virtual CreateImgui();
   bool GetBoundingSphere(CAD::Sphere &sphere) { return false; };
 
   std::vector<Figure*> GetControlPoints() { return controlPoints; };

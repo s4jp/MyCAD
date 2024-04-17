@@ -4,6 +4,7 @@
 class BezierC2 : public BezierC0 {
 private:
 	 BezierC0* bSpline;
+	 bool berensteinPolyline = false;
 
 	 std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const override;
      void CalculateBspline() const;
@@ -14,4 +15,5 @@ public:
 
 	void Render(int colorLoc, int modelLoc) override;
     void RenderPolyline(int colorLoc, int modelLoc) override;
+    bool CreateImgui() override;
 };

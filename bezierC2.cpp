@@ -51,11 +51,20 @@ void BezierC2::Render(int colorLoc, int modelLoc) {
 }
 
 void BezierC2::RenderPolyline(int colorLoc, int modelLoc) {
-  BezierC0::RenderPolyline(colorLoc, modelLoc);
-
+  if (!berensteinPolyline) {
+    BezierC0::RenderPolyline(colorLoc, modelLoc);
+    return;
+  }
+  
   bSpline->RenderPolyline(colorLoc, modelLoc);
   std::vector<Figure *> cp = bSpline->GetControlPoints();
   for (int i = 0; i < cp.size(); i++) {
     cp[i]->Render(colorLoc, modelLoc);
   }
+}
+
+bool BezierC2::CreateImgui() { 
+    ImGui::Checkbox("View Berenstein", &berensteinPolyline);
+
+    return BezierC0::CreateImgui();
 }
