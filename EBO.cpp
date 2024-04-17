@@ -25,5 +25,5 @@ void EBO::Delete()
 void EBO::ReplaceBufferData(GLuint* indices, GLsizeiptr size)
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 }

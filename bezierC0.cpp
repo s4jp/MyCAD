@@ -49,12 +49,14 @@ BezierC0::InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
   this->segmentCountLoc = segmentCountLoc;
   this->segmentIdxLoc = segmentIdxLoc;
 
-  return Calculate();
+  //return Calculate();
+  return std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>());
 }
 
-BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
+BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
+                   const char *name)
     : Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc),
-             "Bezier C0", glm::vec3(0.f), true) {}
+             name, glm::vec3(0.f), true) {}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {
   vao.Bind();
@@ -106,5 +108,10 @@ bool BezierC0::RemoveControlPoint(int idx) {
     return false;
   controlPoints.erase(controlPoints.begin() + idx);
   RefreshBuffers();
+  return true;
 }
 
+void BezierC0::ClearControlPoints() {
+  controlPoints.clear();
+  RefreshBuffers();
+}
