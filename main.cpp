@@ -40,7 +40,7 @@ glm::mat4 view;
 glm::mat4 proj;
 
 static int currentMenuItem = 0;
-const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point";
+const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point\0Edit Berenstein point";
 
 void window_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -201,6 +201,13 @@ int main() {
             if (currentMenuItem != 2) {
               clickingOutCurve = false;
             }
+            if (currentMenuItem == 4) {
+              std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+                f->selected = false;
+                ;
+              });
+              recalculateSelected();
+            }
           }
 
           // cursor position & radius slider
@@ -259,23 +266,23 @@ int main() {
             }
           }
           // other figures selection
-          if (figures.size() > 0) {
+          if (figures.size() > 0 && currentMenuItem != 4) {
             ImGui::SeparatorText("Other figures");
-          }
-          for (int i = 0; i < figures.size(); i++) 
-          {
+
+            for (int i = 0; i < figures.size(); i++) {
               if (ImGui::Selectable(figures[i]->name.c_str(),
-                  &figures[i]->selected))
-              {
-                  if (!ImGui::GetIO().KeyShift) 
-                  {
-                    bool temp = figures[i]->selected;
-                    std::for_each(figures.begin(), figures.end(), 
-                          [](Figure *f) { f->selected = false;;});
-                    figures[i]->selected = temp;
-                  }
-                  recalculateSelected();
+                                    &figures[i]->selected)) {
+                if (!ImGui::GetIO().KeyShift) {
+                  bool temp = figures[i]->selected;
+                  std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+                    f->selected = false;
+                    ;
+                  });
+                  figures[i]->selected = temp;
+                }
+                recalculateSelected();
               }
+            }
           }
 
           // delete button
@@ -304,7 +311,7 @@ int main() {
             }
           }
           // clicking out curve checkbox
-          if (selectedCurveIdx != -1) {
+          if (selectedCurveIdx != -1 && currentMenuItem != 4) {
             ImGui::Checkbox("Click-out curve", &clickingOutCurve);
           }
 
@@ -320,7 +327,7 @@ int main() {
                 updateCurvesSelectedChange();
               }
           }
-          if (selected.size() == 0 && selectedCurveIdx != -1) {
+          if (selected.size() == 0 && selectedCurveIdx != -1 && currentMenuItem != 4) {
             ImGui::Separator();
             // change name window
             ImGui::InputText("Change name", &curves[selectedCurveIdx]->name);
@@ -403,6 +410,11 @@ int main() {
               updateCurvesSelectedChange();
             }
           }
+
+          //bspline menu
+          if (currentMenuItem == 4 && selectedCurveIdx != -1) {
+            curves[selectedCurveIdx]->CreateBsplineImgui();
+          }
         }
 
         ImGui::End();
@@ -463,6 +475,14 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
     currentMenuItem = 3;
     clickingOutCurve = false;
+  } else if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
+    currentMenuItem = 4;
+    clickingOutCurve = false;
+    std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+      f->selected = false;
+      ;
+    });
+    recalculateSelected();
   }
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     clickingOutCurve = false;

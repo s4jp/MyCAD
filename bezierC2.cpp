@@ -43,7 +43,19 @@ void BezierC2::CalculateBspline() const {
   bSpline->ClearControlPoints();
   for (int i = 0; i < nCPs.size(); i++) {
     Point* cp = new Point(nCPs[i], 0.02F, false);
-    cp->name = "Bezier cp #" + i;
+    int mod = i % 3;
+    int idx = glm::floor(i / 3.f);
+    switch (mod) { 
+      case 0:
+      cp->name = "e" + std::to_string(idx);
+        break;
+      case 1:
+        cp->name = "f" + std::to_string(idx);
+        break;
+      case 2:
+        cp->name = "g" + std::to_string(idx + 1);
+        break;
+    }
     bSpline->AddControlPoint(cp);
   }
 }
@@ -70,4 +82,34 @@ bool BezierC2::CreateImgui() {
     ImGui::Checkbox("View Berenstein", &berensteinPolyline);
 
     return BezierC0::CreateImgui();
+}
+
+bool BezierC2::CreateBsplineImgui() { 
+  this->berensteinPolyline = true;
+
+  std::vector<Figure *> bcp = bSpline->GetControlPoints();
+  if (ImGui::BeginListBox("Bezier points")) {
+    for (int i = 0; i < bcp.size(); i++) {
+      if (ImGui::Selectable((bcp[i]->name + ' ').c_str(), &bcp[i]->selected)) {
+        for (int j = 0; j < bcp.size(); j++) {
+          if (j != i) {
+            bcp[j]->selected = false;
+          }
+        }
+      }
+    }
+    ImGui::EndListBox();
+  }
+
+  bool change = false;
+  for (int i = 0; i < bcp.size(); i++) {
+    if (bcp[i]->selected) {
+      if (bcp[i]->CreateImgui()) {
+        change = true;
+        bSpline->RefreshBuffers();
+      }
+    }
+  }
+
+  return change;
 }

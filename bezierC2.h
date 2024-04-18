@@ -16,4 +16,5 @@ public:
 	void Render(int colorLoc, int modelLoc) override;
     void RenderPolyline(int colorLoc, int modelLoc) override;
     bool CreateImgui() override;
+    bool CreateBsplineImgui() override;
 };
