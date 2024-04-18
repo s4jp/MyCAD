@@ -84,7 +84,7 @@ bool BezierC2::CreateImgui() {
     return BezierC0::CreateImgui();
 }
 
-bool BezierC2::CreateBsplineImgui() { 
+void BezierC2::CreateBsplineImgui() { 
   this->berensteinPolyline = true;
 
   std::vector<Figure *> bcp = bSpline->GetControlPoints();
@@ -101,15 +101,48 @@ bool BezierC2::CreateBsplineImgui() {
     ImGui::EndListBox();
   }
 
-  bool change = false;
+  int idx = -1;
   for (int i = 0; i < bcp.size(); i++) {
     if (bcp[i]->selected) {
-      if (bcp[i]->CreateImgui()) {
-        change = true;
-        bSpline->RefreshBuffers();
-      }
+      idx = i;
+      break;
     }
   }
 
-  return change;
+  glm::vec3 diff = idx != -1 ? bcp[idx]->GetPosition() : glm::vec3(0.f);
+
+  bool change = false;
+  if (idx != -1 && bcp[idx]->CreatePositionImgui()) {
+    change = true;
+    diff = bcp[idx]->GetPosition() - diff;
+  }
+
+  if (change) {
+    int mod = idx % 3;
+    int bIdx = glm::floor(idx / 3.f);
+    switch (mod) {
+    case 0:
+      //e_bIdx
+      controlPoints[bIdx + 1]->SetPosition(
+          controlPoints[bIdx + 1]->GetPosition() + diff);
+      break;
+    case 1:
+      //f_bIdx
+      controlPoints[bIdx + 1]->SetPosition(
+          controlPoints[bIdx + 1]->GetPosition() + 2.f / 3 * diff);
+      controlPoints[bIdx + 2]->SetPosition(
+          controlPoints[bIdx + 2]->GetPosition() + 1.f / 3 * diff);
+      break;
+    case 2:
+      //g_{bIdx+1}
+      controlPoints[bIdx + 1]->SetPosition(
+          controlPoints[bIdx + 1]->GetPosition() + 1.f / 3 * diff);
+      controlPoints[bIdx + 2]->SetPosition(
+          controlPoints[bIdx + 2]->GetPosition() + 2.f / 3 * diff);
+      break;
+    }
+    RefreshBuffers();
+    bcp = bSpline->GetControlPoints();
+    bcp[idx]->selected = true;
+  }
 }

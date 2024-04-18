@@ -54,6 +54,7 @@ void updateCurvesSelectedChange(bool deleting = false);
 std::vector<int> GetClickedFigures(GLFWwindow *window);
 void deselectCurve(bool deleting = false);
 void curveCreation();
+void deselectFigures();
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -202,11 +203,7 @@ int main() {
               clickingOutCurve = false;
             }
             if (currentMenuItem == 4) {
-              std::for_each(figures.begin(), figures.end(), [](Figure *f) {
-                f->selected = false;
-                ;
-              });
-              recalculateSelected();
+              deselectFigures();
             }
           }
 
@@ -464,25 +461,23 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
-  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-    currentMenuItem = 0;
-    clickingOutCurve = false;
-  } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-    currentMenuItem = 1;
-    clickingOutCurve = false;
-  } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-    currentMenuItem = 2;
-  } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
-    currentMenuItem = 3;
-    clickingOutCurve = false;
-  } else if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
-    currentMenuItem = 4;
-    clickingOutCurve = false;
-    std::for_each(figures.begin(), figures.end(), [](Figure *f) {
-      f->selected = false;
-      ;
-    });
-    recalculateSelected();
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+      currentMenuItem = 0;
+      clickingOutCurve = false;
+    } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+      currentMenuItem = 1;
+      clickingOutCurve = false;
+    } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+      currentMenuItem = 2;
+    } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+      currentMenuItem = 3;
+      clickingOutCurve = false;
+    } else if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
+      currentMenuItem = 4;
+      clickingOutCurve = false;
+      deselectFigures();
+    }
   }
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     clickingOutCurve = false;
@@ -622,10 +617,14 @@ void curveCreation() {
     // it doesnt get activated
     clickingOutCurve = true;
   } else {
-    std::for_each(figures.begin(), figures.end(), [](Figure *f) {
-      f->selected = false;
-      ;
-    });
-    recalculateSelected();
+    deselectFigures();
   }
+}
+
+void deselectFigures() {
+  std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+    f->selected = false;
+    ;
+  });
+  recalculateSelected();
 }

@@ -34,5 +34,5 @@ public:
   void RefreshBuffers();
   void virtual RenderPolyline(int colorLoc, int modelLoc);
   void ClearControlPoints();
-  bool virtual CreateBsplineImgui() { return false; };
+  void virtual CreateBsplineImgui() { ImGui::Text("That ain't B-spline"); };
 };
