@@ -24,6 +24,7 @@
 #include"cursor.h"
 #include"point.h"
 #include"bezierC0.h"
+#include"bezierC2.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -39,7 +40,7 @@ glm::mat4 view;
 glm::mat4 proj;
 
 static int currentMenuItem = 0;
-const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point";
+const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point\0Edit Berenstein point";
 
 void window_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -52,6 +53,8 @@ void recalculateSelected(bool deleting = false);
 void updateCurvesSelectedChange(bool deleting = false);
 std::vector<int> GetClickedFigures(GLFWwindow *window);
 void deselectCurve(bool deleting = false);
+void curveCreation();
+void deselectFigures();
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -199,6 +202,9 @@ int main() {
             if (currentMenuItem != 2) {
               clickingOutCurve = false;
             }
+            if (currentMenuItem == 4) {
+              deselectFigures();
+            }
           }
 
           // cursor position & radius slider
@@ -223,26 +229,14 @@ int main() {
             // bezier C0
             ImGui::SameLine();
             if (ImGui::Button("Bezier C0")) {
-              if (selectedCurveIdx != -1) {
-                deselectCurve();
-              }
               curves.push_back(new BezierC0(tessCpCountLoc, tessSegmentCountLoc,
                                             tessSegmentIdxLoc));
-              selectedCurveIdx = curves.size() - 1;
-              curves[selectedCurveIdx]->selected = true;
-              for (int i = 0; i < selected.size(); i++) {
-                curves[selectedCurveIdx]->AddControlPoint(figures[selected[i]]);
-              }
-              if (selected.size() == 0) {
-                // if curve was created from selected figures then 
-                // it doesnt get activated
-                clickingOutCurve = true;
-              } else {
-                std::for_each(figures.begin(), figures.end(), [](Figure *f) {
-                  f->selected = false;;
-                    });
-                recalculateSelected();
-              }
+              curveCreation();
+            }
+            if (ImGui::Button("Bezier C2")) {
+              curves.push_back(new BezierC2(tessCpCountLoc, tessSegmentCountLoc,
+                                            tessSegmentIdxLoc));
+              curveCreation();
             }
           }
           
@@ -269,23 +263,23 @@ int main() {
             }
           }
           // other figures selection
-          if (figures.size() > 0) {
+          if (figures.size() > 0 && currentMenuItem != 4) {
             ImGui::SeparatorText("Other figures");
-          }
-          for (int i = 0; i < figures.size(); i++) 
-          {
+
+            for (int i = 0; i < figures.size(); i++) {
               if (ImGui::Selectable(figures[i]->name.c_str(),
-                  &figures[i]->selected))
-              {
-                  if (!ImGui::GetIO().KeyShift) 
-                  {
-                    bool temp = figures[i]->selected;
-                    std::for_each(figures.begin(), figures.end(), 
-                          [](Figure *f) { f->selected = false;;});
-                    figures[i]->selected = temp;
-                  }
-                  recalculateSelected();
+                                    &figures[i]->selected)) {
+                if (!ImGui::GetIO().KeyShift) {
+                  bool temp = figures[i]->selected;
+                  std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+                    f->selected = false;
+                    ;
+                  });
+                  figures[i]->selected = temp;
+                }
+                recalculateSelected();
               }
+            }
           }
 
           // delete button
@@ -314,7 +308,7 @@ int main() {
             }
           }
           // clicking out curve checkbox
-          if (selectedCurveIdx != -1) {
+          if (selectedCurveIdx != -1 && currentMenuItem != 4) {
             ImGui::Checkbox("Click-out curve", &clickingOutCurve);
           }
 
@@ -330,7 +324,7 @@ int main() {
                 updateCurvesSelectedChange();
               }
           }
-          if (selected.size() == 0 && selectedCurveIdx != -1) {
+          if (selected.size() == 0 && selectedCurveIdx != -1 && currentMenuItem != 4) {
             ImGui::Separator();
             // change name window
             ImGui::InputText("Change name", &curves[selectedCurveIdx]->name);
@@ -413,6 +407,11 @@ int main() {
               updateCurvesSelectedChange();
             }
           }
+
+          //bspline menu
+          if (currentMenuItem == 4 && selectedCurveIdx != -1) {
+            curves[selectedCurveIdx]->CreateBsplineImgui();
+          }
         }
 
         ImGui::End();
@@ -462,17 +461,23 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
-  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-    currentMenuItem = 0;
-    clickingOutCurve = false;
-  } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-    currentMenuItem = 1;
-    clickingOutCurve = false;
-  } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-    currentMenuItem = 2;
-  } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
-    currentMenuItem = 3;
-    clickingOutCurve = false;
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+      currentMenuItem = 0;
+      clickingOutCurve = false;
+    } else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+      currentMenuItem = 1;
+      clickingOutCurve = false;
+    } else if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+      currentMenuItem = 2;
+    } else if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+      currentMenuItem = 3;
+      clickingOutCurve = false;
+    } else if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
+      currentMenuItem = 4;
+      clickingOutCurve = false;
+      deselectFigures();
+    }
   }
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     clickingOutCurve = false;
@@ -596,4 +601,30 @@ void deselectCurve(bool deleting) {
   }
   selectedCurveIdx = -1;
   clickingOutCurve = false;
+}
+
+void curveCreation() {
+  if (selectedCurveIdx != -1) {
+    deselectCurve();
+  }
+  selectedCurveIdx = curves.size() - 1;
+  curves[selectedCurveIdx]->selected = true;
+  for (int i = 0; i < selected.size(); i++) {
+    curves[selectedCurveIdx]->AddControlPoint(figures[selected[i]]);
+  }
+  if (selected.size() == 0) {
+    // if curve was created from selected figures then
+    // it doesnt get activated
+    clickingOutCurve = true;
+  } else {
+    deselectFigures();
+  }
+}
+
+void deselectFigures() {
+  std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+    f->selected = false;
+    ;
+  });
+  recalculateSelected();
 }

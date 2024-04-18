@@ -113,6 +113,30 @@ public:
      
     return change;
   }
+  bool CreatePositionImgui() {
+    bool change = false;
+    ImGui::SeparatorText((name + " position:").c_str());
+
+    glm::vec3 pos = GetPosition();
+
+    if (ImGui::InputFloat("X", &pos.x, 0.01f, 1.f, "%.2f")) {
+      SetPosition(pos);
+      CalculateModelMatrix();
+      change = true;
+    }
+    if (ImGui::InputFloat("Y", &pos.y, 0.01f, 1.f, "%.2f")) {
+      SetPosition(pos);
+      CalculateModelMatrix();
+      change = true;
+    }
+    if (ImGui::InputFloat("Z", &pos.z, 0.01f, 1.f, "%.2f")) {
+      SetPosition(pos);
+      CalculateModelMatrix();
+      change = true;
+    }
+
+    return change;
+  }
 
   void Delete() {
     vao.Delete();

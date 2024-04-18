@@ -1,8 +1,8 @@
 #include "point.h"
 #include <glm/gtc/type_ptr.hpp>
 
-Point::Point(glm::vec3 position, float Rn)
-    : Figure(InitializeAndCalculate(Rn), "Point", position, true) {}
+Point::Point(glm::vec3 position, float Rn, bool numerate)
+    : Figure(InitializeAndCalculate(Rn), "Point", position, numerate) {}
 
 void Point::Render(int colorLoc, int modelLoc) 
 {
