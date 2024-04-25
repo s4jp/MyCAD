@@ -11,33 +11,30 @@ void BezierInt::Render(int colorLoc, int modelLoc) {
   bSpline->Render(colorLoc, modelLoc);
 }
 
-void BezierInt::AddControlPoint(Figure *cp) {
-  if (controlPoints.size() > 0) {
-    float distance =
-        glm::distance(controlPoints.back()->GetPosition(), cp->GetPosition());
-    if (distance <= 1e-4)
-      return;
-  }
-  BezierC0::AddControlPoint(cp);
-}
-
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
 BezierInt::Calculate() const {
   CalculateBspline();
   return BezierC0::Calculate();
 }
 
-void BezierInt::CalculateBspline() const { 
-  bSpline->ClearControlPoints();
-  
-  const int N = (int)controlPoints.size() - 1;
-
-  std::vector<float> dist;
-  for (int i = 0; i < N; i++) {
-    dist.push_back(glm::length(controlPoints[i + 1]->GetPosition() -
-                            controlPoints[i]->GetPosition()));
+void BezierInt::CalculateBspline() const {  
+  std::vector<glm::vec3> a;
+  for (int i = 0; i < controlPoints.size(); i++) {
+    a.push_back(controlPoints[i]->GetPosition());
   }
 
+  std::vector<float> dist;
+  for (int i = 1; i < a.size(); i++) {
+    float distance = glm::distance(a[i], a[i - 1]);
+    if (distance < 1E-4){
+      a.erase(a.begin() + i);
+      i--;
+    }
+    else
+      dist.push_back(distance);
+  }
+
+  const int N = (int)a.size() - 1;
   std::vector<float> alpha, beta, diagonal;
   std::vector<glm::vec3> R;
 
@@ -46,12 +43,8 @@ void BezierInt::CalculateBspline() const {
     alpha.push_back(dist[i - 1] / (dist[i - 1] + dist[i]));
     beta.push_back(dist[i] / (dist[i - 1] + dist[i]));
     R.push_back(3.f *
-                ((controlPoints[i + 1]->GetPosition() -
-                  controlPoints[i]->GetPosition()) /
-                     dist[i] -
-                 (controlPoints[i]->GetPosition() -
-                  controlPoints[i - 1]->GetPosition()) /
-                     dist[i - 1]) /
+                ((a[i + 1] - a[i]) / dist[i] -
+                 (a[i] - a[i - 1]) / dist[i - 1]) /
                 (dist[i - 1] + dist[i]));
     diagonal.push_back(2.f);
   }
@@ -62,11 +55,6 @@ void BezierInt::CalculateBspline() const {
       CAD::thomasAlgorihm(R, alpha, diagonal, beta);
   c.insert(c.end(), thomas.cbegin(), thomas.cend());
   c.push_back(glm::vec3(0.f));
-
-  std::vector<glm::vec3> a;
-  for (int i = 0; i < N + 1; i++) {
-    a.push_back(controlPoints[i]->GetPosition());
-  }
 
   std::vector<glm::vec3> d;
   for (int i = 1; i < N + 1; i++) {
@@ -80,6 +68,7 @@ void BezierInt::CalculateBspline() const {
                 dist[i - 1]);
   }
 
+  bSpline->ClearControlPoints();
   for (int i = 0; i < N; i++) {
     glm::mat3x4 temp = glm::mat3x4(0.f);
     temp[0] = glm::vec4(a[i].x, b[i].x, c[i].x, d[i].x);
