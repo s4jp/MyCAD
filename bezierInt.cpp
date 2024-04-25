@@ -28,6 +28,8 @@ BezierInt::Calculate() const {
 }
 
 void BezierInt::CalculateBspline() const { 
+  bSpline->ClearControlPoints();
+  
   const int N = (int)controlPoints.size() - 1;
   if (N < 2)
     return;
@@ -59,7 +61,7 @@ void BezierInt::CalculateBspline() const {
   std::vector<glm::vec3> c;
   c.push_back(glm::vec3(0.f));
   std::vector<glm::vec3> thomas =
-      CAD::thomasAlgorihm(N - 1, R, alpha, diagonal, beta);
+      CAD::thomasAlgorihm(R, alpha, diagonal, beta);
   c.insert(c.end(), thomas.cbegin(), thomas.cend());
   c.push_back(glm::vec3(0.f));
 
@@ -80,7 +82,6 @@ void BezierInt::CalculateBspline() const {
                 dist[i - 1]);
   }
 
-  bSpline->ClearControlPoints();
   for (int i = 0; i < N; i++) {
     glm::mat3x4 temp = glm::mat3x4(0.f);
     temp[0] = glm::vec4(a[i].x, b[i].x, c[i].x, d[i].x);

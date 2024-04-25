@@ -179,13 +179,13 @@ glm::vec3 CAD::calculateCameraRay(GLFWwindow *window, glm::mat4 proj,
   return glm::normalize(std::get<1>(projections) - std::get<0>(projections));
 }
 
-std::vector<glm::vec3> CAD::thomasAlgorihm(const int X,
-                                           std::vector<glm::vec3> x,
+std::vector<glm::vec3> CAD::thomasAlgorihm(std::vector<glm::vec3> x,
                                            const std::vector<float> a,
                                            const std::vector<float> b,
                                            const std::vector<float> c) {
   // https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-  float* scratch = new float[X];
+  const int X = x.size();
+  float *scratch = new float[X];
 
   scratch[0] = c[0] / b[0];
   x[0] = x[0] / b[0];
