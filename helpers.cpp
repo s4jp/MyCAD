@@ -178,3 +178,43 @@ glm::vec3 CAD::calculateCameraRay(GLFWwindow *window, glm::mat4 proj,
 
   return glm::normalize(std::get<1>(projections) - std::get<0>(projections));
 }
+
+std::vector<glm::vec3> CAD::thomasAlgorihm(const int X,
+                                           std::vector<glm::vec3> x,
+                                           const std::vector<float> a,
+                                           const std::vector<float> b,
+                                           const std::vector<float> c) {
+  // https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+  float* scratch = new float[X];
+
+  scratch[0] = c[0] / b[0];
+  x[0] = x[0] / b[0];
+
+  for (int ix = 1; ix < X; ix++) {
+    if (ix < X - 1) {
+      scratch[ix] = c[ix] / (b[ix] - a[ix] * scratch[ix - 1]);
+    }
+    x[ix] = (x[ix] - a[ix] * x[ix - 1]) / (b[ix] - a[ix] * scratch[ix - 1]);
+  }
+
+  for (int ix = X - 2; ix >= 0; ix--)
+    x[ix] -= scratch[ix] * x[ix + 1];
+
+  return x;
+}
+
+glm::mat3x4 CAD::powerToBerensteinBasis(glm::mat3x4 in, float dist) { 
+  glm::mat4 MB_E = glm::mat4(0.f);
+  MB_E[0] = glm::vec4(+1.f, -3.f, +3.f, -1.f);
+  MB_E[1] = glm::vec4(+0.f, +3.f, -6.f, +3.f);
+  MB_E[2] = glm::vec4(+0.f, +0.f, +3.f, -3.f);
+  MB_E[3] = glm::vec4(+0.f, +0.f, +0.f, +1.f);
+
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      MB_E[j][i] /= glm::pow(dist, i);
+    }
+  }
+
+  return glm::inverse(MB_E) * in;
+}
