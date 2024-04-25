@@ -25,6 +25,7 @@
 #include"point.h"
 #include"bezierC0.h"
 #include"bezierC2.h"
+#include"bezierInt.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -227,17 +228,25 @@ int main() {
               figures.push_back(new Point(cursor->GetPosition()));
             }
             // bezier C0
-            ImGui::SameLine();
             if (ImGui::Button("Bezier C0")) {
               curves.push_back(new BezierC0(tessCpCountLoc, tessSegmentCountLoc,
                                             tessSegmentIdxLoc));
               curveCreation();
             }
+            // bezier C2
+            ImGui::SameLine();
             if (ImGui::Button("Bezier C2")) {
               curves.push_back(new BezierC2(tessCpCountLoc, tessSegmentCountLoc,
                                             tessSegmentIdxLoc));
               curveCreation();
             }
+            // bezier int
+            ImGui::SameLine();
+            if (ImGui::Button("Bezier Int")) {
+              curves.push_back(new BezierInt(tessCpCountLoc, tessSegmentCountLoc,
+                                            tessSegmentIdxLoc));
+              curveCreation();
+            } 
           }
           
           // curves selection

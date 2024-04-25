@@ -1,16 +1,7 @@
 #include "bezierC2.h"
 
 BezierC2::BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
-    : BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "Bezier C2") {
-  bSpline =
-      new BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "B-spline");
-}
-
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-BezierC2::Calculate() const { 
-  CalculateBspline();
-  return BezierC0::Calculate();
-}
+    : BezierInt(cpCountLoc, segmentCountLoc, segmentIdxLoc, "Bezier C2") {}
 
 void BezierC2::CalculateBspline() const {
   // actual conversion
@@ -58,11 +49,6 @@ void BezierC2::CalculateBspline() const {
     }
     bSpline->AddControlPoint(cp);
   }
-}
-
-void BezierC2::Render(int colorLoc, int modelLoc) {
-  bSpline->selected = selected;
-  bSpline->Render(colorLoc, modelLoc);
 }
 
 void BezierC2::RenderPolyline(int colorLoc, int modelLoc) {

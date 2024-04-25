@@ -41,4 +41,9 @@ namespace CAD
                                     glm::mat4 view, Camera *camera, int cursorRadius);
     glm::vec3 calculateCameraRay(GLFWwindow *window, glm::mat4 proj,
                                  glm::mat4 view, Camera *camera);
+    std::vector<glm::vec3> thomasAlgorihm(std::vector<glm::vec3> x,
+                                          const std::vector<float> a,
+                                          const std::vector<float> b,
+                                          const std::vector<float> c);
+    glm::mat3x4 powerToBerensteinBasis(glm::mat3x4 in, float dist = 1.f);
 }
