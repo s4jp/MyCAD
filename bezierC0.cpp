@@ -54,9 +54,9 @@ BezierC0::InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
 }
 
 BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
-                   const char *name)
+                   const char *name, bool numerate)
     : Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc),
-             name, glm::vec3(0.f), true) {}
+             name, glm::vec3(0.f), numerate) {}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {
   vao.Bind();

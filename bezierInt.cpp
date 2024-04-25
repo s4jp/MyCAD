@@ -2,8 +2,8 @@
 
 BezierInt::BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
     : BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "Bezier Int") {
-  bSpline =
-      new BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "B-spline");
+  bSpline = new BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "B-spline",
+                         false);
 }
 
 void BezierInt::Render(int colorLoc, int modelLoc) {

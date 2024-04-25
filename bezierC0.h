@@ -22,7 +22,7 @@ public:
   int segmentIdxLoc;
 
   BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
-           const char *name = "Bezier C0");
+           const char *name = "Bezier C0", bool numerate = true);
 
   void virtual Render(int colorLoc, int modelLoc);
   bool virtual CreateImgui();

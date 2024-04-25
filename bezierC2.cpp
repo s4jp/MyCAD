@@ -2,8 +2,8 @@
 
 BezierC2::BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
     : BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "Bezier C2") {
-  bSpline =
-      new BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "B-spline");
+  bSpline = new BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "B-spline",
+                         false);
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
