@@ -1,7 +1,8 @@
 #include "bezierInt.h"
 
-BezierInt::BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
-    : BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "Bezier Int") {
+BezierInt::BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
+                     const char *name)
+    : BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, name) {
   bSpline = new BezierC0(cpCountLoc, segmentCountLoc, segmentIdxLoc, "B-spline",
                          false);
 }

@@ -3,14 +3,16 @@
 
 class BezierInt : public BezierC0 {
 private:
-  BezierC0 *bSpline;
+	std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+	Calculate() const override;
+	void virtual CalculateBspline() const;
 
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
-  Calculate() const override;
-  void CalculateBspline() const;
+protected:
+    BezierC0 *bSpline;
 
 public:
-  BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc);
+    BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
+              const char *name = "Bezier Int");
 
-  void Render(int colorLoc, int modelLoc) override;
+	void Render(int colorLoc, int modelLoc) override;
 };
