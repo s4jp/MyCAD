@@ -185,6 +185,8 @@ std::vector<glm::vec3> CAD::thomasAlgorihm(std::vector<glm::vec3> x,
                                            const std::vector<float> c) {
   // https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
   const int X = x.size();
+  if (X < 1)
+    return x;
   float *scratch = new float[X];
 
   scratch[0] = c[0] / b[0];

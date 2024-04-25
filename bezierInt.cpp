@@ -31,8 +31,6 @@ void BezierInt::CalculateBspline() const {
   bSpline->ClearControlPoints();
   
   const int N = (int)controlPoints.size() - 1;
-  if (N < 2)
-    return;
 
   std::vector<float> dist;
   for (int i = 0; i < N; i++) {
