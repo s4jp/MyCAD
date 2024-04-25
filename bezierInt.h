@@ -13,4 +13,5 @@ public:
   BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc);
 
   void Render(int colorLoc, int modelLoc) override;
+  void AddControlPoint(Figure *cp) override;
 };

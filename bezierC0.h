@@ -29,10 +29,10 @@ public:
   bool GetBoundingSphere(CAD::Sphere &sphere) { return false; };
 
   std::vector<Figure*> GetControlPoints() { return controlPoints; };
-  void AddControlPoint(Figure* cp);
+  void virtual AddControlPoint(Figure* cp);
   bool RemoveControlPoint(int idx);
   void RefreshBuffers();
   void virtual RenderPolyline(int colorLoc, int modelLoc);
   void ClearControlPoints();
-  void virtual CreateBsplineImgui() { ImGui::Text("That ain't B-spline"); };
+  void virtual CreateBsplineImgui() { ImGui::Text("That ain't Bezier C2"); };
 };

@@ -11,6 +11,16 @@ void BezierInt::Render(int colorLoc, int modelLoc) {
   bSpline->Render(colorLoc, modelLoc);
 }
 
+void BezierInt::AddControlPoint(Figure *cp) {
+  if (controlPoints.size() > 0) {
+    float distance =
+        glm::distance(controlPoints.back()->GetPosition(), cp->GetPosition());
+    if (distance <= 1e-4)
+      return;
+  }
+  BezierC0::AddControlPoint(cp);
+}
+
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
 BezierInt::Calculate() const {
   CalculateBspline();
