@@ -143,6 +143,7 @@
     <ClCompile Include="bezierC0.cpp" />
     <ClCompile Include="bezierC2.cpp" />
     <ClCompile Include="bezierInt.cpp" />
+    <ClCompile Include="bicubicPatch.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="cursor.cpp" />
     <ClCompile Include="EBO.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="bezierC0.h" />
     <ClInclude Include="bezierC2.h" />
     <ClInclude Include="bezierInt.h" />
+    <ClInclude Include="bicubicPatch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="cursor.h" />
     <ClInclude Include="EBO.h" />

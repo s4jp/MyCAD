@@ -102,6 +102,9 @@
     <ClCompile Include="bezierInt.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
+    <ClCompile Include="bicubicPatch.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -191,6 +194,9 @@
       <Filter>Header Files\figures</Filter>
     </ClInclude>
     <ClInclude Include="bezierInt.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="bicubicPatch.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>
