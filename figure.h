@@ -43,6 +43,7 @@ public:
   bool selected = false;
 
   virtual void Render(int colorLoc, int modelLoc) = 0;
+  virtual void RenderTess(int colorLoc, int modelLoc) {};
   virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
   virtual bool CreateImgui(){
     bool change = false;

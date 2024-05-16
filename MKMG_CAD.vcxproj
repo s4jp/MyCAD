@@ -160,6 +160,7 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="patchC0.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="torus.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="patchC0.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="torus.h" />

@@ -26,6 +26,7 @@
 #include"bezierC0.h"
 #include"bezierC2.h"
 #include"bezierInt.h"
+#include"patchC0.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -247,6 +248,15 @@ int main() {
                                             tessSegmentIdxLoc));
               curveCreation();
             } 
+            // plane C0
+            if (ImGui::Button("Plane C0")) {
+                PatchC0* plane = new PatchC0(cursor->GetPosition());
+                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, 3, 4, 2, 2);
+                for (int i = 0; i < newFigures.size(); i++) {
+                    figures.push_back(newFigures[i]);
+                }
+                figures.push_back(plane);
+            }
           }
           
           // curves selection

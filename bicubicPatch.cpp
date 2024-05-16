@@ -14,7 +14,7 @@ void BicubicPatch::RefreshBuffers()
         std::get<1>(data).size() * sizeof(GLuint));
 }
 
-void BicubicPatch::RenderMesh(int colorLoc, int modelLoc)
+void BicubicPatch::Render(int colorLoc, int modelLoc)
 {
     vao.Bind();
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -64,9 +64,12 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> BicubicPatch::InitializeAn
 }
 
 BicubicPatch::BicubicPatch(int segmentCountLoc, int segmentIdxLoc, int divisionLoc, std::vector<Figure*> controlPoints, int* division) :
-    Figure(InitializeAndCalculate(segmentCountLoc, segmentIdxLoc, divisionLoc, controlPoints, division), "Bicubic patch", glm::vec3(0.f)) {}
+    Figure(InitializeAndCalculate(segmentCountLoc, segmentIdxLoc, divisionLoc, controlPoints, division), "Bicubic patch", glm::vec3(0.f)) 
+{
+    this->controlPoints = controlPoints;
+}
 
-void BicubicPatch::Render(int colorLoc, int modelLoc)
+void BicubicPatch::RenderTess(int colorLoc, int modelLoc)
 {
     vao.Bind();
 
