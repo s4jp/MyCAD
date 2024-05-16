@@ -66,6 +66,12 @@ std::vector<BezierC0*> curves;
 int selectedCurveIdx = -1;
 bool clickingOutCurve = false;
 
+const int initXsegments = 4;
+const int initZsegments = 3;
+
+const float initParam1 = 3;
+const float initParam2 = 4;
+
 int main() { 
     // initial values
     int width = 1500;
@@ -128,6 +134,12 @@ int main() {
 
     // matrices locations
     camera->PrepareMatrices(view, proj);
+
+    int PxSegments = initXsegments;
+    int PzSegments = initZsegments;
+    float Plength = initParam1;
+    float Pwidth = initParam2;
+    bool Pproceed = false;
 
     #pragma region imgui_boilerplate
     IMGUI_CHECKVERSION();
@@ -250,12 +262,42 @@ int main() {
             } 
             // plane C0
             if (ImGui::Button("Plane C0")) {
+                ImGui::OpenPopup("planeC0popup");
+            }
+
+            if (ImGui::BeginPopup("planeC0popup")) {
+                ImGui::SeparatorText("Plane C0 params:");
+                if (ImGui::InputInt("x segments", &PxSegments)) {
+                    PxSegments = PxSegments >= 1 ? PxSegments : 1;
+                }
+                if (ImGui::InputInt("z segments", &PzSegments)) {
+                    PzSegments = PzSegments >= 1 ? PzSegments : 1;
+                }
+                if (ImGui::InputFloat("length", &Plength, 0.01f, 1.f, "%.2f")) {
+                    Plength = Plength >= 0.01f ? Plength : 0.01f;
+                }
+                if (ImGui::InputFloat("width", &Pwidth, 0.01f, 1.f, "%.2f")) {
+                    Pwidth = Pwidth >= 0.01f ? Pwidth : 0.01f;
+                }
+                if (ImGui::Button("OK")) {
+                    Pproceed = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
+            if (Pproceed) {
                 PatchC0* plane = new PatchC0(cursor->GetPosition());
-                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, 3, 4, 2, 2);
+                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, PxSegments, PzSegments, Plength, Pwidth);
                 for (int i = 0; i < newFigures.size(); i++) {
                     figures.push_back(newFigures[i]);
                 }
                 figures.push_back(plane);
+                PxSegments = initXsegments;
+                PzSegments = initZsegments;
+                Plength = initParam1;
+                Pwidth = initParam2;
+                Pproceed = false;
             }
           }
           
