@@ -140,16 +140,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseFigure.cpp" />
     <ClCompile Include="bezierC0.cpp" />
+    <ClCompile Include="BezierC0_2.cpp" />
     <ClCompile Include="bezierC2.cpp" />
+    <ClCompile Include="BezierC2_2.cpp" />
     <ClCompile Include="bezierInt.cpp" />
+    <ClCompile Include="BezierInt2.cpp" />
     <ClCompile Include="bicubicPatch.cpp" />
+    <ClCompile Include="BicubicPatch2.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ComplexCpFigure.cpp" />
+    <ClCompile Include="ComplexFigure.cpp" />
+    <ClCompile Include="ControlPointsFigure.cpp" />
     <ClCompile Include="cursor.cpp" />
+    <ClCompile Include="Cursor2.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="Grid2.cpp" />
     <ClCompile Include="helpers.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -161,13 +171,22 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="patchC0.cpp" />
+    <ClCompile Include="PivotableFigure.cpp" />
+    <ClCompile Include="PivotableFigure.h" />
     <ClCompile Include="point.cpp" />
+    <ClCompile Include="Point2.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SimpleCpFigure.cpp" />
+    <ClCompile Include="SimpleFigure.cpp" />
+    <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="SurfaceC0_2.cpp" />
     <ClCompile Include="torus.cpp" />
+    <ClCompile Include="Torus2.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="default.frag" />
     <None Include="default.vert" />
     <None Include="tessellation.tesc" />
@@ -175,15 +194,25 @@
     <None Include="tessellation.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseFigure.h" />
     <ClInclude Include="bezierC0.h" />
+    <ClInclude Include="BezierC0_2.h" />
     <ClInclude Include="bezierC2.h" />
+    <ClInclude Include="BezierC2_2.h" />
     <ClInclude Include="bezierInt.h" />
+    <ClInclude Include="BezierInt2.h" />
     <ClInclude Include="bicubicPatch.h" />
+    <ClInclude Include="BicubicPatch2.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ComplexCpFigure.h" />
+    <ClInclude Include="ComplexFigure.h" />
+    <ClInclude Include="ControlPointsFigure.h" />
     <ClInclude Include="cursor.h" />
+    <ClInclude Include="Cursor2.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="figure.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="Grid2.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -197,8 +226,14 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="patchC0.h" />
     <ClInclude Include="point.h" />
+    <ClInclude Include="Point2.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SimpleCpFigure.h" />
+    <ClInclude Include="SimpleFigure.h" />
+    <ClInclude Include="Surface.h" />
+    <ClInclude Include="SurfaceC0_2.h" />
     <ClInclude Include="torus.h" />
+    <ClInclude Include="Torus2.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>

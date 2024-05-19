@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BaseFigure" Collapsed="true">
+    <Position X="10.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECAAAIAAAAAIAEAAAAIAQAAgACAkIAGAABAAAgAICgA=</HashCode>
+      <FileName>BaseFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimpleFigure" Collapsed="true">
+    <Position X="16" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAYAAAAAAQAgAAAAAAAABAAAA=</HashCode>
+      <FileName>SimpleFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Cursor2" Collapsed="true">
+    <Position X="14.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAEAAAAAAACAAIAAAABAAAAAAAAA=</HashCode>
+      <FileName>Cursor2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Grid2" Collapsed="true">
+    <Position X="12.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAAIAAEAAAACAAIAAAABAAAAAAAAA=</HashCode>
+      <FileName>Grid2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PivotableFigure" Collapsed="true">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACCAAAAAAAAAAAABgACAAAAAAAQAAAACgAA=</HashCode>
+      <FileName>PivotableFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Point2" Collapsed="true">
+    <Position X="17" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAgAAAAAAAAAAAACCAIAAAABAAAAAAAAA=</HashCode>
+      <FileName>Point2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Torus2" Collapsed="true">
+    <Position X="19.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAEAAAAAAAAAAAAAABAQAADACCkIAAAIBACggBAAAA=</HashCode>
+      <FileName>Torus2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ComplexFigure" Collapsed="true">
+    <Position X="5.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAIAAAAAAAAAAAAAAAAABAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>ComplexFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ControlPointsFigure" Collapsed="true">
+    <Position X="7" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAABAgAAACAAQAAAAAAAAAIABAAAAAAAAAA=</HashCode>
+      <FileName>ControlPointsFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimpleCpFigure" Collapsed="true">
+    <Position X="9.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAEAM=</HashCode>
+      <FileName>SimpleCpFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BezierC0_2" Collapsed="true">
+    <Position X="8" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAEAAACAAIAAAABAAAQAAAAA=</HashCode>
+      <FileName>BezierC0_2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BicubicPatch2" Collapsed="true">
+    <Position X="10.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAEAAAAAAAAAUAAAACAAIAAAABAAQAAAAAA=</HashCode>
+      <FileName>BicubicPatch2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ComplexCpFigure" Collapsed="true">
+    <Position X="4.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAIAACAA=</HashCode>
+      <FileName>ComplexCpFigure.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BezierC2_2" Collapsed="true">
+    <Position X="3.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAIAAAAAAAAABAAAAAAAAADAAIAAAABAAAAAABAA=</HashCode>
+      <FileName>BezierC2_2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BezierInt2" Collapsed="true">
+    <Position X="5.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAABAAAAAAAAACAAIAAAABAQAAAAAAA=</HashCode>
+      <FileName>BezierInt2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Surface" Collapsed="true">
+    <Position X="1.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAEAABAQAAAAAAAAAUAAFACAAAAAAABAAAAAAAIA=</HashCode>
+      <FileName>Surface.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SurfaceC0_2" Collapsed="true">
+    <Position X="1.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAABAAAAIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SurfaceC0_2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
