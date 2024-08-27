@@ -55,6 +55,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 void recalculateSelected(bool deleting = false);
 void updateCurvesSelectedChange(bool deleting = false);
+void updatePlanesSelectedChange();
 std::vector<int> GetClickedFigures(GLFWwindow *window);
 void deselectCurve(bool deleting = false);
 void curveCreation();
@@ -73,6 +74,10 @@ const int initZsegments = 3;
 
 const float initParam1 = 3;
 const float initParam2 = 4;
+
+std::vector<PatchC0*> planes;
+int selectedPlaneIdx = -1;
+bool checkIfSelectedArePartOfPlane();
 
 int main() { 
     // initial values
@@ -198,6 +203,9 @@ int main() {
             curves[i]->RenderPolyline(colorLoc, modelLoc);
           }
         }
+		// render planes with default shader
+		for (int i = 0; i < planes.size(); i++) 
+			planes[i]->Render(colorLoc, modelLoc);
 
         // tessellation shader activation
         tessShaderProgram.Activate();
@@ -213,6 +221,10 @@ int main() {
         for (int i = 0; i < curves.size(); i++) {
           curves[i]->Render(tessColorLoc, tessModelLoc);
         }
+
+		// planes rendering with tessellation shader
+		for (int i = 0; i < planes.size(); i++)
+			planes[i]->RenderTess(tessColorLoc, tessModelLoc);
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
@@ -299,7 +311,9 @@ int main() {
                 for (int i = 0; i < newFigures.size(); i++) {
                     figures.push_back(newFigures[i]);
                 }
-                figures.push_back(plane);
+                planes.push_back(plane);
+				selectedPlaneIdx = planes.size() - 1;
+				planes[selectedPlaneIdx]->selected = true;
                 PxSegments = initXsegments;
                 PzSegments = initZsegments;
                 Plength = initParam1;
@@ -307,6 +321,22 @@ int main() {
                 Pproceed = false;
             }
           }
+          // plane selection
+		  if (planes.size() > 0) {
+			  ImGui::SeparatorText("Planes");
+		  }
+		  for (int i = 0; i < planes.size(); i++) {
+			  if (ImGui::Selectable(planes[i]->name.c_str(),
+				  &planes[i]->selected)) {
+				  bool temp = planes[i]->selected;
+				  std::for_each(planes.begin(), planes.end(), [](Figure* f) {
+					  f->selected = false;; });
+				  planes[i]->selected = temp;
+
+				  selectedPlaneIdx = temp ? i : -1;
+                  recalculateSelected();
+			  }
+		  }
           
           // curves selection
           if (curves.size() > 0) {
@@ -351,23 +381,39 @@ int main() {
           }
 
           // delete button
-          if (selected.size() > 0 || selectedCurveIdx != -1) {
+          if (selected.size() > 0 || selectedCurveIdx != -1 || selectedPlaneIdx != -1) {
             ImGui::Separator();
-            if (ImGui::Button("Delete selected")) {
-              updateCurvesSelectedChange(true);
-              for (int i = selected.size() - 1; i >= 0; i--) {
-                figures.erase(figures.begin() + selected[i]);
+            if (ImGui::Button("Delete selected")) 
+            {
+              if (!checkIfSelectedArePartOfPlane()) 
+              {
+                  updateCurvesSelectedChange(true);
+                  for (int i = selected.size() - 1; i >= 0; i--) {
+                      figures.erase(figures.begin() + selected[i]);
+                  }
+                  if (selectedCurveIdx != -1) {
+                      curves.erase(curves.begin() + selectedCurveIdx);
+                      deselectCurve(true);
+                  }
+                  recalculateSelected(true);
               }
-              if (selectedCurveIdx != -1) {
-                curves.erase(curves.begin() + selectedCurveIdx);
-                deselectCurve(true);
+              else 
+              {
+                  ImGui::OpenPopup("FailedToDelete");
               }
-              recalculateSelected(true);
             }
           }
 
+          if (ImGui::BeginPopup("FailedToDelete")) {
+              ImGui::Text("At least one of the selected points is part of a plane!");
+              if (ImGui::Button("OK")) {
+                  ImGui::CloseCurrentPopup();
+              }
+              ImGui::EndPopup();
+          }
+
           // add points to curve button
-          if (selected.size() > 0 && selectedCurveIdx != -1) {
+          if (selected.size() > 0 && selectedCurveIdx != -1 && selectedPlaneIdx == -1) {
             if (ImGui::Button("Add points to curve")) {
               for (int i = 0; i < selected.size(); i++) {
                 curves[selectedCurveIdx]->AddControlPoint(figures[selected[i]]);
@@ -380,7 +426,8 @@ int main() {
             ImGui::Checkbox("Click-out curve", &clickingOutCurve);
           }
 
-          if (selected.size() == 1 && selectedCurveIdx == -1) 
+          // selected item menu
+          if (selected.size() == 1 && selectedCurveIdx == -1 && selectedPlaneIdx == -1) 
           {
               ImGui::Separator();
               // change name window
@@ -390,24 +437,36 @@ int main() {
               // display selected item menu
               if (figures[selected[0]]->CreateImgui()) {
                 updateCurvesSelectedChange();
+				updatePlanesSelectedChange();
               }
           }
-          if (selected.size() == 0 && selectedCurveIdx != -1 && currentMenuItem != 4) {
+          if (selected.size() == 0 && selectedCurveIdx != -1 && selectedPlaneIdx == -1 && currentMenuItem != 4) 
+          {
             ImGui::Separator();
             // change name window
             ImGui::InputText("Change name", &curves[selectedCurveIdx]->name);
             // display selected curve menu
-            if (curves[selectedCurveIdx]->CreateImgui()) {
-              if (curves[selectedCurveIdx]->GetControlPoints().size() == 0) {
+            if (curves[selectedCurveIdx]->CreateImgui()) 
+            {
+              if (curves[selectedCurveIdx]->GetControlPoints().size() == 0) 
+              {
                 curves.erase(curves.begin() + selectedCurveIdx);
                 deselectCurve(true);
                 recalculateSelected(true);
               }
-            };
+            }
+          }
+
+          if (selected.size() == 0 && selectedCurveIdx == -1 && selectedPlaneIdx != -1) {
+              ImGui::Separator();
+              // change name window
+              ImGui::InputText("Change name", &planes[selectedPlaneIdx]->name);
+              // display selected plane menu
+              planes[selectedPlaneIdx]->CreateImgui();
           }
 
           // multiple figures manipulation
-          if (selected.size() > 1 && selectedCurveIdx == -1) {
+          if (selected.size() > 1 && selectedCurveIdx == -1 && selectedPlaneIdx == -1) {
             bool change = false;
             // scaling manipulation
             ImGui::SeparatorText("Center scale");
@@ -473,6 +532,7 @@ int main() {
             }
             if (change) {
               updateCurvesSelectedChange();
+              updatePlanesSelectedChange();
             }
           }
 
@@ -503,6 +563,8 @@ int main() {
                   [](Figure* f) { f->Delete(); });
     std::for_each(curves.begin(), curves.end(),
                   [](Figure *c) { c->Delete(); });
+	std::for_each(planes.begin(), planes.end(),
+		          [](Figure* p) { p->Delete(); });
     shaderProgram.Delete();
     tessShaderProgram.Delete();
     glfwDestroyWindow(window);
@@ -643,6 +705,22 @@ void updateCurvesSelectedChange(bool deleting) {
   }
 }
 
+void updatePlanesSelectedChange()
+{
+	for (int i = 0; i < selected.size(); i++) {
+		for (int j = 0; j < planes.size(); j++) {
+			std::vector<Figure*> points = planes[j]->GetControlPoints();
+
+			for (int k = 0; k < points.size(); k++) {
+				if (figures[selected[i]] == points[k]) {
+					planes[j]->RefreshBuffers();
+                    return;
+				}
+			}
+		}
+	}
+}
+
 std::vector<int> GetClickedFigures(GLFWwindow *window) {
   std::vector<int> result;
 
@@ -695,4 +773,20 @@ void deselectFigures() {
     ;
   });
   recalculateSelected();
+}
+
+bool checkIfSelectedArePartOfPlane()
+{
+    for (int i = 0; i < selected.size(); i++) {
+        for (int j = 0; j < planes.size(); j++) {
+            std::vector<Figure*> points = planes[j]->GetControlPoints();
+
+            for (int k = 0; k < points.size(); k++) {
+                if (figures[selected[i]] == points[k]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
