@@ -6,13 +6,25 @@ uniform mat4 proj;
 uniform int segmentCount;
 uniform int segmentIdx;
 uniform int division;
+uniform bool otherAxis;
 
 void main()
 {
-    float u = (gl_TessCoord.x * (1 + segmentIdx)) / segmentCount;
-    //float u = gl_TessCoord.x;
-    float v = gl_TessCoord.y * division / (division - 1.f);
-    //float v = ((gl_TessCoord.y * division / (division - 1.f)) * (1 + segmentIdx)) / segmentCount;
+    float u, v;
+
+    if (!otherAxis)
+	{
+		u = (gl_TessCoord.x * (1 + segmentIdx)) / segmentCount;
+		v = gl_TessCoord.y * division / (division - 1.f);
+	}
+	else
+	{
+        u = gl_TessCoord.y * division / (division - 1.f);
+        // BUG, FIX MAYBE
+        // u = ((gl_TessCoord.y * division / (division - 1.f)) * (1 + segmentIdx)) / segmentCount;
+		v = gl_TessCoord.x;
+	}
+
     float minU = (1.0 - u);
     float minV = (1.0 - v);
 

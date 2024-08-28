@@ -9,7 +9,7 @@ class PatchC0 : public Figure
 private:
 	std::vector<BicubicPatch*> patches = std::vector<BicubicPatch*>();
 	int division = 4;
-	bool showMesh = true;
+	bool showMesh = false;
 
 public:
 	PatchC0(glm::vec3 position);
@@ -22,6 +22,6 @@ public:
 	std::vector<Figure*> GetControlPoints();
 	void RefreshBuffers();
 
-	std::vector<Figure*> CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float length, float width);
+	std::vector<Figure*> CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width);
 	//std::vector<Figure*> CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float radius, float height);
 };

@@ -1,7 +1,7 @@
 #include "patchC0.h"
 #include "point.h"
 
-std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float length, float width)
+std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
 {
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
@@ -34,7 +34,7 @@ std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, i
 				newPoints.push_back(p);
 			}
 
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, cps, &this->division));
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, cps, &this->division));
 		}
 	}
 	return newPoints;
@@ -57,8 +57,8 @@ bool PatchC0::CreateImgui()
 
 	int prevValue = division;
 	if (ImGui::InputInt("Division", &division)) {
-		if (division < 1) {
-			division = 1;
+		if (division < 2) {
+			division = 2;
 		}
 		change = division != prevValue;
 	}

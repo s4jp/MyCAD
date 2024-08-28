@@ -149,6 +149,8 @@ int main() {
         glGetUniformLocation(tessPlaneShaderProgram.ID, "segmentCount");
     int tessPlaneSegmentIdxLoc =
         glGetUniformLocation(tessPlaneShaderProgram.ID, "segmentIdx");
+	int tessPlaneOtherAxisLoc =
+		glGetUniformLocation(tessPlaneShaderProgram.ID, "otherAxis");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -335,7 +337,7 @@ int main() {
 
             if (Pproceed) {
                 PatchC0* plane = new PatchC0(cursor->GetPosition());
-                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, PxSegments, PzSegments, Plength, Pwidth);
+                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessPlaneOtherAxisLoc, PxSegments, PzSegments, Plength, Pwidth);
                 for (int i = 0; i < newFigures.size(); i++) {
                     figures.push_back(newFigures[i]);
                 }
