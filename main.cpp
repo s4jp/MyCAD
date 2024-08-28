@@ -134,6 +134,22 @@ int main() {
 	int tessDivisionLoc =
 		glGetUniformLocation(tessShaderProgram.ID, "division");
 
+	Shader tessPlaneShaderProgram("tessellation.vert", "default.frag",
+		"tessellation.tesc", "tessellationPlane.tese");
+    int tessPlaneModelLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "model");
+    int tessPlaneViewLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "view");
+    int tessPlaneProjLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "proj");
+    int tessPlaneColorLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "color");
+    int tessPlaneCpCountLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "cpCount");
+    int tessPlaneResolutionLoc =
+        glGetUniformLocation(tessPlaneShaderProgram.ID, "resolution");
+    int tessPlaneDivisionLoc =
+        glGetUniformLocation(tessPlaneShaderProgram.ID, "division");
+    int tessPlaneSegmentCountLoc =
+        glGetUniformLocation(tessPlaneShaderProgram.ID, "segmentCount");
+    int tessPlaneSegmentIdxLoc =
+        glGetUniformLocation(tessPlaneShaderProgram.ID, "segmentIdx");
+
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetKeyCallback(window, key_callback);
@@ -224,7 +240,17 @@ int main() {
           curves[i]->Render(tessColorLoc, tessModelLoc);
         }
 
-		// planes rendering with tessellation shader
+		// plane tessellation shader activation
+		tessPlaneShaderProgram.Activate();
+
+		// matrices for plane tessellation shader (with workaround)
+		glm::mat4 tessPlaneView = glm::mat4(view);
+		glm::mat4 tessPlaneProj = glm::mat4(proj);
+		glUniformMatrix4fv(tessPlaneViewLoc, 1, GL_FALSE, glm::value_ptr(tessPlaneView));
+		glUniformMatrix4fv(tessPlaneProjLoc, 1, GL_FALSE, glm::value_ptr(tessPlaneProj));
+		glUniform2i(tessPlaneResolutionLoc, camera->GetWidth(), camera->GetHeight());
+
+		// planes rendering with plane tessellation shader
 		for (int i = 0; i < planes.size(); i++)
 			planes[i]->RenderTess(tessColorLoc, tessModelLoc);
 
@@ -569,6 +595,7 @@ int main() {
 		          [](Figure* p) { p->Delete(); });
     shaderProgram.Delete();
     tessShaderProgram.Delete();
+	tessPlaneShaderProgram.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

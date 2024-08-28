@@ -125,6 +125,9 @@
     <None Include="tessellation.tese">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="tessellationPlane.tese">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EBO.h">

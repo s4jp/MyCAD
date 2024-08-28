@@ -173,6 +173,7 @@
     <None Include="tessellation.tesc" />
     <None Include="tessellation.tese" />
     <None Include="tessellation.vert" />
+    <None Include="tessellationPlane.tese" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bezierC0.h" />
