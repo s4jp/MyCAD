@@ -1,7 +1,7 @@
 #include "bezierC2.h"
 
-BezierC2::BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc)
-    : BezierInt(cpCountLoc, segmentCountLoc, segmentIdxLoc, "Bezier C2") {}
+BezierC2::BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc)
+    : BezierInt(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc, "Bezier C2") {}
 
 void BezierC2::CalculateBspline() const {
   // actual conversion

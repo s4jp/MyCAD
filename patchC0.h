@@ -22,6 +22,6 @@ public:
 	std::vector<Figure*> GetControlPoints();
 	void RefreshBuffers();
 
-	std::vector<Figure*> CalculatePlane(int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float length, float width);
-	//std::vector<Figure*> CalculateCylinder(int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float radius, float height);
+	std::vector<Figure*> CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float length, float width);
+	//std::vector<Figure*> CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float radius, float height);
 };

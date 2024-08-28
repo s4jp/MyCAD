@@ -131,6 +131,8 @@ int main() {
         glGetUniformLocation(tessShaderProgram.ID, "segmentCount");
     int tessSegmentIdxLoc =
         glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
+	int tessDivisionLoc =
+		glGetUniformLocation(tessShaderProgram.ID, "division");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -262,21 +264,21 @@ int main() {
             // bezier C0
             if (ImGui::Button("Bezier C0")) {
               curves.push_back(new BezierC0(tessCpCountLoc, tessSegmentCountLoc,
-                                            tessSegmentIdxLoc));
+                                            tessSegmentIdxLoc, tessDivisionLoc));
               curveCreation();
             }
             // bezier C2
             ImGui::SameLine();
             if (ImGui::Button("Bezier C2")) {
               curves.push_back(new BezierC2(tessCpCountLoc, tessSegmentCountLoc,
-                                            tessSegmentIdxLoc));
+                                            tessSegmentIdxLoc, tessDivisionLoc));
               curveCreation();
             }
             // bezier int
             ImGui::SameLine();
             if (ImGui::Button("Bezier Int")) {
               curves.push_back(new BezierInt(tessCpCountLoc, tessSegmentCountLoc,
-                                            tessSegmentIdxLoc));
+                                            tessSegmentIdxLoc, tessDivisionLoc));
               curveCreation();
             } 
             // plane C0
@@ -307,7 +309,7 @@ int main() {
 
             if (Pproceed) {
                 PatchC0* plane = new PatchC0(cursor->GetPosition());
-                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, PxSegments, PzSegments, Plength, Pwidth);
+                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, PxSegments, PzSegments, Plength, Pwidth);
                 for (int i = 0; i < newFigures.size(); i++) {
                     figures.push_back(newFigures[i]);
                 }

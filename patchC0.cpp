@@ -1,7 +1,7 @@
 #include "patchC0.h"
 #include "point.h"
 
-std::vector<Figure*> PatchC0::CalculatePlane(int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float length, float width)
+std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int xSegments, int zSegments, float length, float width)
 {
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
@@ -34,7 +34,7 @@ std::vector<Figure*> PatchC0::CalculatePlane(int segmentCountLoc, int segmentIdx
 				newPoints.push_back(p);
 			}
 
-			patches.push_back(new BicubicPatch(segmentCountLoc, segmentIdxLoc, divisionLoc, cps, &this->division));
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, cps, &this->division));
 		}
 	}
 	return newPoints;

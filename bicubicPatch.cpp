@@ -52,8 +52,9 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> BicubicPatch::Calculate() 
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>> BicubicPatch::InitializeAndCalculate
-(int segmentCountLoc, int segmentIdxLoc, int divisionLoc, std::vector<Figure*> controlPoints, int* division)
+(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, std::vector<Figure*> controlPoints, int* division)
 {
+	this->cpCountLoc = cpCountLoc;
     this->segmentCountLoc = segmentCountLoc;
     this->segmentIdxLoc = segmentIdxLoc;
     this->divisionLoc = divisionLoc;
@@ -63,8 +64,8 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> BicubicPatch::InitializeAn
     return Calculate();
 }
 
-BicubicPatch::BicubicPatch(int segmentCountLoc, int segmentIdxLoc, int divisionLoc, std::vector<Figure*> controlPoints, int* division) :
-    Figure(InitializeAndCalculate(segmentCountLoc, segmentIdxLoc, divisionLoc, controlPoints, division), "Bicubic patch", glm::vec3(0.f)) 
+BicubicPatch::BicubicPatch(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, std::vector<Figure*> controlPoints, int* division) :
+    Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc, controlPoints, division), "Bicubic patch", glm::vec3(0.f))
 {
     this->controlPoints = controlPoints;
 }
@@ -77,8 +78,10 @@ void BicubicPatch::RenderTess(int colorLoc, int modelLoc)
     glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
     glUniform1i(segmentCountLoc, renderSegments);
     glLineWidth(3.0f);
-    glPatchParameteri(GL_PATCH_VERTICES, controlPoints.size());
     glUniform1i(divisionLoc, *division);
+
+    glPatchParameteri(GL_PATCH_VERTICES, controlPoints.size());
+    glUniform1i(cpCountLoc, controlPoints.size());
 
     for (int i = 0; i < renderSegments; i++) {
         glUniform1i(segmentIdxLoc, i);
