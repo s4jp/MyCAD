@@ -40,6 +40,60 @@ std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, i
 	return newPoints;
 }
 
+std::vector<Figure*> PatchC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height) {
+	float patchRadius = 2 * M_PI / xSegments;
+	float patchRadiusStep = patchRadius / 3.f;
+	float patchHeight = height / zSegments;
+	float patchHeightStep = patchHeight / 3.f;
+
+	glm::vec3 position = this->GetPosition();
+	std::vector<Figure*> newPoints = std::vector<Figure*>();
+
+	std::vector<glm::vec2> xzPositions = std::vector<glm::vec2>();
+	for (int i = 0; i < xSegments * 3; i++) {
+		float x = position.x + radius * glm::cos(i * patchRadiusStep);
+		float z = position.z + radius * glm::sin(i * patchRadiusStep);
+		xzPositions.push_back(glm::vec2(x, z));
+	}
+
+	for (int i = 0; i < zSegments; i++) {
+		for (int j = 0; j < xSegments; j++) {
+			bool noBottom = (i == 0);
+			bool noLeft = (j == 0);
+
+			std::vector<Figure*> cps = std::vector<Figure*>();
+			for (int k = 0; k < 16; k++) {
+				if (!noBottom && glm::floor(k / 4) == 0) {
+					cps.push_back((patches[(i - 1) * xSegments + j]->GetControlPoints())[k + 12]);
+					continue;
+				}
+				if (!noLeft && k % 4 == 0) {
+					cps.push_back((patches[i * xSegments + (j - 1)]->GetControlPoints())[k + 3]);
+					continue;
+				}
+				if (j * 3 + k % 4 == xzPositions.size()) {
+					if (j == 0)
+						cps.push_back(cps[k - 3]);
+					else
+						cps.push_back((patches[i * xSegments]->GetControlPoints())[k - 3]);
+					continue;
+				}
+
+				float x = xzPositions[j * 3 + k % 4].x;
+				float y = position.y + patchHeight * (i - zSegments / 2.f) + glm::floor(k / 4) * patchHeightStep;
+				float z = xzPositions[j * 3 + k % 4].y;
+				Point* p = new Point(glm::vec3(x, y, z), 0.02F);
+				cps.push_back(p);
+				newPoints.push_back(p);
+			}
+
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, cps, &this->division));
+		}
+	}
+
+	return newPoints;
+}
+
 PatchC0::PatchC0(glm::vec3 position) 
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()),"Patch C0",position, true){}
 

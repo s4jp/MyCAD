@@ -69,11 +69,11 @@ std::vector<BezierC0*> curves;
 int selectedCurveIdx = -1;
 bool clickingOutCurve = false;
 
-const int initXsegments = 4;
-const int initZsegments = 3;
+const int initXsegments = 2;
+const int initZsegments = 2;
 
 const float initParam1 = 3;
-const float initParam2 = 4;
+const float initParam2 = 2;
 
 std::vector<PatchC0*> planes;
 int selectedPlaneIdx = -1;
@@ -169,9 +169,8 @@ int main() {
 
     int PxSegments = initXsegments;
     int PzSegments = initZsegments;
-    float Plength = initParam1;
-    float Pwidth = initParam2;
-    bool Pproceed = false;
+    float Pparam1 = initParam1;
+    float Pparam2 = initParam2;
 
     #pragma region imgui_boilerplate
     IMGUI_CHECKVERSION();
@@ -309,11 +308,10 @@ int main() {
                                             tessSegmentIdxLoc, tessDivisionLoc));
               curveCreation();
             } 
-            // plane C0
+            // plane C0 
             if (ImGui::Button("Plane C0")) {
                 ImGui::OpenPopup("planeC0popup");
             }
-
             if (ImGui::BeginPopup("planeC0popup")) {
                 ImGui::SeparatorText("Plane C0 params:");
                 if (ImGui::InputInt("x segments", &PxSegments)) {
@@ -322,35 +320,74 @@ int main() {
                 if (ImGui::InputInt("z segments", &PzSegments)) {
                     PzSegments = PzSegments >= 1 ? PzSegments : 1;
                 }
-                if (ImGui::InputFloat("length", &Plength, 0.01f, 1.f, "%.2f")) {
-                    Plength = Plength >= 0.01f ? Plength : 0.01f;
+                if (ImGui::InputFloat("length", &Pparam1, 0.01f, 1.f, "%.2f")) {
+                    Pparam1 = Pparam1 >= 0.01f ? Pparam1 : 0.01f;
                 }
-                if (ImGui::InputFloat("width", &Pwidth, 0.01f, 1.f, "%.2f")) {
-                    Pwidth = Pwidth >= 0.01f ? Pwidth : 0.01f;
+                if (ImGui::InputFloat("width", &Pparam2, 0.01f, 1.f, "%.2f")) {
+                    Pparam2 = Pparam2 >= 0.01f ? Pparam2 : 0.01f;
                 }
                 if (ImGui::Button("OK")) {
-                    Pproceed = true;
                     ImGui::CloseCurrentPopup();
+
+                    PatchC0* plane = new PatchC0(cursor->GetPosition());
+                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessPlaneOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    for (int i = 0; i < newFigures.size(); i++) {
+                        figures.push_back(newFigures[i]);
+                    }
+                    planes.push_back(plane);
+                    selectedPlaneIdx = planes.size() - 1;
+                    planes[selectedPlaneIdx]->selected = true;
+
+                    PxSegments = initXsegments;
+                    PzSegments = initZsegments;
+                    Pparam1 = initParam1;
+                    Pparam2 = initParam2;
                 }
+
                 ImGui::EndPopup();
             }
 
-            if (Pproceed) {
-                PatchC0* plane = new PatchC0(cursor->GetPosition());
-                std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessPlaneOtherAxisLoc, PxSegments, PzSegments, Plength, Pwidth);
-                for (int i = 0; i < newFigures.size(); i++) {
-                    figures.push_back(newFigures[i]);
+            // cylinder C0
+            ImGui::SameLine();
+            if (ImGui::Button("Cylinder C0")) {
+                ImGui::OpenPopup("cylinderC0popup");
+            }
+            if (ImGui::BeginPopup("cylinderC0popup")) {
+                ImGui::SeparatorText("Cylinder C0 params:");
+                if (ImGui::InputInt("x segments", &PxSegments)) {
+                    PxSegments = PxSegments >= 1 ? PxSegments : 1;
                 }
-                planes.push_back(plane);
-				selectedPlaneIdx = planes.size() - 1;
-				planes[selectedPlaneIdx]->selected = true;
-                PxSegments = initXsegments;
-                PzSegments = initZsegments;
-                Plength = initParam1;
-                Pwidth = initParam2;
-                Pproceed = false;
+                if (ImGui::InputInt("z segments", &PzSegments)) {
+                    PzSegments = PzSegments >= 1 ? PzSegments : 1;
+                }
+                if (ImGui::InputFloat("radius", &Pparam1, 0.01f, 1.f, "%.2f")) {
+                    Pparam1 = Pparam1 >= 0.01f ? Pparam1 : 0.01f;
+                }
+                if (ImGui::InputFloat("height", &Pparam2, 0.01f, 1.f, "%.2f")) {
+                    Pparam2 = Pparam2 >= 0.01f ? Pparam2 : 0.01f;
+                }
+                if (ImGui::Button("OK")) {
+                    ImGui::CloseCurrentPopup();
+
+                    PatchC0* plane = new PatchC0(cursor->GetPosition());
+                    std::vector<Figure*> newFigures = plane->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessPlaneOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    for (int i = 0; i < newFigures.size(); i++) {
+                        figures.push_back(newFigures[i]);
+                    }
+                    planes.push_back(plane);
+                    selectedPlaneIdx = planes.size() - 1;
+                    planes[selectedPlaneIdx]->selected = true;
+
+                    PxSegments = initXsegments;
+                    PzSegments = initZsegments;
+                    Pparam1 = initParam1;
+                    Pparam2 = initParam2;
+                }
+
+                ImGui::EndPopup();
             }
           }
+
           // plane selection
 		  if (planes.size() > 0) {
 			  ImGui::SeparatorText("Planes");
@@ -425,6 +462,10 @@ int main() {
                       curves.erase(curves.begin() + selectedCurveIdx);
                       deselectCurve(true);
                   }
+				  if (selectedPlaneIdx != -1) {
+					  planes.erase(planes.begin() + selectedPlaneIdx);
+					  selectedPlaneIdx = -1;
+				  }
                   recalculateSelected(true);
               }
               else 
@@ -433,7 +474,6 @@ int main() {
               }
             }
           }
-
           if (ImGui::BeginPopup("FailedToDelete")) {
               ImGui::Text("At least one of the selected points is part of a plane!");
               if (ImGui::Button("OK")) {
@@ -441,6 +481,33 @@ int main() {
               }
               ImGui::EndPopup();
           }
+
+		  // delete complex figure with all its control points
+          if (((selectedCurveIdx != -1) != (selectedPlaneIdx != -1)) && selected.size() == 0) {
+			  ImGui::SameLine();
+			  if (ImGui::Button("Delete with cps")) {
+                  std::vector<Figure*> cpsToDelete;
+				  if (selectedCurveIdx != -1) {
+					  cpsToDelete = curves[selectedCurveIdx]->GetControlPoints();
+					  curves.erase(curves.begin() + selectedCurveIdx);
+					  deselectCurve(true);
+				  }
+				  if (selectedPlaneIdx != -1) {
+					  cpsToDelete = planes[selectedPlaneIdx]->GetControlPoints();
+					  planes.erase(planes.begin() + selectedPlaneIdx);
+					  selectedPlaneIdx = -1;
+				  }
+				  for (int i = 0; i < cpsToDelete.size(); i++) 
+					  for (int j = 0; j < figures.size(); j++) 
+                          if (cpsToDelete[i] == figures[j]) 
+                          {
+                              figures.erase(figures.begin() + j);
+                              break;
+                          }
+
+				  recalculateSelected(true);
+			  }
+		  }
 
           // add points to curve button
           if (selected.size() > 0 && selectedCurveIdx != -1 && selectedPlaneIdx == -1) {
