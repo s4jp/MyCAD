@@ -143,6 +143,7 @@
     <ClCompile Include="bezierC0.cpp" />
     <ClCompile Include="bezierC2.cpp" />
     <ClCompile Include="bezierInt.cpp" />
+    <ClCompile Include="bicubicPatch.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="cursor.cpp" />
     <ClCompile Include="EBO.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="surfaceC0.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="torus.cpp" />
@@ -171,11 +173,13 @@
     <None Include="tessellation.tesc" />
     <None Include="tessellation.tese" />
     <None Include="tessellation.vert" />
+    <None Include="tessellationSurface.tese" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bezierC0.h" />
     <ClInclude Include="bezierC2.h" />
     <ClInclude Include="bezierInt.h" />
+    <ClInclude Include="bicubicPatch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="cursor.h" />
     <ClInclude Include="EBO.h" />
@@ -192,6 +196,7 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="surfaceC0.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="torus.h" />

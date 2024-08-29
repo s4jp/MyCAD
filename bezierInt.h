@@ -11,7 +11,7 @@ protected:
     BezierC0 *bSpline;
 
 public:
-    BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
+	BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
               const char *name = "Bezier Int");
 
 	void Render(int colorLoc, int modelLoc) override;

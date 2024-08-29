@@ -1,17 +1,18 @@
 #version 460 core
 
-layout (vertices = 4) out;
+layout (vertices = 16) out;
 
 uniform mat4 proj;
 uniform int cpCount;
 uniform ivec2 resolution;
+uniform int division;
 
 float CalcTessLevel();
 
 void main()
 {
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
-    gl_TessLevelOuter[0] = 1.0;
+    gl_TessLevelOuter[0] = division;
     gl_TessLevelOuter[1] = CalcTessLevel();
 }
 

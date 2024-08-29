@@ -102,6 +102,12 @@
     <ClCompile Include="bezierInt.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
+    <ClCompile Include="bicubicPatch.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="surfaceC0.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -117,6 +123,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="tessellation.tese">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="tessellationSurface.tese">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -191,6 +200,12 @@
       <Filter>Header Files\figures</Filter>
     </ClInclude>
     <ClInclude Include="bezierInt.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="bicubicPatch.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="surfaceC0.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>

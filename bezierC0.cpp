@@ -44,18 +44,19 @@ BezierC0::Calculate() const {
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
 BezierC0::InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
-                                 int segmentIdxLoc) {
+                                 int segmentIdxLoc, int divisionLoc) {
   this->cpCountLoc = cpCountLoc;
   this->segmentCountLoc = segmentCountLoc;
   this->segmentIdxLoc = segmentIdxLoc;
+  this->divisionLoc = divisionLoc;
 
   //return Calculate();
   return std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>());
 }
 
-BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
+BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
                    const char *name, bool numerate)
-    : Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc),
+    : Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc),
              name, glm::vec3(0.f), numerate) {}
 
 void BezierC0::Render(int colorLoc, int modelLoc) {
@@ -65,6 +66,7 @@ void BezierC0::Render(int colorLoc, int modelLoc) {
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
   glUniform1i(segmentCountLoc, renderSegments);
   glLineWidth(3.0f);
+  glUniform1i(divisionLoc, 1);
 
   int count = glm::ceil((indices_count - 1) / 3.0f);
   for (int i = 0; i < count; i++) {

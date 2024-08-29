@@ -8,7 +8,7 @@ private:
      void CalculateBspline() const override;
 
 public:
-	BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc);
+	BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc);
 
     void RenderPolyline(int colorLoc, int modelLoc) override;
     bool CreateImgui() override;

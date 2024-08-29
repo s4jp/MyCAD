@@ -7,9 +7,14 @@
 class BezierC0 : public Figure
 {
 private:
+  int cpCountLoc;
+  int segmentCountLoc;
+  int segmentIdxLoc;
+  int divisionLoc;
+
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
   InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
-                         int segmentIdxLoc);
+                         int segmentIdxLoc, int divisionLoc);
 
 protected:
   std::vector<Figure *> controlPoints;
@@ -17,11 +22,7 @@ protected:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> virtual Calculate() const;
 
 public:
-  int cpCountLoc;
-  int segmentCountLoc;
-  int segmentIdxLoc;
-
-  BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc,
+  BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
            const char *name = "Bezier C0", bool numerate = true);
 
   void virtual Render(int colorLoc, int modelLoc);
