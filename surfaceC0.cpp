@@ -94,8 +94,8 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 	return newPoints;
 }
 
-SurfaceC0::SurfaceC0(glm::vec3 position)
-	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()),"Surface C0",position, true){}
+SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
+	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 
 void SurfaceC0::RenderTess(int colorLoc, int modelLoc)
 {

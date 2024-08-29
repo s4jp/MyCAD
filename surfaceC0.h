@@ -2,17 +2,18 @@
 #include "figure.h"
 #include "bicubicPatch.h"
 
-#include<vector>
+#include <vector>
+#include <string>
 
 class SurfaceC0 : public Figure
 {
-private:
+protected:
 	std::vector<BicubicPatch*> patches = std::vector<BicubicPatch*>();
 	int division = 4;
 	bool showMesh = false;
 
 public:
-	SurfaceC0(glm::vec3 position);
+	SurfaceC0(glm::vec3 position, std::string name = "Surface C0");
 
 	void Render(int colorLoc, int modelLoc);
 	void RenderTess(int colorLoc, int modelLoc);
@@ -22,6 +23,6 @@ public:
 	std::vector<Figure*> GetControlPoints();
 	void RefreshBuffers();
 
-	std::vector<Figure*> CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width);
-	std::vector<Figure*> CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height);
+	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width);
+	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height);
 };

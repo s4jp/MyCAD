@@ -29,6 +29,7 @@
 #include"bezierC2.h"
 #include"bezierInt.h"
 #include"SurfaceC0.h"
+#include"SurfaceC2.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -72,7 +73,7 @@ std::vector<BezierC0*> curves;
 int selectedCurveIdx = -1;
 bool clickingOutCurve = false;
 
-const int initXsegments = 2;
+const int initXsegments = 3;
 const int initZsegments = 2;
 
 const float initParam1 = 3;
@@ -349,7 +350,6 @@ int main() {
 
                 ImGui::EndPopup();
             }
-
             // cylinder C0
             ImGui::SameLine();
             if (ImGui::Button("Cylinder C0")) {
@@ -373,6 +373,83 @@ int main() {
                     ImGui::CloseCurrentPopup();
 
                     SurfaceC0* cylinder = new SurfaceC0(cursor->GetPosition());
+                    std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    for (int i = 0; i < newFigures.size(); i++) {
+                        figures.push_back(newFigures[i]);
+                    }
+                    surfaces.push_back(cylinder);
+                    selectedSurfaceIdx = surfaces.size() - 1;
+                    surfaces[selectedSurfaceIdx]->selected = true;
+
+                    PxSegments = initXsegments;
+                    PzSegments = initZsegments;
+                    Pparam1 = initParam1;
+                    Pparam2 = initParam2;
+                }
+
+                ImGui::EndPopup();
+            }
+            // plane C2
+            if (ImGui::Button("Plane C2")) {
+                ImGui::OpenPopup("planeC2popup");
+            }
+            if (ImGui::BeginPopup("planeC2popup")) {
+                ImGui::SeparatorText("Plane C2 params:");
+                if (ImGui::InputInt("x segments", &PxSegments)) {
+                    PxSegments = PxSegments >= 1 ? PxSegments : 1;
+                }
+                if (ImGui::InputInt("z segments", &PzSegments)) {
+                    PzSegments = PzSegments >= 1 ? PzSegments : 1;
+                }
+                if (ImGui::InputFloat("length", &Pparam1, 0.01f, 1.f, "%.2f")) {
+                    Pparam1 = Pparam1 >= 0.01f ? Pparam1 : 0.01f;
+                }
+                if (ImGui::InputFloat("width", &Pparam2, 0.01f, 1.f, "%.2f")) {
+                    Pparam2 = Pparam2 >= 0.01f ? Pparam2 : 0.01f;
+                }
+                if (ImGui::Button("OK")) {
+                    ImGui::CloseCurrentPopup();
+
+                    SurfaceC0* plane = new SurfaceC2(cursor->GetPosition());
+                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    for (int i = 0; i < newFigures.size(); i++) {
+                        figures.push_back(newFigures[i]);
+                    }
+                    surfaces.push_back(plane);
+                    selectedSurfaceIdx = surfaces.size() - 1;
+                    surfaces[selectedSurfaceIdx]->selected = true;
+
+                    PxSegments = initXsegments;
+                    PzSegments = initZsegments;
+                    Pparam1 = initParam1;
+                    Pparam2 = initParam2;
+                }
+
+                ImGui::EndPopup();
+            }
+            // cylinder C2
+            ImGui::SameLine();
+            if (ImGui::Button("Cylinder C2")) {
+                ImGui::OpenPopup("cylinderC2popup");
+            }
+            if (ImGui::BeginPopup("cylinderC2popup")) {
+                ImGui::SeparatorText("Cylinder C2 params:");
+                if (ImGui::InputInt("ambit segments", &PxSegments)) {
+                    PxSegments = PxSegments >= 3 ? PxSegments : 3;
+                }
+                if (ImGui::InputInt("y segments", &PzSegments)) {
+                    PzSegments = PzSegments >= 1 ? PzSegments : 1;
+                }
+                if (ImGui::InputFloat("radius", &Pparam1, 0.01f, 1.f, "%.2f")) {
+                    Pparam1 = Pparam1 >= 0.01f ? Pparam1 : 0.01f;
+                }
+                if (ImGui::InputFloat("height", &Pparam2, 0.01f, 1.f, "%.2f")) {
+                    Pparam2 = Pparam2 >= 0.01f ? Pparam2 : 0.01f;
+                }
+                if (ImGui::Button("OK")) {
+                    ImGui::CloseCurrentPopup();
+
+                    SurfaceC0* cylinder = new SurfaceC2(cursor->GetPosition());
                     std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
