@@ -212,7 +212,7 @@
       <Filter>Header Files\figures</Filter>
     </ClInclude>
     <ClInclude Include="surfaceC2.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,13 +5,6 @@ SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position,
 
 std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
 {
-	//float patchLength = length / xSegments;
-	//float patchLengthStep = patchLength / 3.f;
-	//float patchLengthOverlap = 2.f * patchLengthStep;
-	//float patchWidth = width / zSegments;
-	//float patchWidthStep = patchWidth / 3.f;
-	//float patchWidthOverlap = 2.f * patchWidthStep;
-
 	int lengthSegmentCount = xSegments + 2;
 	float segmentLength = length / lengthSegmentCount;
 	int widthSegmentCount = zSegments + 2;
@@ -22,26 +15,17 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 
 	for (int i = 0; i < zSegments; i++) {
 		for (int j = 0; j < xSegments; j++) {
-			bool firstRow = (i == 0);				// generate 4 right cps
-			bool firstColumn = (j == 0);			// generate 4 top cps
-			// if both true, generate all 16 cps
-			// if both false, generate only top right cp
+			bool firstInRow = (j == 0);
+			bool firstInColumn = (i == 0);
 
 			std::vector<Figure*> cps = std::vector<Figure*>();
 			for (int k = 0; k < 16; k++) {
-				if (!firstColumn && firstRow && k % 4 != 3) {
+				if (!firstInRow && k % 4 != 3) {
 					cps.push_back(patches[i * xSegments + (j - 1)]->GetControlPoints()[k + 1]);
 					continue;
 				}
-				if (!firstRow && firstColumn && glm::floor(k / 4) != 3) {
+				if (!firstInColumn && glm::floor(k / 4) != 3) {
 					cps.push_back(patches[(i - 1) * xSegments + j]->GetControlPoints()[k + 4]);
-					continue;
-				}
-				if (!firstRow && !firstColumn && k != 15) {
-					if (k % 4 != 3)
-						cps.push_back(patches[i * xSegments + (j - 1)]->GetControlPoints()[k + 1]);
-					else
-						cps.push_back(patches[(i - 1) * xSegments + j]->GetControlPoints()[k + 4]);
 					continue;
 				}
 
