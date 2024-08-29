@@ -4,7 +4,7 @@
 
 #include<vector>
 
-class PatchC0 : public Figure
+class SurfaceC0 : public Figure
 {
 private:
 	std::vector<BicubicPatch*> patches = std::vector<BicubicPatch*>();
@@ -12,7 +12,7 @@ private:
 	bool showMesh = false;
 
 public:
-	PatchC0(glm::vec3 position);
+	SurfaceC0(glm::vec3 position);
 
 	void Render(int colorLoc, int modelLoc);
 	void RenderTess(int colorLoc, int modelLoc);

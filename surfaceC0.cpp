@@ -1,7 +1,7 @@
-#include "patchC0.h"
+#include "SurfaceC0.h"
 #include "point.h"
 
-std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
+std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
 {
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
@@ -40,7 +40,7 @@ std::vector<Figure*> PatchC0::CalculatePlane(int cpCount, int segmentCountLoc, i
 	return newPoints;
 }
 
-std::vector<Figure*> PatchC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height) {
+std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height) {
 	float patchRadius = 2 * M_PI / xSegments;
 	float patchRadiusStep = patchRadius / 3.f;
 	float patchHeight = height / zSegments;
@@ -94,10 +94,10 @@ std::vector<Figure*> PatchC0::CalculateCylinder(int cpCount, int segmentCountLoc
 	return newPoints;
 }
 
-PatchC0::PatchC0(glm::vec3 position) 
+SurfaceC0::SurfaceC0(glm::vec3 position)
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()),"Patch C0",position, true){}
 
-void PatchC0::RenderTess(int colorLoc, int modelLoc)
+void SurfaceC0::RenderTess(int colorLoc, int modelLoc)
 {
 	for (int i = 0; i < patches.size(); i++) {
 		patches[i]->selected = selected;
@@ -105,7 +105,7 @@ void PatchC0::RenderTess(int colorLoc, int modelLoc)
 	}
 }
 
-bool PatchC0::CreateImgui()
+bool SurfaceC0::CreateImgui()
 {
 	bool change = false;
 
@@ -124,7 +124,7 @@ bool PatchC0::CreateImgui()
 	return change;
 }
 
-std::vector<Figure*> PatchC0::GetControlPoints()
+std::vector<Figure*> SurfaceC0::GetControlPoints()
 {
 	std::vector<Figure*> cps = std::vector<Figure*>();
 	for (int i = 0; i < patches.size(); i++) {
@@ -136,14 +136,14 @@ std::vector<Figure*> PatchC0::GetControlPoints()
 	return cps;
 }
 
-void PatchC0::RefreshBuffers()
+void SurfaceC0::RefreshBuffers()
 {
 	for (int i = 0; i < patches.size(); i++) {
 		patches[i]->RefreshBuffers();
 	}
 }
 
-void PatchC0::Render(int colorLoc, int modelLoc)
+void SurfaceC0::Render(int colorLoc, int modelLoc)
 {
 	if (!showMesh)
 		return;

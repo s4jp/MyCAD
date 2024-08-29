@@ -105,7 +105,7 @@
     <ClCompile Include="bicubicPatch.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
-    <ClCompile Include="patchC0.cpp">
+    <ClCompile Include="surfaceC0.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,7 +125,7 @@
     <None Include="tessellation.tese">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="tessellationPlane.tese">
+    <None Include="tessellationSurface.tese">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -205,7 +205,7 @@
     <ClInclude Include="bicubicPatch.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
-    <ClInclude Include="patchC0.h">
+    <ClInclude Include="surfaceC0.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
   </ItemGroup>

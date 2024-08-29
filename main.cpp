@@ -28,7 +28,7 @@
 #include"bezierC0.h"
 #include"bezierC2.h"
 #include"bezierInt.h"
-#include"patchC0.h"
+#include"SurfaceC0.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -55,7 +55,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 void recalculateSelected(bool deleting = false);
 void updateCurvesSelectedChange(bool deleting = false);
-void updatePlanesSelectedChange();
+void updateSurfacesSelectedChange();
 std::vector<int> GetClickedFigures(GLFWwindow *window);
 void deselectCurve(bool deleting = false);
 void curveCreation();
@@ -75,9 +75,9 @@ const int initZsegments = 2;
 const float initParam1 = 3;
 const float initParam2 = 2;
 
-std::vector<PatchC0*> planes;
-int selectedPlaneIdx = -1;
-bool checkIfSelectedArePartOfPlane();
+std::vector<SurfaceC0*> surfaces;
+int selectedSurfaceIdx = -1;
+bool checkIfSelectedArePartOfSurface();
 
 int main() { 
     // initial values
@@ -134,23 +134,23 @@ int main() {
 	int tessDivisionLoc =
 		glGetUniformLocation(tessShaderProgram.ID, "division");
 
-	Shader tessPlaneShaderProgram("tessellation.vert", "default.frag",
-		"tessellation.tesc", "tessellationPlane.tese");
-    int tessPlaneModelLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "model");
-    int tessPlaneViewLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "view");
-    int tessPlaneProjLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "proj");
-    int tessPlaneColorLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "color");
-    int tessPlaneCpCountLoc = glGetUniformLocation(tessPlaneShaderProgram.ID, "cpCount");
-    int tessPlaneResolutionLoc =
-        glGetUniformLocation(tessPlaneShaderProgram.ID, "resolution");
-    int tessPlaneDivisionLoc =
-        glGetUniformLocation(tessPlaneShaderProgram.ID, "division");
-    int tessPlaneSegmentCountLoc =
-        glGetUniformLocation(tessPlaneShaderProgram.ID, "segmentCount");
-    int tessPlaneSegmentIdxLoc =
-        glGetUniformLocation(tessPlaneShaderProgram.ID, "segmentIdx");
-	int tessPlaneOtherAxisLoc =
-		glGetUniformLocation(tessPlaneShaderProgram.ID, "otherAxis");
+	Shader tessSurfaceShaderProgram("tessellation.vert", "default.frag",
+		"tessellation.tesc", "tessellationSurface.tese");
+    int tessSurfaceModelLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "model");
+    int tessSurfaceViewLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "view");
+    int tessSurfaceProjLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "proj");
+    int tessSurfaceColorLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "color");
+    int tessSurfaceCpCountLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "cpCount");
+    int tessSurfaceResolutionLoc =
+        glGetUniformLocation(tessSurfaceShaderProgram.ID, "resolution");
+    int tessSurfaceDivisionLoc =
+        glGetUniformLocation(tessSurfaceShaderProgram.ID, "division");
+    int tessSurfaceSegmentCountLoc =
+        glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentCount");
+    int tessSurfaceSegmentIdxLoc =
+        glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentIdx");
+	int tessSurfaceOtherAxisLoc =
+		glGetUniformLocation(tessSurfaceShaderProgram.ID, "otherAxis");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -222,9 +222,9 @@ int main() {
             curves[i]->RenderPolyline(colorLoc, modelLoc);
           }
         }
-		// render planes with default shader
-		for (int i = 0; i < planes.size(); i++) 
-			planes[i]->Render(colorLoc, modelLoc);
+		// render surfaces with default shader
+		for (int i = 0; i < surfaces.size(); i++) 
+			surfaces[i]->Render(colorLoc, modelLoc);
 
         // tessellation shader activation
         tessShaderProgram.Activate();
@@ -241,19 +241,19 @@ int main() {
           curves[i]->Render(tessColorLoc, tessModelLoc);
         }
 
-		// plane tessellation shader activation
-		tessPlaneShaderProgram.Activate();
+		// surface tessellation shader activation
+		tessSurfaceShaderProgram.Activate();
 
-		// matrices for plane tessellation shader (with workaround)
-		glm::mat4 tessPlaneView = glm::mat4(view);
-		glm::mat4 tessPlaneProj = glm::mat4(proj);
-		glUniformMatrix4fv(tessPlaneViewLoc, 1, GL_FALSE, glm::value_ptr(tessPlaneView));
-		glUniformMatrix4fv(tessPlaneProjLoc, 1, GL_FALSE, glm::value_ptr(tessPlaneProj));
-		glUniform2i(tessPlaneResolutionLoc, camera->GetWidth(), camera->GetHeight());
+		// matrices for surface tessellation shader (with workaround)
+		glm::mat4 tessSurfaceView = glm::mat4(view);
+		glm::mat4 tessSurfaceProj = glm::mat4(proj);
+		glUniformMatrix4fv(tessSurfaceViewLoc, 1, GL_FALSE, glm::value_ptr(tessSurfaceView));
+		glUniformMatrix4fv(tessSurfaceProjLoc, 1, GL_FALSE, glm::value_ptr(tessSurfaceProj));
+		glUniform2i(tessSurfaceResolutionLoc, camera->GetWidth(), camera->GetHeight());
 
-		// planes rendering with plane tessellation shader
-		for (int i = 0; i < planes.size(); i++)
-			planes[i]->RenderTess(tessColorLoc, tessModelLoc);
+		// surfaces rendering with surface tessellation shader
+		for (int i = 0; i < surfaces.size(); i++)
+			surfaces[i]->RenderTess(tessColorLoc, tessModelLoc);
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
@@ -329,14 +329,14 @@ int main() {
                 if (ImGui::Button("OK")) {
                     ImGui::CloseCurrentPopup();
 
-                    PatchC0* plane = new PatchC0(cursor->GetPosition());
-                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessPlaneOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    SurfaceC0* plane = new SurfaceC0(cursor->GetPosition());
+                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
                     }
-                    planes.push_back(plane);
-                    selectedPlaneIdx = planes.size() - 1;
-                    planes[selectedPlaneIdx]->selected = true;
+                    surfaces.push_back(plane);
+                    selectedSurfaceIdx = surfaces.size() - 1;
+                    surfaces[selectedSurfaceIdx]->selected = true;
 
                     PxSegments = initXsegments;
                     PzSegments = initZsegments;
@@ -354,10 +354,10 @@ int main() {
             }
             if (ImGui::BeginPopup("cylinderC0popup")) {
                 ImGui::SeparatorText("Cylinder C0 params:");
-                if (ImGui::InputInt("x segments", &PxSegments)) {
+                if (ImGui::InputInt("ambit segments", &PxSegments)) {
                     PxSegments = PxSegments >= 1 ? PxSegments : 1;
                 }
-                if (ImGui::InputInt("z segments", &PzSegments)) {
+                if (ImGui::InputInt("y segments", &PzSegments)) {
                     PzSegments = PzSegments >= 1 ? PzSegments : 1;
                 }
                 if (ImGui::InputFloat("radius", &Pparam1, 0.01f, 1.f, "%.2f")) {
@@ -369,14 +369,14 @@ int main() {
                 if (ImGui::Button("OK")) {
                     ImGui::CloseCurrentPopup();
 
-                    PatchC0* plane = new PatchC0(cursor->GetPosition());
-                    std::vector<Figure*> newFigures = plane->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessPlaneOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    SurfaceC0* cylinder = new SurfaceC0(cursor->GetPosition());
+                    std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
                     }
-                    planes.push_back(plane);
-                    selectedPlaneIdx = planes.size() - 1;
-                    planes[selectedPlaneIdx]->selected = true;
+                    surfaces.push_back(cylinder);
+                    selectedSurfaceIdx = surfaces.size() - 1;
+                    surfaces[selectedSurfaceIdx]->selected = true;
 
                     PxSegments = initXsegments;
                     PzSegments = initZsegments;
@@ -388,19 +388,19 @@ int main() {
             }
           }
 
-          // plane selection
-		  if (planes.size() > 0) {
-			  ImGui::SeparatorText("Planes");
+          // surface selection
+		  if (surfaces.size() > 0) {
+			  ImGui::SeparatorText("Surfaces");
 		  }
-		  for (int i = 0; i < planes.size(); i++) {
-			  if (ImGui::Selectable(planes[i]->name.c_str(),
-				  &planes[i]->selected)) {
-				  bool temp = planes[i]->selected;
-				  std::for_each(planes.begin(), planes.end(), [](Figure* f) {
+		  for (int i = 0; i < surfaces.size(); i++) {
+			  if (ImGui::Selectable(surfaces[i]->name.c_str(),
+				  &surfaces[i]->selected)) {
+				  bool temp = surfaces[i]->selected;
+				  std::for_each(surfaces.begin(), surfaces.end(), [](Figure* f) {
 					  f->selected = false;; });
-				  planes[i]->selected = temp;
+				  surfaces[i]->selected = temp;
 
-				  selectedPlaneIdx = temp ? i : -1;
+				  selectedSurfaceIdx = temp ? i : -1;
                   recalculateSelected();
 			  }
 		  }
@@ -448,11 +448,11 @@ int main() {
           }
 
           // delete button
-          if (selected.size() > 0 || selectedCurveIdx != -1 || selectedPlaneIdx != -1) {
+          if (selected.size() > 0 || selectedCurveIdx != -1 || selectedSurfaceIdx != -1) {
             ImGui::Separator();
             if (ImGui::Button("Delete selected")) 
             {
-              if (!checkIfSelectedArePartOfPlane()) 
+              if (!checkIfSelectedArePartOfSurface()) 
               {
                   updateCurvesSelectedChange(true);
                   for (int i = selected.size() - 1; i >= 0; i--) {
@@ -462,9 +462,9 @@ int main() {
                       curves.erase(curves.begin() + selectedCurveIdx);
                       deselectCurve(true);
                   }
-				  if (selectedPlaneIdx != -1) {
-					  planes.erase(planes.begin() + selectedPlaneIdx);
-					  selectedPlaneIdx = -1;
+				  if (selectedSurfaceIdx != -1) {
+					  surfaces.erase(surfaces.begin() + selectedSurfaceIdx);
+					  selectedSurfaceIdx = -1;
 				  }
                   recalculateSelected(true);
               }
@@ -475,7 +475,7 @@ int main() {
             }
           }
           if (ImGui::BeginPopup("FailedToDelete")) {
-              ImGui::Text("At least one of the selected points is part of a plane!");
+              ImGui::Text("At least one of the selected points is part of a surface!");
               if (ImGui::Button("OK")) {
                   ImGui::CloseCurrentPopup();
               }
@@ -483,7 +483,7 @@ int main() {
           }
 
 		  // delete complex figure with all its control points
-          if (((selectedCurveIdx != -1) != (selectedPlaneIdx != -1)) && selected.size() == 0) {
+          if (((selectedCurveIdx != -1) != (selectedSurfaceIdx != -1)) && selected.size() == 0) {
 			  ImGui::SameLine();
 			  if (ImGui::Button("Delete with cps")) {
                   std::vector<Figure*> cpsToDelete;
@@ -492,10 +492,10 @@ int main() {
 					  curves.erase(curves.begin() + selectedCurveIdx);
 					  deselectCurve(true);
 				  }
-				  if (selectedPlaneIdx != -1) {
-					  cpsToDelete = planes[selectedPlaneIdx]->GetControlPoints();
-					  planes.erase(planes.begin() + selectedPlaneIdx);
-					  selectedPlaneIdx = -1;
+				  if (selectedSurfaceIdx != -1) {
+					  cpsToDelete = surfaces[selectedSurfaceIdx]->GetControlPoints();
+					  surfaces.erase(surfaces.begin() + selectedSurfaceIdx);
+					  selectedSurfaceIdx = -1;
 				  }
 				  for (int i = 0; i < cpsToDelete.size(); i++) 
 					  for (int j = 0; j < figures.size(); j++) 
@@ -510,7 +510,7 @@ int main() {
 		  }
 
           // add points to curve button
-          if (selected.size() > 0 && selectedCurveIdx != -1 && selectedPlaneIdx == -1) {
+          if (selected.size() > 0 && selectedCurveIdx != -1 && selectedSurfaceIdx == -1) {
             if (ImGui::Button("Add points to curve")) {
               for (int i = 0; i < selected.size(); i++) {
                 curves[selectedCurveIdx]->AddControlPoint(figures[selected[i]]);
@@ -524,7 +524,7 @@ int main() {
           }
 
           // selected item menu
-          if (selected.size() == 1 && selectedCurveIdx == -1 && selectedPlaneIdx == -1) 
+          if (selected.size() == 1 && selectedCurveIdx == -1 && selectedSurfaceIdx == -1) 
           {
               ImGui::Separator();
               // change name window
@@ -534,10 +534,10 @@ int main() {
               // display selected item menu
               if (figures[selected[0]]->CreateImgui()) {
                 updateCurvesSelectedChange();
-				updatePlanesSelectedChange();
+				updateSurfacesSelectedChange();
               }
           }
-          if (selected.size() == 0 && selectedCurveIdx != -1 && selectedPlaneIdx == -1 && currentMenuItem != 4) 
+          if (selected.size() == 0 && selectedCurveIdx != -1 && selectedSurfaceIdx == -1 && currentMenuItem != 4) 
           {
             ImGui::Separator();
             // change name window
@@ -554,16 +554,16 @@ int main() {
             }
           }
 
-          if (selected.size() == 0 && selectedCurveIdx == -1 && selectedPlaneIdx != -1) {
+          if (selected.size() == 0 && selectedCurveIdx == -1 && selectedSurfaceIdx != -1) {
               ImGui::Separator();
               // change name window
-              ImGui::InputText("Change name", &planes[selectedPlaneIdx]->name);
-              // display selected plane menu
-              planes[selectedPlaneIdx]->CreateImgui();
+              ImGui::InputText("Change name", &surfaces[selectedSurfaceIdx]->name);
+              // display selected surface menu
+              surfaces[selectedSurfaceIdx]->CreateImgui();
           }
 
           // multiple figures manipulation
-          if (selected.size() > 1 && selectedCurveIdx == -1 && selectedPlaneIdx == -1) {
+          if (selected.size() > 1 && selectedCurveIdx == -1 && selectedSurfaceIdx == -1) {
             bool change = false;
             // scaling manipulation
             ImGui::SeparatorText("Center scale");
@@ -629,7 +629,7 @@ int main() {
             }
             if (change) {
               updateCurvesSelectedChange();
-              updatePlanesSelectedChange();
+              updateSurfacesSelectedChange();
             }
           }
 
@@ -660,11 +660,11 @@ int main() {
                   [](Figure* f) { f->Delete(); });
     std::for_each(curves.begin(), curves.end(),
                   [](Figure *c) { c->Delete(); });
-	std::for_each(planes.begin(), planes.end(),
+	std::for_each(surfaces.begin(), surfaces.end(),
 		          [](Figure* p) { p->Delete(); });
     shaderProgram.Delete();
     tessShaderProgram.Delete();
-	tessPlaneShaderProgram.Delete();
+	tessSurfaceShaderProgram.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
@@ -803,15 +803,15 @@ void updateCurvesSelectedChange(bool deleting) {
   }
 }
 
-void updatePlanesSelectedChange()
+void updateSurfacesSelectedChange()
 {
 	for (int i = 0; i < selected.size(); i++) {
-		for (int j = 0; j < planes.size(); j++) {
-			std::vector<Figure*> points = planes[j]->GetControlPoints();
+		for (int j = 0; j < surfaces.size(); j++) {
+			std::vector<Figure*> points = surfaces[j]->GetControlPoints();
 
 			for (int k = 0; k < points.size(); k++) {
 				if (figures[selected[i]] == points[k]) {
-					planes[j]->RefreshBuffers();
+					surfaces[j]->RefreshBuffers();
                     return;
 				}
 			}
@@ -873,11 +873,11 @@ void deselectFigures() {
   recalculateSelected();
 }
 
-bool checkIfSelectedArePartOfPlane()
+bool checkIfSelectedArePartOfSurface()
 {
     for (int i = 0; i < selected.size(); i++) {
-        for (int j = 0; j < planes.size(); j++) {
-            std::vector<Figure*> points = planes[j]->GetControlPoints();
+        for (int j = 0; j < surfaces.size(); j++) {
+            std::vector<Figure*> points = surfaces[j]->GetControlPoints();
 
             for (int k = 0; k < points.size(); k++) {
                 if (figures[selected[i]] == points[k]) {
