@@ -391,64 +391,69 @@ int main() {
             }
           }
 
-          // surface selection
-		  if (surfaces.size() > 0) {
-			  ImGui::SeparatorText("Surfaces");
-		  }
-		  for (int i = 0; i < surfaces.size(); i++) {
-			  if (ImGui::Selectable(surfaces[i]->name.c_str(),
-				  &surfaces[i]->selected)) {
-				  bool temp = surfaces[i]->selected;
-				  std::for_each(surfaces.begin(), surfaces.end(), [](Figure* f) {
-					  f->selected = false;; });
-				  surfaces[i]->selected = temp;
 
-				  selectedSurfaceIdx = temp ? i : -1;
-                  recalculateSelected();
-			  }
-		  }
+          ImGui::BeginChild("figures", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
+           
+              // surface selection
+		      if (surfaces.size() > 0) {
+			      ImGui::SeparatorText("Surfaces");
+		      }
+		      for (int i = 0; i < surfaces.size(); i++) {
+			      if (ImGui::Selectable(surfaces[i]->name.c_str(),
+				      &surfaces[i]->selected)) {
+				      bool temp = surfaces[i]->selected;
+				      std::for_each(surfaces.begin(), surfaces.end(), [](Figure* f) {
+					      f->selected = false;; });
+				      surfaces[i]->selected = temp;
+
+				      selectedSurfaceIdx = temp ? i : -1;
+                      recalculateSelected();
+			      }
+		      }
           
-          // curves selection
-          if (curves.size() > 0) {
-            ImGui::SeparatorText("Curves");
-          }
-          for (int i = 0; i < curves.size(); i++) {
-            if (ImGui::Selectable(curves[i]->name.c_str(),
-                                  &curves[i]->selected)) {
-              bool temp = curves[i]->selected;
-              std::for_each(curves.begin(), curves.end(), [](Figure *f) {
-                f->selected = false;;});
-              curves[i]->selected = temp;
-
-              if (!temp) {
-                deselectCurve();
-              } else {
-                selectedCurveIdx = i;
-                clickingOutCurve = temp;
+              // curves selection
+              if (curves.size() > 0) {
+                ImGui::SeparatorText("Curves");
               }
+              for (int i = 0; i < curves.size(); i++) {
+                if (ImGui::Selectable(curves[i]->name.c_str(),
+                                      &curves[i]->selected)) {
+                  bool temp = curves[i]->selected;
+                  std::for_each(curves.begin(), curves.end(), [](Figure *f) {
+                    f->selected = false;;});
+                  curves[i]->selected = temp;
 
-              recalculateSelected();
-            }
-          }
-          // other figures selection
-          if (figures.size() > 0 && currentMenuItem != 4) {
-            ImGui::SeparatorText("Other figures");
+                  if (!temp) {
+                    deselectCurve();
+                  } else {
+                    selectedCurveIdx = i;
+                    clickingOutCurve = temp;
+                  }
 
-            for (int i = 0; i < figures.size(); i++) {
-              if (ImGui::Selectable(figures[i]->name.c_str(),
-                                    &figures[i]->selected)) {
-                if (!ImGui::GetIO().KeyShift) {
-                  bool temp = figures[i]->selected;
-                  std::for_each(figures.begin(), figures.end(), [](Figure *f) {
-                    f->selected = false;
-                    ;
-                  });
-                  figures[i]->selected = temp;
+                  recalculateSelected();
                 }
-                recalculateSelected();
               }
-            }
-          }
+              // other figures selection
+              if (figures.size() > 0 && currentMenuItem != 4) {
+                ImGui::SeparatorText("Other figures");
+
+                for (int i = 0; i < figures.size(); i++) {
+                  if (ImGui::Selectable(figures[i]->name.c_str(),
+                                        &figures[i]->selected)) {
+                    if (!ImGui::GetIO().KeyShift) {
+                      bool temp = figures[i]->selected;
+                      std::for_each(figures.begin(), figures.end(), [](Figure *f) {
+                        f->selected = false;
+                        ;
+                      });
+                      figures[i]->selected = temp;
+                    }
+                    recalculateSelected();
+                  }
+                }
+              }
+
+		  ImGui::EndChild();
 
           // delete button
           if (selected.size() > 0 || selectedCurveIdx != -1 || selectedSurfaceIdx != -1) {
