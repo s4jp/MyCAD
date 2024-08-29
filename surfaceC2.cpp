@@ -5,12 +5,17 @@ SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position,
 
 std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
 {
-	float patchLength = length / xSegments;
-	float patchLengthStep = patchLength / 3.f;
-	float patchLengthOverlap = 2.f * patchLengthStep;
-	float patchWidth = width / zSegments;
-	float patchWidthStep = patchWidth / 3.f;
-	float patchWidthOverlap = 2.f * patchWidthStep;
+	//float patchLength = length / xSegments;
+	//float patchLengthStep = patchLength / 3.f;
+	//float patchLengthOverlap = 2.f * patchLengthStep;
+	//float patchWidth = width / zSegments;
+	//float patchWidthStep = patchWidth / 3.f;
+	//float patchWidthOverlap = 2.f * patchWidthStep;
+
+	int lengthSegmentCount = xSegments + 2;
+	float segmentLength = length / lengthSegmentCount;
+	int widthSegmentCount = zSegments + 2;
+	float segmentWidth = width / widthSegmentCount;
 
 	glm::vec3 position = this->GetPosition();
 	std::vector<Figure*> newPoints = std::vector<Figure*>();
@@ -19,6 +24,8 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 		for (int j = 0; j < xSegments; j++) {
 			bool firstRow = (i == 0);				// generate 4 right cps
 			bool firstColumn = (j == 0);			// generate 4 top cps
+			// if both true, generate all 16 cps
+			// if both false, generate only top right cp
 
 			std::vector<Figure*> cps = std::vector<Figure*>();
 			for (int k = 0; k < 16; k++) {
@@ -30,10 +37,16 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 					cps.push_back(patches[(i - 1) * xSegments + j]->GetControlPoints()[k + 4]);
 					continue;
 				}
+				if (!firstRow && !firstColumn && k != 15) {
+					if (k % 4 != 3)
+						cps.push_back(patches[i * xSegments + (j - 1)]->GetControlPoints()[k + 1]);
+					else
+						cps.push_back(patches[(i - 1) * xSegments + j]->GetControlPoints()[k + 4]);
+					continue;
+				}
 
-				// TODO: fix center generation
-				float x = position.x + patchLength * (j - xSegments / 2.f) + (k % 4) * patchLengthStep - j * patchLengthOverlap;
-				float z = position.z + patchWidth * (i - zSegments / 2.f) + glm::floor(k / 4) * patchWidthStep - i * patchWidthOverlap;
+				float x = position.x + (j + (k % 4) - lengthSegmentCount / 2.f) * segmentLength;
+				float z = position.z + (i + glm::floor(k / 4) - widthSegmentCount / 2.f) * segmentWidth;
 				Point* p = new Point(glm::vec3(x, position.y, z), 0.02F);
 				cps.push_back(p);
 				newPoints.push_back(p);
