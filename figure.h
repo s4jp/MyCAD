@@ -221,18 +221,18 @@ public:
     CalculateModelMatrix();
   }
   void CalculatePivotTransformation(glm::vec3 centerPosition, glm::vec3 centerScale,
-                       glm::vec3 centerAngle) { 
+                       glm::vec3 centerAngle, glm::vec3 centerTranslation) { 
 
-    glm::vec4 pos = glm::vec4(center + translation, 1.f);
+    glm::vec4 pos = glm::vec4(center + translation + centerTranslation, 1.f);
 
     cTranslation = glm::vec3(
         CAD::translate(CAD::scaling(CAD::rotate(CAD::translate(glm::mat4(1.f),
-                                                               -centerPosition),
-                                                centerAngle),
-                                    centerScale),
-                       centerPosition) *
-            pos -
-        pos);
+            -centerPosition),
+            centerAngle),
+            centerScale),
+            centerPosition) *
+        pos -
+        pos) + centerTranslation;
 
       cAngle = centerAngle;
       cScale = centerScale;

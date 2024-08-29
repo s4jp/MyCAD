@@ -61,7 +61,9 @@ void deselectCurve(bool deleting = false);
 void curveCreation();
 void deselectFigures();
 void deselectSurface(bool deleting = false);
+void recalculateCenter();
 
+glm::vec3 centerTranslation(0.f);
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
 int cursorRadius = 5;
@@ -593,27 +595,63 @@ int main() {
           // multiple figures manipulation
           if (selected.size() > 1 && selectedCurveIdx == -1 && selectedSurfaceIdx == -1) {
             bool change = false;
+            // translation
+			ImGui::SeparatorText("Center translation");
+			if (ImGui::InputFloat("cX", &centerTranslation.x, 0.01f, 1.f, "%.2f")) {
+				change = true;
+                recalculateCenter();
+				for (int i = 0; i < selected.size(); i++) {
+                    figures[selected[i]]->CalculatePivotTransformation(
+                        center->GetPosition(), centerScale, centerAngle, centerTranslation);
+				}
+			}
+			if (ImGui::InputFloat("cY", &centerTranslation.y, 0.01f, 1.f, "%.2f")) {
+				change = true;
+                recalculateCenter();
+				for (int i = 0; i < selected.size(); i++) {
+					figures[selected[i]]->CalculatePivotTransformation(
+                        center->GetPosition(), centerScale, centerAngle, centerTranslation);
+				}
+			}
+			if (ImGui::InputFloat("cZ", &centerTranslation.z, 0.01f, 1.f, "%.2f")) {
+				change = true;
+                recalculateCenter();
+				for (int i = 0; i < selected.size(); i++) {
+					figures[selected[i]]->CalculatePivotTransformation(
+                        center->GetPosition(), centerScale, centerAngle, centerTranslation);
+				}
+			}
+			if (ImGui::Button("Reset center translation")) {
+				change = true;
+				centerTranslation = glm::vec3(0.f);
+				recalculateCenter();
+				for (int i = 0; i < selected.size(); i++) {
+					figures[selected[i]]->CalculatePivotTransformation(
+						center->GetPosition(), centerScale, centerAngle, centerTranslation);
+				}
+			}
+
             // scaling manipulation
             ImGui::SeparatorText("Center scale");
             if (ImGui::InputFloat("cSx", &centerScale.x, 0.01f, 1.f, "%.2f")) {
               change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             if (ImGui::InputFloat("cSy", &centerScale.y, 0.01f, 1.f, "%.2f")) {
               change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             if (ImGui::InputFloat("cSz", &centerScale.z, 0.01f, 1.f, "%.2f")) {
               change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             if (ImGui::Button("Reset center scale")) {
@@ -621,38 +659,38 @@ int main() {
               centerScale = glm::vec3(1.f);
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             // rotation manipulation
-            ImGui::SeparatorText("Center scale");
+            ImGui::SeparatorText("Center rotation");
             if (ImGui::SliderAngle("cX axis", &centerAngle.x, -180.f, 180.f)) {
               change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             if (ImGui::SliderAngle("cY axis", &centerAngle.y, -180.f, 180.f)) {
               change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             if (ImGui::SliderAngle("cZ axis", &centerAngle.z, -180.f, 180.f)) {
               change = true;
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
-            if (ImGui::Button("Reset center angle")) {
+            if (ImGui::Button("Reset center rotation")) {
               change = true;
               centerAngle = glm::vec3(0.f);
               for (int i = 0; i < selected.size(); i++) {
                 figures[selected[i]]->CalculatePivotTransformation(
-                    center->GetPosition(), centerScale, centerAngle);
+                    center->GetPosition(), centerScale, centerAngle, centerTranslation);
               }
             }
             if (change) {
@@ -793,6 +831,7 @@ void recalculateSelected(bool deleting) {
       figures[selected[i]]->SavePivotTransformations();
     }
   }
+  centerTranslation = glm::vec3(0.f);
   centerScale = glm::vec3(1.f);
   centerAngle = glm::vec3(0.f);
   // resolve vertex deletion in regards to bezier curve
@@ -803,13 +842,7 @@ void recalculateSelected(bool deleting) {
     if (figures[i]->selected)
       selected.push_back(i);
   }
-  // center recalculation
-  glm::vec3 centerVec(0.f);
-  for (int i = 0; i < selected.size(); i++) {
-    centerVec += figures[selected[i]]->GetPosition();
-  }
-  centerVec /= selected.size();
-  center->SetPosition(centerVec);
+  recalculateCenter();
 }
 
 void updateCurvesSelectedChange(bool deleting) {
@@ -908,6 +941,16 @@ void deselectSurface(bool deleting)
 	}
 	selectedSurfaceIdx = -1;
 	recalculateSelected();
+}
+
+void recalculateCenter()
+{
+    glm::vec3 centerVec(0.f);
+    for (int i = 0; i < selected.size(); i++) {
+        centerVec += figures[selected[i]]->GetPosition();
+    }
+    centerVec /= selected.size();
+    center->SetPosition(centerVec);
 }
 
 bool checkIfSelectedArePartOfSurface()
