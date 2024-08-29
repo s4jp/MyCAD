@@ -60,6 +60,7 @@ std::vector<int> GetClickedFigures(GLFWwindow *window);
 void deselectCurve(bool deleting = false);
 void curveCreation();
 void deselectFigures();
+void deselectSurface(bool deleting = false);
 
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
@@ -464,7 +465,7 @@ int main() {
                   }
 				  if (selectedSurfaceIdx != -1) {
 					  surfaces.erase(surfaces.begin() + selectedSurfaceIdx);
-					  selectedSurfaceIdx = -1;
+                      deselectSurface(true);
 				  }
                   recalculateSelected(true);
               }
@@ -482,8 +483,8 @@ int main() {
               ImGui::EndPopup();
           }
 
-		  // delete complex figure with all its control points
           if (((selectedCurveIdx != -1) != (selectedSurfaceIdx != -1)) && selected.size() == 0) {
+              // delete complex figure with all its control points
 			  ImGui::SameLine();
 			  if (ImGui::Button("Delete with cps")) {
                   std::vector<Figure*> cpsToDelete;
@@ -495,7 +496,7 @@ int main() {
 				  if (selectedSurfaceIdx != -1) {
 					  cpsToDelete = surfaces[selectedSurfaceIdx]->GetControlPoints();
 					  surfaces.erase(surfaces.begin() + selectedSurfaceIdx);
-					  selectedSurfaceIdx = -1;
+                      deselectSurface();
 				  }
 				  for (int i = 0; i < cpsToDelete.size(); i++) 
 					  for (int j = 0; j < figures.size(); j++) 
@@ -506,6 +507,33 @@ int main() {
                           }
 
 				  recalculateSelected(true);
+			  }
+			  // select all control points
+			  if (ImGui::Button("Select all cps")) {
+				  if (selectedCurveIdx != -1) {
+					  std::vector<Figure*> cps = curves[selectedCurveIdx]->GetControlPoints();
+					  for (int i = 0; i < cps.size(); i++) {
+						  cps[i]->selected = true;
+					  }
+                      deselectCurve();
+				  }
+				  if (selectedSurfaceIdx != -1) {
+					  std::vector<Figure*> cps = surfaces[selectedSurfaceIdx]->GetControlPoints();
+					  for (int i = 0; i < cps.size(); i++) {
+						  cps[i]->selected = true;
+					  }
+                      deselectSurface();
+				  }
+				  recalculateSelected();
+			  }
+		  }
+
+		  if (selected.size() != 0 || selectedCurveIdx != -1 || selectedSurfaceIdx != -1) {
+              ImGui::SameLine();
+			  if (ImGui::Button("Deselect all")) {
+				  deselectFigures();
+                  deselectCurve();
+                  deselectSurface();
 			  }
 		  }
 
@@ -871,6 +899,15 @@ void deselectFigures() {
     ;
   });
   recalculateSelected();
+}
+
+void deselectSurface(bool deleting)
+{
+	if (selectedSurfaceIdx != -1 && !deleting) {
+		surfaces[selectedSurfaceIdx]->selected = false;
+	}
+	selectedSurfaceIdx = -1;
+	recalculateSelected();
 }
 
 bool checkIfSelectedArePartOfSurface()
