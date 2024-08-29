@@ -503,7 +503,7 @@ int main() {
 				  if (selectedSurfaceIdx != -1) {
 					  cpsToDelete = surfaces[selectedSurfaceIdx]->GetControlPoints();
 					  surfaces.erase(surfaces.begin() + selectedSurfaceIdx);
-                      deselectSurface();
+                      deselectSurface(true);
 				  }
 				  for (int i = 0; i < cpsToDelete.size(); i++) 
 					  for (int j = 0; j < figures.size(); j++) 
