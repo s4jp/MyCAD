@@ -85,7 +85,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>imgui;Classes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,7 +115,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>imgui;Classes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,17 +140,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bezierC0.cpp" />
-    <ClCompile Include="bezierC2.cpp" />
-    <ClCompile Include="bezierInt.cpp" />
-    <ClCompile Include="bicubicPatch.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="cursor.cpp" />
-    <ClCompile Include="EBO.cpp" />
-    <ClCompile Include="figure.cpp" />
+    <ClCompile Include="Classes\bezierC0.cpp" />
+    <ClCompile Include="Classes\bezierC2.cpp" />
+    <ClCompile Include="Classes\bezierInt.cpp" />
+    <ClCompile Include="Classes\bicubicPatch.cpp" />
+    <ClCompile Include="Classes\Camera.cpp" />
+    <ClCompile Include="Classes\cursor.cpp" />
+    <ClCompile Include="Classes\EBO.cpp" />
+    <ClCompile Include="Classes\figure.cpp" />
+    <ClCompile Include="Classes\grid.cpp" />
+    <ClCompile Include="Classes\helpers.cpp" />
+    <ClCompile Include="Classes\point.cpp" />
+    <ClCompile Include="Classes\Shader.cpp" />
+    <ClCompile Include="Classes\surfaceC0.cpp" />
+    <ClCompile Include="Classes\surfaceC2.cpp" />
+    <ClCompile Include="Classes\torus.cpp" />
+    <ClCompile Include="Classes\VAO.cpp" />
+    <ClCompile Include="Classes\VBO.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="grid.cpp" />
-    <ClCompile Include="helpers.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -160,33 +167,25 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="surfaceC0.cpp" />
-    <ClCompile Include="point.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="surfaceC2.cpp" />
-    <ClCompile Include="torus.cpp" />
-    <ClCompile Include="VAO.cpp" />
-    <ClCompile Include="VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.frag" />
-    <None Include="default.vert" />
-    <None Include="tessellation.tesc" />
-    <None Include="tessellation.tese" />
-    <None Include="tessellation.vert" />
-    <None Include="tessellationSurface.tese" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="bezierC0.h" />
-    <ClInclude Include="bezierC2.h" />
-    <ClInclude Include="bezierInt.h" />
-    <ClInclude Include="bicubicPatch.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="cursor.h" />
-    <ClInclude Include="EBO.h" />
-    <ClInclude Include="figure.h" />
-    <ClInclude Include="grid.h" />
-    <ClInclude Include="helpers.h" />
+    <ClInclude Include="Classes\bezierC0.h" />
+    <ClInclude Include="Classes\bezierC2.h" />
+    <ClInclude Include="Classes\bezierInt.h" />
+    <ClInclude Include="Classes\bicubicPatch.h" />
+    <ClInclude Include="Classes\Camera.h" />
+    <ClInclude Include="Classes\cursor.h" />
+    <ClInclude Include="Classes\EBO.h" />
+    <ClInclude Include="Classes\figure.h" />
+    <ClInclude Include="Classes\grid.h" />
+    <ClInclude Include="Classes\helpers.h" />
+    <ClInclude Include="Classes\point.h" />
+    <ClInclude Include="Classes\Shader.h" />
+    <ClInclude Include="Classes\surfaceC0.h" />
+    <ClInclude Include="Classes\surfaceC2.h" />
+    <ClInclude Include="Classes\torus.h" />
+    <ClInclude Include="Classes\VAO.h" />
+    <ClInclude Include="Classes\VBO.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
@@ -197,13 +196,14 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="surfaceC0.h" />
-    <ClInclude Include="point.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="surfaceC2.h" />
-    <ClInclude Include="torus.h" />
-    <ClInclude Include="VAO.h" />
-    <ClInclude Include="VBO.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\default.frag" />
+    <None Include="Shaders\default.vert" />
+    <None Include="Shaders\tessellation.tesc" />
+    <None Include="Shaders\tessellation.tese" />
+    <None Include="Shaders\tessellation.vert" />
+    <None Include="Shaders\tessellationSurface.tese" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

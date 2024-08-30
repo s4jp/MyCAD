@@ -116,14 +116,14 @@ int main() {
     #pragma endregion
 
     // shaders and uniforms
-    Shader shaderProgram("default.vert", "default.frag");
+    Shader shaderProgram("Shaders\\default.vert", "Shaders\\default.frag");
     int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
     int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
 
-    Shader tessShaderProgram("tessellation.vert", "default.frag",
-                             "tessellation.tesc", "tessellation.tese");
+    Shader tessShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
+                             "Shaders\\tessellation.tesc", "Shaders\\tessellation.tese");
     int tessModelLoc = glGetUniformLocation(tessShaderProgram.ID, "model");
     int tessViewLoc = glGetUniformLocation(tessShaderProgram.ID, "view");
     int tessProjLoc = glGetUniformLocation(tessShaderProgram.ID, "proj");
@@ -138,8 +138,8 @@ int main() {
 	int tessDivisionLoc =
 		glGetUniformLocation(tessShaderProgram.ID, "division");
 
-	Shader tessSurfaceShaderProgram("tessellation.vert", "default.frag",
-		"tessellation.tesc", "tessellationSurface.tese");
+	Shader tessSurfaceShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
+		"Shaders\\tessellation.tesc", "Shaders\\tessellationSurface.tese");
     int tessSurfaceModelLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "model");
     int tessSurfaceViewLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "view");
     int tessSurfaceProjLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "proj");
