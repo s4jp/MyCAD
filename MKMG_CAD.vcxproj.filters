@@ -28,21 +28,18 @@
     <Filter Include="Source Files\figures">
       <UniqueIdentifier>{4d61e710-8ed8-4185-849e-34ffa8b5f302}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\assets">
+      <UniqueIdentifier>{8fd15f04-9326-4f0c-9771-ee869e4823c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\assets">
+      <UniqueIdentifier>{e1fb8b5b-2d05-4572-8562-d42ec33b05cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EBO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VAO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VBO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
@@ -66,82 +63,62 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="torus.cpp">
-      <Filter>Source Files\figures</Filter>
-    </ClCompile>
-    <ClCompile Include="grid.cpp">
-      <Filter>Source Files\figures</Filter>
-    </ClCompile>
-    <ClCompile Include="cursor.cpp">
-      <Filter>Source Files\figures</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="point.cpp">
-      <Filter>Source Files\figures</Filter>
-    </ClCompile>
-    <ClCompile Include="figure.cpp">
-      <Filter>Source Files\figures</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imgui_stdlib.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="helpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bezierC0.cpp">
+    <ClCompile Include="Classes\bezierC0.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bezierC2.cpp">
+    <ClCompile Include="Classes\bezierC2.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
-    <ClCompile Include="bezierInt.cpp">
+    <ClCompile Include="Classes\bezierInt.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
-    <ClCompile Include="bicubicPatch.cpp">
+    <ClCompile Include="Classes\bicubicPatch.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
-    <ClCompile Include="surfaceC0.cpp">
+    <ClCompile Include="Classes\cursor.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
-    <ClCompile Include="surfaceC2.cpp">
+    <ClCompile Include="Classes\figure.cpp">
       <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\grid.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\point.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\surfaceC0.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\surfaceC2.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\torus.cpp">
+      <Filter>Source Files\figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Camera.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\EBO.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\helpers.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Shader.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\VAO.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\VBO.cpp">
+      <Filter>Source Files\assets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="default.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="tessellation.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="tessellation.tesc">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="tessellation.tese">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="tessellationSurface.tese">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="EBO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VAO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VBO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
@@ -169,50 +146,79 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="figure.h">
-      <Filter>Header Files\figures</Filter>
-    </ClInclude>
-    <ClInclude Include="torus.h">
-      <Filter>Header Files\figures</Filter>
-    </ClInclude>
-    <ClInclude Include="grid.h">
-      <Filter>Header Files\figures</Filter>
-    </ClInclude>
-    <ClInclude Include="cursor.h">
-      <Filter>Header Files\figures</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="point.h">
-      <Filter>Header Files\figures</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imgui_stdlib.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="helpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bezierC0.h">
+    <ClInclude Include="Classes\bezierC0.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bezierC2.h">
+    <ClInclude Include="Classes\bezierC2.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
-    <ClInclude Include="bezierInt.h">
+    <ClInclude Include="Classes\bezierInt.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
-    <ClInclude Include="bicubicPatch.h">
+    <ClInclude Include="Classes\bicubicPatch.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
-    <ClInclude Include="surfaceC0.h">
+    <ClInclude Include="Classes\cursor.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
-    <ClInclude Include="surfaceC2.h">
+    <ClInclude Include="Classes\figure.h">
       <Filter>Header Files\figures</Filter>
     </ClInclude>
+    <ClInclude Include="Classes\grid.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\point.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\surfaceC0.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\surfaceC2.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\torus.h">
+      <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Camera.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\EBO.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\helpers.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Shader.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\VAO.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\VBO.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\default.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\default.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\tessellation.tesc">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\tessellation.tese">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\tessellation.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\tessellationSurface.tese">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
