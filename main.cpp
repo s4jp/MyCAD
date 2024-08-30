@@ -342,6 +342,7 @@ int main() {
                         figures.push_back(newFigures[i]);
                     }
                     surfaces.push_back(plane);
+                    deselectSurface();
                     selectedSurfaceIdx = surfaces.size() - 1;
                     surfaces[selectedSurfaceIdx]->selected = true;
 
@@ -382,6 +383,7 @@ int main() {
                         figures.push_back(newFigures[i]);
                     }
                     surfaces.push_back(cylinder);
+                    deselectSurface();
                     selectedSurfaceIdx = surfaces.size() - 1;
                     surfaces[selectedSurfaceIdx]->selected = true;
 
@@ -421,6 +423,7 @@ int main() {
                         figures.push_back(newFigures[i]);
                     }
                     surfaces.push_back(plane);
+                    deselectSurface();
                     selectedSurfaceIdx = surfaces.size() - 1;
                     surfaces[selectedSurfaceIdx]->selected = true;
 
@@ -461,6 +464,7 @@ int main() {
                         figures.push_back(newFigures[i]);
                     }
                     surfaces.push_back(cylinder);
+                    deselectSurface();
                     selectedSurfaceIdx = surfaces.size() - 1;
                     surfaces[selectedSurfaceIdx]->selected = true;
 

@@ -117,7 +117,7 @@ bool SurfaceC0::CreateImgui()
 		change = division != prevValue;
 	}
 
-	if (ImGui::Checkbox("Bezier mesh", &showMesh)) {
+	if (ImGui::Checkbox("Show mesh", &showMesh)) {
 		change = true;
 	}
 

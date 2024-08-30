@@ -51,46 +51,40 @@ void main()
     vec3 p14 = gl_in[14].gl_Position.xyz;
     vec3 p15 = gl_in[15].gl_Position.xyz;
 
-    float W3_u = u * u * u;
-    float W2_u = bspline ? minU * (u + 1) * (u + 1) + u * (2 - u) * (u + 1) + (3 - u) * u * u : 3.0 * minU * u * u;
-    float W1_u = bspline ? minU * minU * (u + 2) + minU * (u + 1) * (2 - u) + u * (2 - u) * (2 - u) : 3.0 * minU * minU * u;
-    float W0_u = minU * minU * minU;
+    vec4 W_u, W_v;
+
+    W_u[3] = u * u * u;
+    W_u[2] = bspline ? minU * (u + 1) * (u + 1) + u * (2 - u) * (u + 1) + (3 - u) * u * u : 3.0 * minU * u * u;
+    W_u[1] = bspline ? minU * minU * (u + 2) + minU * (u + 1) * (2 - u) + u * (2 - u) * (2 - u) : 3.0 * minU * minU * u;
+    W_u[0] = minU * minU * minU;
+
+    W_v[3] = v * v * v;
+    W_v[2] = bspline ? minV * (v + 1) * (v + 1) + v * (2 - v) * (v + 1) + (3 - v) * v * v : 3.0 * minV * v * v;
+    W_v[1] = bspline ? minV * minV * (v + 2) + minV * (v + 1) * (2 - v) + v * (2 - v) * (2 - v) : 3.0 * minV * minV * v;
+    W_v[0] = minV * minV * minV;
+
     if (bspline)
     {
-	    W3_u /= 6.0;
-        W2_u /= 6.0;
-        W1_u /= 6.0;
-        W0_u /= 6.0;
+        W_u /= 6.0;
+        W_v /= 6.0;
     }
 
-    float W3_v = v * v * v;
-    float W2_v = bspline ? minV * (v + 1) * (v + 1) + v * (2 - v) * (v + 1) + (3 - v) * v * v : 3.0 * minV * v * v;
-    float W1_v = bspline ? minV * minV * (v + 2) + minV * (v + 1) * (2 - v) + v * (2 - v) * (2 - v) : 3.0 * minV * minV * v;
-    float W0_v = minV * minV * minV;
-    if (bspline)
-    {
-	    W3_v /= 6.0;
-        W2_v /= 6.0;
-        W1_v /= 6.0;
-        W0_v /= 6.0;
-    }
-
-    result = W0_u * W0_v * p0 +
-             W1_u * W0_v * p1 + 
-             W2_u * W0_v * p2 + 
-             W3_u * W0_v * p3 +
-			 W0_u * W1_v * p4 + 
-             W1_u * W1_v * p5 + 
-             W2_u * W1_v * p6 + 
-             W3_u * W1_v * p7 +
-			 W0_u * W2_v * p8 + 
-             W1_u * W2_v * p9 + 
-             W2_u * W2_v * p10 + 
-             W3_u * W2_v * p11 +
-			 W0_u * W3_v * p12 + 
-             W1_u * W3_v * p13 + 
-             W2_u * W3_v * p14 + 
-             W3_u * W3_v * p15;
+    result = W_u[0] * W_v[0] * p0 +
+             W_u[1] * W_v[0] * p1 + 
+             W_u[2] * W_v[0] * p2 + 
+             W_u[3] * W_v[0] * p3 +
+			 W_u[0] * W_v[1] * p4 + 
+             W_u[1] * W_v[1] * p5 + 
+             W_u[2] * W_v[1] * p6 + 
+             W_u[3] * W_v[1] * p7 +
+			 W_u[0] * W_v[2] * p8 + 
+             W_u[1] * W_v[2] * p9 + 
+             W_u[2] * W_v[2] * p10 + 
+             W_u[3] * W_v[2] * p11 +
+			 W_u[0] * W_v[3] * p12 + 
+             W_u[1] * W_v[3] * p13 + 
+             W_u[2] * W_v[3] * p14 + 
+             W_u[3] * W_v[3] * p15;
 
     gl_Position = proj * vec4(result, 1.0);
 }
