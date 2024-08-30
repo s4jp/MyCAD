@@ -7,6 +7,7 @@ uniform int segmentCount;
 uniform int segmentIdx;
 uniform int division;
 uniform bool otherAxis;
+uniform bool bspline;
 
 void main()
 {
@@ -50,42 +51,46 @@ void main()
     vec3 p14 = gl_in[14].gl_Position.xyz;
     vec3 p15 = gl_in[15].gl_Position.xyz;
 
-//    float b3_3_u = u * u * u;
-//    float b3_2_u = 3.0 * minU * u * u;
-//    float b3_1_u = 3.0 * minU * minU * u;
-//    float b3_0_u = minU * minU * minU;
+    float W3_u = u * u * u;
+    float W2_u = bspline ? minU * (u + 1) * (u + 1) + u * (2 - u) * (u + 1) + (3 - u) * u * u : 3.0 * minU * u * u;
+    float W1_u = bspline ? minU * minU * (u + 2) + minU * (u + 1) * (2 - u) + u * (2 - u) * (2 - u) : 3.0 * minU * minU * u;
+    float W0_u = minU * minU * minU;
+    if (bspline)
+    {
+	    W3_u /= 6.0;
+        W2_u /= 6.0;
+        W1_u /= 6.0;
+        W0_u /= 6.0;
+    }
 
-    float b3_3_u = u * u * u / 6.0;
-    float b3_2_u = (minU * (u + 1) * (u + 1)    +  u * (2 - u) * (u + 1)       + (3 - u) * u * u)          / 6.0;
-    float b3_1_u = (minU * minU * (u + 2)       +  minU * (u + 1) * (2 - u)    + u * (2 - u) * (2 - u))    / 6.0;
-    float b3_0_u = minU * minU * minU / 6.0;
+    float W3_v = v * v * v;
+    float W2_v = bspline ? minV * (v + 1) * (v + 1) + v * (2 - v) * (v + 1) + (3 - v) * v * v : 3.0 * minV * v * v;
+    float W1_v = bspline ? minV * minV * (v + 2) + minV * (v + 1) * (2 - v) + v * (2 - v) * (2 - v) : 3.0 * minV * minV * v;
+    float W0_v = minV * minV * minV;
+    if (bspline)
+    {
+	    W3_v /= 6.0;
+        W2_v /= 6.0;
+        W1_v /= 6.0;
+        W0_v /= 6.0;
+    }
 
-//    float b3_3_v = v * v * v;
-//    float b3_2_v = 3.0 * minV * v * v;
-//    float b3_1_v = 3.0 * minV * minV * v;
-//    float b3_0_v = minV * minV * minV;
-
-    float b3_3_v = v * v * v / 6.0;
-    float b3_2_v = (minV * (v + 1) * (v + 1)    +  v * (2 - v) * (v + 1)       + (3 - v) * v * v)          / 6.0;
-    float b3_1_v = (minV * minV * (v + 2)       +  minV * (v + 1) * (2 - v)    + v * (2 - v) * (2 - v))    / 6.0;
-    float b3_0_v = minV * minV * minV / 6.0;
-
-    result = b3_0_u * b3_0_v * p0 +
-             b3_1_u * b3_0_v * p1 + 
-             b3_2_u * b3_0_v * p2 + 
-             b3_3_u * b3_0_v * p3 +
-			 b3_0_u * b3_1_v * p4 + 
-             b3_1_u * b3_1_v * p5 + 
-             b3_2_u * b3_1_v * p6 + 
-             b3_3_u * b3_1_v * p7 +
-			 b3_0_u * b3_2_v * p8 + 
-             b3_1_u * b3_2_v * p9 + 
-             b3_2_u * b3_2_v * p10 + 
-             b3_3_u * b3_2_v * p11 +
-			 b3_0_u * b3_3_v * p12 + 
-             b3_1_u * b3_3_v * p13 + 
-             b3_2_u * b3_3_v * p14 + 
-             b3_3_u * b3_3_v * p15;
+    result = W0_u * W0_v * p0 +
+             W1_u * W0_v * p1 + 
+             W2_u * W0_v * p2 + 
+             W3_u * W0_v * p3 +
+			 W0_u * W1_v * p4 + 
+             W1_u * W1_v * p5 + 
+             W2_u * W1_v * p6 + 
+             W3_u * W1_v * p7 +
+			 W0_u * W2_v * p8 + 
+             W1_u * W2_v * p9 + 
+             W2_u * W2_v * p10 + 
+             W3_u * W2_v * p11 +
+			 W0_u * W3_v * p12 + 
+             W1_u * W3_v * p13 + 
+             W2_u * W3_v * p14 + 
+             W3_u * W3_v * p15;
 
     gl_Position = proj * vec4(result, 1.0);
 }

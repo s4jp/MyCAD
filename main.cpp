@@ -155,6 +155,8 @@ int main() {
         glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentIdx");
 	int tessSurfaceOtherAxisLoc =
 		glGetUniformLocation(tessSurfaceShaderProgram.ID, "otherAxis");
+	int tessSurfaceBsplineLoc =
+		glGetUniformLocation(tessSurfaceShaderProgram.ID, "bspline");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -257,7 +259,7 @@ int main() {
 
 		// surfaces rendering with surface tessellation shader
 		for (int i = 0; i < surfaces.size(); i++)
-			surfaces[i]->RenderTess(tessColorLoc, tessModelLoc);
+			surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc);
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
@@ -334,7 +336,8 @@ int main() {
                     ImGui::CloseCurrentPopup();
 
                     SurfaceC0* plane = new SurfaceC0(cursor->GetPosition());
-                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc, 
+                        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
                     }
@@ -373,7 +376,8 @@ int main() {
                     ImGui::CloseCurrentPopup();
 
                     SurfaceC0* cylinder = new SurfaceC0(cursor->GetPosition());
-                    std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+                        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
                     }
@@ -411,7 +415,8 @@ int main() {
                     ImGui::CloseCurrentPopup();
 
                     SurfaceC0* plane = new SurfaceC2(cursor->GetPosition());
-                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    std::vector<Figure*> newFigures = plane->CalculatePlane(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+                        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
                     }
@@ -450,7 +455,8 @@ int main() {
                     ImGui::CloseCurrentPopup();
 
                     SurfaceC0* cylinder = new SurfaceC2(cursor->GetPosition());
-                    std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessCpCountLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc, tessSurfaceOtherAxisLoc, PxSegments, PzSegments, Pparam1, Pparam2);
+                    std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+                        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2);
                     for (int i = 0; i < newFigures.size(); i++) {
                         figures.push_back(newFigures[i]);
                     }

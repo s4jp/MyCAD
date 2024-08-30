@@ -3,7 +3,7 @@
 
 SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position, name) {}
 
-std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
+std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width)
 {
 	int lengthSegmentCount = xSegments + 2;
 	float segmentLength = length / lengthSegmentCount;
@@ -36,14 +36,14 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 				newPoints.push_back(p);
 			}
 
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, cps, &this->division));
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, true, cps, &this->division));
 		}
 	}
 
 	return newPoints;
 }
 
-std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height)
+std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height)
 {
 	float segmentRadius = M_PI * 2.f / xSegments;
 	int heightSegmentCount = zSegments + 2;
@@ -91,7 +91,7 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 				newPoints.push_back(p);
 			}
 
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, cps, &this->division));
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, true, cps, &this->division));
 		}
 	}
 
