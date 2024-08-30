@@ -50,15 +50,25 @@ void main()
     vec3 p14 = gl_in[14].gl_Position.xyz;
     vec3 p15 = gl_in[15].gl_Position.xyz;
 
-    float b3_3_u = u * u * u;
-    float b3_2_u = 3.0 * minU * u * u;
-    float b3_1_u = 3.0 * minU * minU * u;
-    float b3_0_u = minU * minU * minU;
+//    float b3_3_u = u * u * u;
+//    float b3_2_u = 3.0 * minU * u * u;
+//    float b3_1_u = 3.0 * minU * minU * u;
+//    float b3_0_u = minU * minU * minU;
 
-    float b3_3_v = v * v * v;
-    float b3_2_v = 3.0 * minV * v * v;
-    float b3_1_v = 3.0 * minV * minV * v;
-    float b3_0_v = minV * minV * minV;
+    float b3_3_u = u * u * u / 6.0;
+    float b3_2_u = (minU * (u + 1) * (u + 1)    +  u * (2 - u) * (u + 1)       + (3 - u) * u * u)          / 6.0;
+    float b3_1_u = (minU * minU * (u + 2)       +  minU * (u + 1) * (2 - u)    + u * (2 - u) * (2 - u))    / 6.0;
+    float b3_0_u = minU * minU * minU / 6.0;
+
+//    float b3_3_v = v * v * v;
+//    float b3_2_v = 3.0 * minV * v * v;
+//    float b3_1_v = 3.0 * minV * minV * v;
+//    float b3_0_v = minV * minV * minV;
+
+    float b3_3_v = v * v * v / 6.0;
+    float b3_2_v = (minV * (v + 1) * (v + 1)    +  v * (2 - v) * (v + 1)       + (3 - v) * v * v)          / 6.0;
+    float b3_1_v = (minV * minV * (v + 2)       +  minV * (v + 1) * (2 - v)    + v * (2 - v) * (2 - v))    / 6.0;
+    float b3_0_v = minV * minV * minV / 6.0;
 
     result = b3_0_u * b3_0_v * p0 +
              b3_1_u * b3_0_v * p1 + 
