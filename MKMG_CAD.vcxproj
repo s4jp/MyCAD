@@ -163,6 +163,7 @@
     <ClCompile Include="surfaceC0.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="surfaceC2.cpp" />
     <ClCompile Include="torus.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="surfaceC0.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="surfaceC2.h" />
     <ClInclude Include="torus.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />

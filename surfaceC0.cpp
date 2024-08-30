@@ -1,7 +1,7 @@
 #include "SurfaceC0.h"
 #include "point.h"
 
-std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float length, float width)
+std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width)
 {
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
@@ -34,13 +34,13 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 				newPoints.push_back(p);
 			}
 
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, cps, &this->division));
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, false, cps, &this->division));
 		}
 	}
 	return newPoints;
 }
 
-std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int xSegments, int zSegments, float radius, float height) {
+std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height) {
 	float patchRadius = 2 * M_PI / xSegments;
 	float patchRadiusStep = patchRadius / 3.f;
 	float patchHeight = height / zSegments;
@@ -87,15 +87,15 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 				newPoints.push_back(p);
 			}
 
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, cps, &this->division));
+			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, false, cps, &this->division));
 		}
 	}
 
 	return newPoints;
 }
 
-SurfaceC0::SurfaceC0(glm::vec3 position)
-	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()),"Surface C0",position, true){}
+SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
+	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 
 void SurfaceC0::RenderTess(int colorLoc, int modelLoc)
 {
@@ -117,7 +117,7 @@ bool SurfaceC0::CreateImgui()
 		change = division != prevValue;
 	}
 
-	if (ImGui::Checkbox("Bezier mesh", &showMesh)) {
+	if (ImGui::Checkbox("Show mesh", &showMesh)) {
 		change = true;
 	}
 
