@@ -4,7 +4,7 @@
 Cursor::Cursor(glm::vec3 position, float lengthN)
     : Figure(InitializeAndCalculate(lengthN), "Cursor", position) {}
 
-void Cursor::Render(int colorLoc, int modelLoc) 
+void Cursor::Render(int colorLoc, int modelLoc, bool grayscale) 
 { 
 	vao.Bind();
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));

@@ -15,7 +15,7 @@ public:
         int n2 = 20);
 
   void Recalculate();
-  void Render(int colorLoc, int modelLoc);
+  void Render(int colorLoc, int modelLoc, bool grayscale);
   bool CreateImgui();
   bool GetBoundingSphere(CAD::Sphere &sphere) { return false; };
 

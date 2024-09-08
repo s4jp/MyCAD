@@ -14,5 +14,5 @@ public:
 	BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
               const char *name = "Bezier Int");
 
-	void Render(int colorLoc, int modelLoc) override;
+	void Render(int colorLoc, int modelLoc, bool grayscale) override;
 };

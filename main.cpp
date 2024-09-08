@@ -188,6 +188,62 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 460");
     #pragma endregion
 
+    auto renderFigures = [&](bool grayscale) {
+      // default shader activation
+      shaderProgram.Activate();
+
+      // matrices for default shader
+      glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+      // objects rendering with default shader
+      for (int i = 0; i < figures.size(); i++) {
+        figures[i]->Render(colorLoc, modelLoc, grayscale);
+      }
+      // render curves polyline with default shader (still)
+      for (int i = 0; i < curves.size(); i++) {
+        if (curves[i]->selected) {
+          curves[i]->RenderPolyline(colorLoc, modelLoc, grayscale);
+        }
+      }
+      // render surfaces with default shader
+      for (int i = 0; i < surfaces.size(); i++)
+        surfaces[i]->Render(colorLoc, modelLoc, grayscale);
+
+      // tessellation shader activation
+      tessShaderProgram.Activate();
+
+      // matrices for tessellation shader (with workaround)
+      glm::mat4 tessView = glm::mat4(view);
+      glm::mat4 tessProj = glm::mat4(proj);
+      glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
+      glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
+      glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
+
+      // curves rendering with tessellation shader
+      for (int i = 0; i < curves.size(); i++) {
+        curves[i]->Render(tessColorLoc, tessModelLoc, grayscale);
+      }
+
+      // surface tessellation shader activation
+      tessSurfaceShaderProgram.Activate();
+
+      // matrices for surface tessellation shader (with workaround)
+      glm::mat4 tessSurfaceView = glm::mat4(view);
+      glm::mat4 tessSurfaceProj = glm::mat4(proj);
+      glUniformMatrix4fv(tessSurfaceViewLoc, 1, GL_FALSE,
+                         glm::value_ptr(tessSurfaceView));
+      glUniformMatrix4fv(tessSurfaceProjLoc, 1, GL_FALSE,
+                         glm::value_ptr(tessSurfaceProj));
+      glUniform2i(tessSurfaceResolutionLoc, camera->GetWidth(),
+                  camera->GetHeight());
+
+      // surfaces rendering with surface tessellation shader
+      for (int i = 0; i < surfaces.size(); i++)
+        surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc,
+                                grayscale);
+    };
+
     while (!glfwWindowShouldClose(window)) 
     {
         #pragma region init
@@ -205,61 +261,21 @@ int main() {
           camera->HandleInputs(window);
           camera->PrepareMatrices(view, proj);
         }
-
-        // default shader activation
+        
+        // render non-grayscaleable objects
         shaderProgram.Activate();
 
-        // matrices for default shader
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-        // objects rendering with default shader
         grid->Render(colorLoc, modelLoc);
-        for (int i = 0; i < figures.size(); i++) {
-          figures[i]->Render(colorLoc, modelLoc);
-        }
         cursor->Render(colorLoc, modelLoc);
         if (selected.size() > 0) {
           center->Render(colorLoc, modelLoc);
         }
-        // render curves polyline with default shader (still)
-        for (int i = 0; i < curves.size(); i++) {
-          if (curves[i]->selected) {
-            curves[i]->RenderPolyline(colorLoc, modelLoc);
-          }
-        }
-		// render surfaces with default shader
-		for (int i = 0; i < surfaces.size(); i++) 
-			surfaces[i]->Render(colorLoc, modelLoc);
 
-        // tessellation shader activation
-        tessShaderProgram.Activate();
-
-        // matrices for tessellation shader (with workaround)
-        glm::mat4 tessView = glm::mat4(view);
-        glm::mat4 tessProj = glm::mat4(proj);
-        glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
-        glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
-        glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
-
-        // curves rendering with tessellation shader
-        for (int i = 0; i < curves.size(); i++) {
-          curves[i]->Render(tessColorLoc, tessModelLoc);
-        }
-
-		// surface tessellation shader activation
-		tessSurfaceShaderProgram.Activate();
-
-		// matrices for surface tessellation shader (with workaround)
-		glm::mat4 tessSurfaceView = glm::mat4(view);
-		glm::mat4 tessSurfaceProj = glm::mat4(proj);
-		glUniformMatrix4fv(tessSurfaceViewLoc, 1, GL_FALSE, glm::value_ptr(tessSurfaceView));
-		glUniformMatrix4fv(tessSurfaceProjLoc, 1, GL_FALSE, glm::value_ptr(tessSurfaceProj));
-		glUniform2i(tessSurfaceResolutionLoc, camera->GetWidth(), camera->GetHeight());
-
-		// surfaces rendering with surface tessellation shader
-		for (int i = 0; i < surfaces.size(); i++)
-			surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc);
+        // render grayscaleable objects
+        renderFigures(false);
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,

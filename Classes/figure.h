@@ -33,17 +33,29 @@ protected:
   size_t indices_count;
   bool is3D = false;
 
-  glm::vec4 GetColor() const {
-    return selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
-                    : glm::vec4(1.0f, 0.73f, 0.31f, 1.0f);
+  glm::vec4 GetColor(bool grayscale) const {
+    glm::vec4 color = selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
+                               : glm::vec4(1.0f, 0.73f, 0.31f, 1.0f);
+
+    if (grayscale) {
+      float gray = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
+      color = glm::vec4(gray, gray, gray, color.a);
+    }
+
+    return color;
+  };
+
+  glm::vec4 GetPolylineColor(bool grayscale) const {
+    return grayscale ? glm::vec4(0.f, 0.587f, 0.f, 1.f)
+                     : glm::vec4(0.f, 1.f, 0.f, 1.f);
   };
 
 public:
   std::string name;
   bool selected = false;
 
-  virtual void Render(int colorLoc, int modelLoc) = 0;
-  virtual void RenderTess(int colorLoc, int modelLoc) {};
+  virtual void Render(int colorLoc, int modelLoc, bool grayscale) = 0;
+  virtual void RenderTess(int colorLoc, int modelLoc, bool grayscale){};
   virtual bool GetBoundingSphere(CAD::Sphere& sphere) = 0;
   virtual bool CreateImgui(){
     bool change = false;

@@ -97,11 +97,11 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 
-void SurfaceC0::RenderTess(int colorLoc, int modelLoc)
+void SurfaceC0::RenderTess(int colorLoc, int modelLoc, bool grayscale)
 {
 	for (int i = 0; i < patches.size(); i++) {
 		patches[i]->selected = selected;
-		patches[i]->RenderTess(colorLoc, modelLoc);
+		patches[i]->RenderTess(colorLoc, modelLoc, grayscale);
 	}
 }
 
@@ -143,12 +143,12 @@ void SurfaceC0::RefreshBuffers()
 	}
 }
 
-void SurfaceC0::Render(int colorLoc, int modelLoc)
+void SurfaceC0::Render(int colorLoc, int modelLoc, bool grayscale)
 {
 	if (!showMesh)
 		return;
 
 	for (int i = 0; i < patches.size(); i++) {
-		patches[i]->Render(colorLoc, modelLoc);
+		patches[i]->Render(colorLoc, modelLoc, grayscale);
 	}
 }

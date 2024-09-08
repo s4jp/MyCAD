@@ -26,8 +26,8 @@ private:
 public:
 	BicubicPatch(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, bool bspline, std::vector<Figure*> controlPoints, int* division);
 
-	void Render(int colorLoc, int modelLoc);
-	void RenderTess(int colorLoc, int modelLoc);
+	void Render(int colorLoc, int modelLoc, bool grayscale);
+    void RenderTess(int colorLoc, int modelLoc, bool grayscale);
 	bool CreateImgui() { return false; };
 	bool GetBoundingSphere(CAD::Sphere& sphere) { return false; };
 

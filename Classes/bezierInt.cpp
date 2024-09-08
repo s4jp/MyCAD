@@ -7,9 +7,9 @@ BezierInt::BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int
                          false);
 }
 
-void BezierInt::Render(int colorLoc, int modelLoc) {
+void BezierInt::Render(int colorLoc, int modelLoc, bool grayscale) {
   bSpline->selected = selected;
-  bSpline->Render(colorLoc, modelLoc);
+  bSpline->Render(colorLoc, modelLoc, grayscale);
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>

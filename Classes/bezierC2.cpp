@@ -51,16 +51,16 @@ void BezierC2::CalculateBspline() const {
   }
 }
 
-void BezierC2::RenderPolyline(int colorLoc, int modelLoc) {
+void BezierC2::RenderPolyline(int colorLoc, int modelLoc, bool grayscale) {
   if (!berensteinPolyline) {
-    BezierC0::RenderPolyline(colorLoc, modelLoc);
+    BezierC0::RenderPolyline(colorLoc, modelLoc, grayscale);
     return;
   }
   
-  bSpline->RenderPolyline(colorLoc, modelLoc);
+  bSpline->RenderPolyline(colorLoc, modelLoc, grayscale);
   std::vector<Figure *> cp = bSpline->GetControlPoints();
   for (int i = 0; i < cp.size(); i++) {
-    cp[i]->Render(colorLoc, modelLoc);
+    cp[i]->Render(colorLoc, modelLoc, grayscale);
   }
 }
 
