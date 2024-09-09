@@ -31,6 +31,8 @@
 #include"SurfaceC0.h"
 #include"SurfaceC2.h"
 
+#include <Serializer.h>
+
 const float near = 0.1f;
 const float far = 100.0f;
 
@@ -864,6 +866,14 @@ int main() {
                                             projR);
             CAD::displacemt(eyeSeparation, displacementL, displacementR);
           }
+
+          //MG1::SceneSerializer serializer;
+          //serializer.LoadScene("./surface_example.json");
+
+          //auto &scene = MG1::Scene::Get();
+
+          //serializer.SaveScene("./dupa.json");
+          //serializer.LoadScene("./dupa.json");
         }
 
         ImGui::End();
