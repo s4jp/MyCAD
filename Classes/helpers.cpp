@@ -220,3 +220,18 @@ glm::mat3x4 CAD::powerToBerensteinBasis(glm::mat3x4 in, float dist) {
 
   return glm::inverse(MB_E) * in;
 }
+
+glm::mat4 CAD::frustum(float left, float right, float bottom, float top,
+                       float near, float far) {
+  glm::mat4 result = glm::mat4(0.0f);
+  result[0][0] = 2 * near / (right - left);
+  result[1][1] = 2 * near / (top - bottom);
+  result[2][0] = (right + left) / (right - left);
+  result[2][1] = (top + bottom) / (top - bottom);
+  result[2][2] = -(far + near) / (far - near);
+  //result[2][2] = (far + near) / (far - near);
+  result[2][3] = -1.0f;
+  //result[2][3] = 1.0f;
+  result[3][2] = (-2.0f * far * near) / (far - near);
+  return result;
+}

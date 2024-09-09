@@ -31,11 +31,13 @@ public:
            float far, int guiWidth = 0);
 
 	void PrepareMatrices(glm::mat4 &view, glm::mat4 &proj);
+    void PrepareAnaglyphMatrices(float convergence, float eyeSeparation, glm::mat4 &projL, glm::mat4 &projR);
 	void HandleInputs(GLFWwindow* window);
 
 private:
     void KeyboardInputs(GLFWwindow *window);
 	void MouseInputs(GLFWwindow *window);
+    float GetAspectRatio();
 
     int width;
     int height;
