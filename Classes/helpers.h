@@ -48,4 +48,5 @@ namespace CAD
     glm::mat3x4 powerToBerensteinBasis(glm::mat3x4 in, float dist = 1.f);
     glm::mat4 frustum(float left, float right, float bottom, float top,
                       float near, float far);
-    }
+    void displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right);
+ }

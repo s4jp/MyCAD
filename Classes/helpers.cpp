@@ -229,9 +229,15 @@ glm::mat4 CAD::frustum(float left, float right, float bottom, float top,
   result[2][0] = (right + left) / (right - left);
   result[2][1] = (top + bottom) / (top - bottom);
   result[2][2] = -(far + near) / (far - near);
-  //result[2][2] = (far + near) / (far - near);
   result[2][3] = -1.0f;
-  //result[2][3] = 1.0f;
   result[3][2] = (-2.0f * far * near) / (far - near);
   return result;
+}
+
+void CAD::displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right) 
+{
+  left =
+      CAD::translate(glm::mat4(1.f), glm::vec3(eyeSeparation / 2.f, 0.f, 0.f));
+  right =
+      CAD::translate(glm::mat4(1.f), glm::vec3(-eyeSeparation / 2.f, 0.f, 0.f));
 }

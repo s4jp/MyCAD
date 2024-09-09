@@ -44,6 +44,14 @@ Cursor *cursor;
 glm::mat4 view;
 glm::mat4 proj;
 
+glm::mat4 projL;
+glm::mat4 projR;
+glm::mat4 displacementL;
+glm::mat4 displacementR;
+float eyeSeparation = 0.5f;
+float convergence = 50.0f;
+bool anaglyphActive = false;
+
 static int currentMenuItem = 0;
 const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point\0Edit Berenstein point";
 
@@ -178,6 +186,8 @@ int main() {
 
     // matrices locations
     camera->PrepareMatrices(view, proj);
+    camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL, projR);
+    CAD::displacemt(eyeSeparation, displacementL, displacementR);
 
     int PxSegments = initXsegments;
     int PzSegments = initZsegments;
@@ -194,13 +204,13 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 460");
     #pragma endregion
 
-    auto renderFigures = [&](bool grayscale, glm::mat4 displacement) {
+    auto renderFigures = [&](bool grayscale, glm::mat4 displacement, glm::mat4 projection) {
       // default shader activation
       shaderProgram.Activate();
 
       // matrices for default shader
       glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
       glUniformMatrix4fv(displacementLoc, 1, GL_FALSE,
                          glm::value_ptr(displacement));
 
@@ -223,7 +233,7 @@ int main() {
 
       // matrices for tessellation shader (with workaround)
       glm::mat4 tessView = glm::mat4(view);
-      glm::mat4 tessProj = glm::mat4(proj);
+      glm::mat4 tessProj = glm::mat4(projection);
       glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
       glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
       glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
@@ -240,7 +250,7 @@ int main() {
 
       // matrices for surface tessellation shader (with workaround)
       glm::mat4 tessSurfaceView = glm::mat4(view);
-      glm::mat4 tessSurfaceProj = glm::mat4(proj);
+      glm::mat4 tessSurfaceProj = glm::mat4(projection);
       glUniformMatrix4fv(tessSurfaceViewLoc, 1, GL_FALSE,
                          glm::value_ptr(tessSurfaceView));
       glUniformMatrix4fv(tessSurfaceProjLoc, 1, GL_FALSE,
@@ -289,7 +299,16 @@ int main() {
         }
 
         // render grayscaleable objects
-        renderFigures(false, glm::mat4(1.f));
+        if (!anaglyphActive) {
+          renderFigures(false, glm::mat4(1.f), proj);
+        } else {
+          glColorMask(true, false, false, false);
+          renderFigures(true, displacementL, projL);
+          glClear(GL_DEPTH_BUFFER_BIT);
+          glColorMask(false, true, true, false);
+          renderFigures(true, displacementR, projR);
+          glColorMask(true, true, true, true);
+        }
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
@@ -824,6 +843,22 @@ int main() {
           //bspline menu
           if (currentMenuItem == 4 && selectedCurveIdx != -1) {
             curves[selectedCurveIdx]->CreateBsplineImgui();
+          }
+
+          //anaglyph menu
+          ImGui::Separator();
+          ImGui::Text("Anaglyph parameters");
+          ImGui::Checkbox("Anaglyph", &anaglyphActive);
+          if (ImGui::InputFloat("Convergence", &convergence, 0.01f, 1.f,
+                                "%.2f")) {
+            camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
+                                            projR);
+          };
+          if (ImGui::InputFloat("Eye separation", &eyeSeparation, 0.01f, 1.f,
+              "%.2f")) {
+            camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
+                                            projR);
+            CAD::displacemt(eyeSeparation, displacementL, displacementR);
           }
         }
 

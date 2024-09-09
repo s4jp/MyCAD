@@ -6,5 +6,5 @@ uniform mat4 proj;
 uniform mat4 displacement;
 void main()
 {
-   gl_Position = proj * view * displacement * model * vec4(pos, 1.0);
+   gl_Position = proj * displacement * view *  model * vec4(pos, 1.0);
 }

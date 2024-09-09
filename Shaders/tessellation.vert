@@ -8,5 +8,5 @@ uniform mat4 displacement;
 
 void main()
 {
-   gl_Position = view * displacement * model * vec4(pos, 1.0);
+   gl_Position = displacement * view * model * vec4(pos, 1.0);
 }
