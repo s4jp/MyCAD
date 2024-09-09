@@ -94,7 +94,7 @@ int selectedSurfaceIdx = -1;
 bool checkIfSelectedArePartOfSurface();
 
 MG1::SceneSerializer serializer;
-std::string filePath = "..\\scene.json";
+std::string filePath = "Scenes\\referenceScene.json";
 
 int main() { 
     // initial values
@@ -875,12 +875,22 @@ int main() {
           ImGui::Text("Scene serialization");
           ImGui::InputText("Target path", &filePath);
           if (ImGui::Button("Load")) {
+            try {
             serializer.LoadScene(filePath);
+            } catch (const std::exception &e) {
+              std::cerr << e.what() << std::endl;
+              // TODO: better error handling
+            }
             // auto &scene = MG1::Scene::Get();
           }
           ImGui::SameLine();
           if (ImGui::Button("Save")) {
+            try {
             serializer.SaveScene(filePath);
+            } catch (const std::exception &e) {
+              std::cerr << e.what() << std::endl;
+              // TODO: better error handling
+            }
           }
         }
 
