@@ -93,6 +93,9 @@ std::vector<SurfaceC0*> surfaces;
 int selectedSurfaceIdx = -1;
 bool checkIfSelectedArePartOfSurface();
 
+MG1::SceneSerializer serializer;
+std::string filePath = "..\\scene.json";
+
 int main() { 
     // initial values
     int width = 1500;
@@ -867,13 +870,18 @@ int main() {
             CAD::displacemt(eyeSeparation, displacementL, displacementR);
           }
 
-          //MG1::SceneSerializer serializer;
-          //serializer.LoadScene("./surface_example.json");
-
-          //auto &scene = MG1::Scene::Get();
-
-          //serializer.SaveScene("./dupa.json");
-          //serializer.LoadScene("./dupa.json");
+          // save/load scene
+          ImGui::Separator();
+          ImGui::Text("Scene serialization");
+          ImGui::InputText("Target path", &filePath);
+          if (ImGui::Button("Load")) {
+            serializer.LoadScene(filePath);
+            // auto &scene = MG1::Scene::Get();
+          }
+          ImGui::SameLine();
+          if (ImGui::Button("Save")) {
+            serializer.SaveScene(filePath);
+          }
         }
 
         ImGui::End();
