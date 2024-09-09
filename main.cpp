@@ -48,8 +48,8 @@ glm::mat4 projL;
 glm::mat4 projR;
 glm::mat4 displacementL;
 glm::mat4 displacementR;
-float eyeSeparation = 0.5f;
-float convergence = 50.0f;
+float eyeSeparation = 0.1f;
+float convergence = 20.0f;
 bool anaglyphActive = false;
 
 static int currentMenuItem = 0;
@@ -848,14 +848,18 @@ int main() {
           //anaglyph menu
           ImGui::Separator();
           ImGui::Text("Anaglyph parameters");
-          ImGui::Checkbox("Anaglyph", &anaglyphActive);
+          ImGui::Checkbox("Active", &anaglyphActive);
           if (ImGui::InputFloat("Convergence", &convergence, 0.01f, 1.f,
                                 "%.2f")) {
+            if (convergence <= 0.f) convergence = 0.01f;
+
             camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
                                             projR);
           };
           if (ImGui::InputFloat("Eye separation", &eyeSeparation, 0.01f, 1.f,
               "%.2f")) {
+            if (eyeSeparation < 0.f) eyeSeparation = 0.f;
+            
             camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
                                             projR);
             CAD::displacemt(eyeSeparation, displacementL, displacementR);
