@@ -44,6 +44,14 @@ Cursor *cursor;
 glm::mat4 view;
 glm::mat4 proj;
 
+glm::mat4 projL;
+glm::mat4 projR;
+glm::mat4 displacementL;
+glm::mat4 displacementR;
+float eyeSeparation = 0.1f;
+float convergence = 20.0f;
+bool anaglyphActive = false;
+
 static int currentMenuItem = 0;
 const char *menuItems = "Move camera\0Place cursor\0Add element\0Select point\0Edit Berenstein point";
 
@@ -121,6 +129,8 @@ int main() {
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
     int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
+    int displacementLoc =
+        glGetUniformLocation(shaderProgram.ID, "displacement");
 
     Shader tessShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
                              "Shaders\\tessellation.tesc", "Shaders\\tessellation.tese");
@@ -137,6 +147,8 @@ int main() {
         glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
 	int tessDivisionLoc =
 		glGetUniformLocation(tessShaderProgram.ID, "division");
+    int tessDisplacementLoc =
+        glGetUniformLocation(tessShaderProgram.ID, "displacement");
 
 	Shader tessSurfaceShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
 		"Shaders\\tessellation.tesc", "Shaders\\tessellationSurface.tese");
@@ -157,6 +169,8 @@ int main() {
 		glGetUniformLocation(tessSurfaceShaderProgram.ID, "otherAxis");
 	int tessSurfaceBsplineLoc =
 		glGetUniformLocation(tessSurfaceShaderProgram.ID, "bspline");
+    int tessSurfaceDisplacementLoc =
+        glGetUniformLocation(tessSurfaceShaderProgram.ID, "displacement");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -172,6 +186,8 @@ int main() {
 
     // matrices locations
     camera->PrepareMatrices(view, proj);
+    camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL, projR);
+    CAD::displacemt(eyeSeparation, displacementL, displacementR);
 
     int PxSegments = initXsegments;
     int PzSegments = initZsegments;
@@ -187,6 +203,68 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
     #pragma endregion
+
+    auto renderFigures = [&](bool grayscale, glm::mat4 displacement, glm::mat4 projection) {
+      // default shader activation
+      shaderProgram.Activate();
+
+      // matrices for default shader
+      glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+      glUniformMatrix4fv(displacementLoc, 1, GL_FALSE,
+                         glm::value_ptr(displacement));
+
+      // objects rendering with default shader
+      for (int i = 0; i < figures.size(); i++) {
+        figures[i]->Render(colorLoc, modelLoc, grayscale);
+      }
+      // render curves polyline with default shader (still)
+      for (int i = 0; i < curves.size(); i++) {
+        if (curves[i]->selected) {
+          curves[i]->RenderPolyline(colorLoc, modelLoc, grayscale);
+        }
+      }
+      // render surfaces with default shader
+      for (int i = 0; i < surfaces.size(); i++)
+        surfaces[i]->Render(colorLoc, modelLoc, grayscale);
+
+      // tessellation shader activation
+      tessShaderProgram.Activate();
+
+      // matrices for tessellation shader (with workaround)
+      glm::mat4 tessView = glm::mat4(view);
+      glm::mat4 tessProj = glm::mat4(projection);
+      glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
+      glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
+      glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
+      glUniformMatrix4fv(tessDisplacementLoc, 1, GL_FALSE,
+                         glm::value_ptr(displacement));
+
+      // curves rendering with tessellation shader
+      for (int i = 0; i < curves.size(); i++) {
+        curves[i]->Render(tessColorLoc, tessModelLoc, grayscale);
+      }
+
+      // surface tessellation shader activation
+      tessSurfaceShaderProgram.Activate();
+
+      // matrices for surface tessellation shader (with workaround)
+      glm::mat4 tessSurfaceView = glm::mat4(view);
+      glm::mat4 tessSurfaceProj = glm::mat4(projection);
+      glUniformMatrix4fv(tessSurfaceViewLoc, 1, GL_FALSE,
+                         glm::value_ptr(tessSurfaceView));
+      glUniformMatrix4fv(tessSurfaceProjLoc, 1, GL_FALSE,
+                         glm::value_ptr(tessSurfaceProj));
+      glUniform2i(tessSurfaceResolutionLoc, camera->GetWidth(),
+                  camera->GetHeight());
+      glUniformMatrix4fv(tessSurfaceDisplacementLoc, 1, GL_FALSE,
+                         glm::value_ptr(displacement));
+
+      // surfaces rendering with surface tessellation shader
+      for (int i = 0; i < surfaces.size(); i++)
+        surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc,
+                                grayscale);
+    };
 
     while (!glfwWindowShouldClose(window)) 
     {
@@ -205,61 +283,32 @@ int main() {
           camera->HandleInputs(window);
           camera->PrepareMatrices(view, proj);
         }
-
-        // default shader activation
+        
+        // render non-grayscaleable objects
         shaderProgram.Activate();
 
-        // matrices for default shader
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+        glUniformMatrix4fv(displacementLoc, 1, GL_FALSE,
+                           glm::value_ptr(glm::mat4(1.0f)));
 
-        // objects rendering with default shader
         grid->Render(colorLoc, modelLoc);
-        for (int i = 0; i < figures.size(); i++) {
-          figures[i]->Render(colorLoc, modelLoc);
-        }
         cursor->Render(colorLoc, modelLoc);
         if (selected.size() > 0) {
           center->Render(colorLoc, modelLoc);
         }
-        // render curves polyline with default shader (still)
-        for (int i = 0; i < curves.size(); i++) {
-          if (curves[i]->selected) {
-            curves[i]->RenderPolyline(colorLoc, modelLoc);
-          }
+
+        // render grayscaleable objects
+        if (!anaglyphActive) {
+          renderFigures(false, glm::mat4(1.f), proj);
+        } else {
+          glColorMask(true, false, false, false);
+          renderFigures(true, displacementL, projL);
+          glClear(GL_DEPTH_BUFFER_BIT);
+          glColorMask(false, true, true, false);
+          renderFigures(true, displacementR, projR);
+          glColorMask(true, true, true, true);
         }
-		// render surfaces with default shader
-		for (int i = 0; i < surfaces.size(); i++) 
-			surfaces[i]->Render(colorLoc, modelLoc);
-
-        // tessellation shader activation
-        tessShaderProgram.Activate();
-
-        // matrices for tessellation shader (with workaround)
-        glm::mat4 tessView = glm::mat4(view);
-        glm::mat4 tessProj = glm::mat4(proj);
-        glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
-        glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
-        glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
-
-        // curves rendering with tessellation shader
-        for (int i = 0; i < curves.size(); i++) {
-          curves[i]->Render(tessColorLoc, tessModelLoc);
-        }
-
-		// surface tessellation shader activation
-		tessSurfaceShaderProgram.Activate();
-
-		// matrices for surface tessellation shader (with workaround)
-		glm::mat4 tessSurfaceView = glm::mat4(view);
-		glm::mat4 tessSurfaceProj = glm::mat4(proj);
-		glUniformMatrix4fv(tessSurfaceViewLoc, 1, GL_FALSE, glm::value_ptr(tessSurfaceView));
-		glUniformMatrix4fv(tessSurfaceProjLoc, 1, GL_FALSE, glm::value_ptr(tessSurfaceProj));
-		glUniform2i(tessSurfaceResolutionLoc, camera->GetWidth(), camera->GetHeight());
-
-		// surfaces rendering with surface tessellation shader
-		for (int i = 0; i < surfaces.size(); i++)
-			surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc);
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
@@ -794,6 +843,26 @@ int main() {
           //bspline menu
           if (currentMenuItem == 4 && selectedCurveIdx != -1) {
             curves[selectedCurveIdx]->CreateBsplineImgui();
+          }
+
+          //anaglyph menu
+          ImGui::Separator();
+          ImGui::Text("Anaglyph parameters");
+          ImGui::Checkbox("Active", &anaglyphActive);
+          if (ImGui::InputFloat("Convergence", &convergence, 0.01f, 1.f,
+                                "%.2f")) {
+            if (convergence <= 0.f) convergence = 0.01f;
+
+            camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
+                                            projR);
+          };
+          if (ImGui::InputFloat("Eye separation", &eyeSeparation, 0.01f, 1.f,
+              "%.2f")) {
+            if (eyeSeparation < 0.f) eyeSeparation = 0.f;
+            
+            camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
+                                            projR);
+            CAD::displacemt(eyeSeparation, displacementL, displacementR);
           }
         }
 

@@ -15,8 +15,8 @@ protected:
 public:
 	SurfaceC0(glm::vec3 position, std::string name = "Surface C0");
 
-	void Render(int colorLoc, int modelLoc);
-	void RenderTess(int colorLoc, int modelLoc);
+	void Render(int colorLoc, int modelLoc, bool grayscale);
+    void RenderTess(int colorLoc, int modelLoc, bool grayscale);
 	bool CreateImgui();
 	bool GetBoundingSphere(CAD::Sphere& sphere) { return false; };
 

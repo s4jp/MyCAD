@@ -8,7 +8,7 @@ public:
 
   Point(glm::vec3 position = glm::vec3(0.f), float Rn = 0.05f, bool numerate = true);
 
-  void Render(int colorLoc, int modelLoc);
+  void Render(int colorLoc, int modelLoc, bool grayscale);
   bool GetBoundingSphere(CAD::Sphere &sphere);
 
 private:

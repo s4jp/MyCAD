@@ -14,12 +14,13 @@ void BezierC0::RefreshBuffers() {
                         std::get<1>(data).size() * sizeof(GLuint));
 }
 
-void BezierC0::RenderPolyline(int colorLoc, int modelLoc) {
+void BezierC0::RenderPolyline(int colorLoc, int modelLoc,
+                              bool grayscale) {
   vao.Bind();
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glLineWidth(1.0f);
 
-  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0,1,0,1)));
+  glUniform4fv(colorLoc, 1, glm::value_ptr(GetPolylineColor(grayscale)));
   glDrawElements(GL_LINE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
 
   vao.Unbind();
@@ -59,11 +60,11 @@ BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int d
     : Figure(InitializeAndCalculate(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc),
              name, glm::vec3(0.f), numerate) {}
 
-void BezierC0::Render(int colorLoc, int modelLoc) {
+void BezierC0::Render(int colorLoc, int modelLoc, bool grayscale) {
   vao.Bind();
 
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-  glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
+  glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor(grayscale)));
   glUniform1i(segmentCountLoc, renderSegments);
   glLineWidth(3.0f);
   glUniform1i(divisionLoc, 1);

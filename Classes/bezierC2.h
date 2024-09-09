@@ -10,7 +10,7 @@ private:
 public:
 	BezierC2(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc);
 
-    void RenderPolyline(int colorLoc, int modelLoc) override;
+    void RenderPolyline(int colorLoc, int modelLoc, bool grayscale) override;
     bool CreateImgui() override;
     void CreateBsplineImgui() override;
 };

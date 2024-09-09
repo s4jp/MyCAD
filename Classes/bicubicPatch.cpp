@@ -14,13 +14,13 @@ void BicubicPatch::RefreshBuffers()
         std::get<1>(data).size() * sizeof(GLuint));
 }
 
-void BicubicPatch::Render(int colorLoc, int modelLoc)
+void BicubicPatch::Render(int colorLoc, int modelLoc, bool grayscale)
 {
     vao.Bind();
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glLineWidth(1.0f);
 
-    glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0, 1, 0, 1)));
+    glUniform4fv(colorLoc, 1, glm::value_ptr(GetPolylineColor(grayscale)));
 
     for (int i = 0; i < 8; i++) {
         glDrawElements(GL_LINE_STRIP, 4, GL_UNSIGNED_INT, (void*)(4 * i * sizeof(GLuint)));
@@ -73,12 +73,12 @@ BicubicPatch::BicubicPatch(int cpCountLoc, int segmentCountLoc, int segmentIdxLo
     this->controlPoints = controlPoints;
 }
 
-void BicubicPatch::RenderTess(int colorLoc, int modelLoc)
+void BicubicPatch::RenderTess(int colorLoc, int modelLoc, bool grayscale)
 {
     vao.Bind();
 
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor()));
+    glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor(grayscale)));
     glUniform1i(segmentCountLoc, renderSegments);
     glLineWidth(3.0f);
     glUniform1i(divisionLoc, *division);

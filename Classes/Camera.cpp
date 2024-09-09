@@ -17,7 +17,29 @@ Camera::Camera(int width, int height, glm::vec3 position, float FOV, float near,
 
 void Camera::PrepareMatrices(glm::mat4 &view, glm::mat4 &proj) {
   view = CAD::lookAt(Position, Position + Orientation, Up);
-  proj = CAD::projection(FOV, (float)(width - guiWidth) / height, near, far);
+  proj = CAD::projection(FOV, GetAspectRatio(), near, far);
+}
+
+void Camera::PrepareAnaglyphMatrices(float convergence, float eyeSeparation,
+                                     glm::mat4 &projL, glm::mat4 &projR) {
+  float top, bottom, left, right;
+  
+  top = near * glm::tan(FOV / 2.f);
+  bottom = -top;
+
+  float a = GetAspectRatio() * glm::tan(FOV / 2.f) * convergence;
+  float b = a - eyeSeparation / 2.f;
+  float c = a + eyeSeparation / 2.f;
+
+  // left frustum
+  left = -b * near / convergence;
+  right = c * near / convergence;
+  projL = CAD::frustum(left, right, bottom, top, near, far);
+
+  // right frustum
+  left = -c * near / convergence;
+  right = b * near / convergence;
+  projR = CAD::frustum(left, right, bottom, top, near, far);
 }
 
 void Camera::HandleInputs(GLFWwindow *window) {
@@ -92,3 +114,5 @@ void Camera::MouseInputs(GLFWwindow *window)
     firstClick = true;
   }
 }
+
+float Camera::GetAspectRatio() { return (float)(width - guiWidth) / height; }

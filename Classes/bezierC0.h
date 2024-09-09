@@ -25,7 +25,7 @@ public:
   BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
            const char *name = "Bezier C0", bool numerate = true);
 
-  void virtual Render(int colorLoc, int modelLoc);
+  void virtual Render(int colorLoc, int modelLoc, bool grayscale);
   bool virtual CreateImgui();
   bool GetBoundingSphere(CAD::Sphere &sphere) { return false; };
 
@@ -33,7 +33,7 @@ public:
   void AddControlPoint(Figure* cp);
   bool RemoveControlPoint(int idx);
   void RefreshBuffers();
-  void virtual RenderPolyline(int colorLoc, int modelLoc);
+  void virtual RenderPolyline(int colorLoc, int modelLoc, bool grayscale);
   void ClearControlPoints();
   void virtual CreateBsplineImgui() { ImGui::Text("That ain't Bezier C2"); };
 };

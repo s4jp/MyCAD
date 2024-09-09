@@ -10,7 +10,7 @@ public:
   Grid(glm::vec3 position = glm::vec3(0.f), float sizeN = 30.f,
        int divisionN = 50);
 
-  void Render(int colorLoc, int modelLoc);
+  void Render(int colorLoc, int modelLoc, bool grayscale = false);
   bool GetBoundingSphere(CAD::Sphere& sphere) { return false; };
 
 private:

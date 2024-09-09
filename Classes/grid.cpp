@@ -4,7 +4,7 @@
 Grid::Grid(glm::vec3 position, float sizeN, int divisionN)
     : Figure(InitializeAndCalculate(sizeN, divisionN), "Grid", position){};
 
-void Grid::Render(int colorLoc, int modelLoc)
+void Grid::Render(int colorLoc, int modelLoc, bool grayscale)
 {
   vao.Bind();
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
