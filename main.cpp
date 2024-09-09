@@ -121,6 +121,8 @@ int main() {
     int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
     int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
+    int displacementLoc =
+        glGetUniformLocation(shaderProgram.ID, "displacement");
 
     Shader tessShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
                              "Shaders\\tessellation.tesc", "Shaders\\tessellation.tese");
@@ -137,6 +139,8 @@ int main() {
         glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
 	int tessDivisionLoc =
 		glGetUniformLocation(tessShaderProgram.ID, "division");
+    int tessDisplacementLoc =
+        glGetUniformLocation(tessShaderProgram.ID, "displacement");
 
 	Shader tessSurfaceShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
 		"Shaders\\tessellation.tesc", "Shaders\\tessellationSurface.tese");
@@ -157,6 +161,8 @@ int main() {
 		glGetUniformLocation(tessSurfaceShaderProgram.ID, "otherAxis");
 	int tessSurfaceBsplineLoc =
 		glGetUniformLocation(tessSurfaceShaderProgram.ID, "bspline");
+    int tessSurfaceDisplacementLoc =
+        glGetUniformLocation(tessSurfaceShaderProgram.ID, "displacement");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -188,13 +194,15 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 460");
     #pragma endregion
 
-    auto renderFigures = [&](bool grayscale) {
+    auto renderFigures = [&](bool grayscale, glm::mat4 displacement) {
       // default shader activation
       shaderProgram.Activate();
 
       // matrices for default shader
       glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
       glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+      glUniformMatrix4fv(displacementLoc, 1, GL_FALSE,
+                         glm::value_ptr(displacement));
 
       // objects rendering with default shader
       for (int i = 0; i < figures.size(); i++) {
@@ -219,6 +227,8 @@ int main() {
       glUniformMatrix4fv(tessViewLoc, 1, GL_FALSE, glm::value_ptr(tessView));
       glUniformMatrix4fv(tessProjLoc, 1, GL_FALSE, glm::value_ptr(tessProj));
       glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
+      glUniformMatrix4fv(tessDisplacementLoc, 1, GL_FALSE,
+                         glm::value_ptr(displacement));
 
       // curves rendering with tessellation shader
       for (int i = 0; i < curves.size(); i++) {
@@ -237,6 +247,8 @@ int main() {
                          glm::value_ptr(tessSurfaceProj));
       glUniform2i(tessSurfaceResolutionLoc, camera->GetWidth(),
                   camera->GetHeight());
+      glUniformMatrix4fv(tessSurfaceDisplacementLoc, 1, GL_FALSE,
+                         glm::value_ptr(displacement));
 
       // surfaces rendering with surface tessellation shader
       for (int i = 0; i < surfaces.size(); i++)
@@ -267,6 +279,8 @@ int main() {
 
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+        glUniformMatrix4fv(displacementLoc, 1, GL_FALSE,
+                           glm::value_ptr(glm::mat4(1.0f)));
 
         grid->Render(colorLoc, modelLoc);
         cursor->Render(colorLoc, modelLoc);
@@ -275,7 +289,7 @@ int main() {
         }
 
         // render grayscaleable objects
-        renderFigures(false);
+        renderFigures(false, glm::mat4(1.f));
 
         // imgui rendering
         if (ImGui::Begin("Menu", 0,
