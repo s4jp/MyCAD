@@ -73,6 +73,7 @@ void curveCreation();
 void deselectFigures();
 void deselectSurface(bool deleting = false);
 void recalculateCenter();
+void loadScene();
 
 glm::vec3 centerTranslation(0.f);
 glm::vec3 centerScale(1.f);
@@ -95,6 +96,16 @@ bool checkIfSelectedArePartOfSurface();
 
 MG1::SceneSerializer serializer;
 std::string filePath = "Scenes\\referenceScene.json";
+
+int modelLoc, viewLoc, projLoc, colorLoc, displacementLoc;
+int tessModelLoc, tessViewLoc, tessProjLoc, tessColorLoc, tessCpCountLoc,
+    tessResolutionLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc,
+    tessDisplacementLoc;
+int tessSurfaceModelLoc, tessSurfaceViewLoc, tessSurfaceProjLoc,
+    tessSurfaceColorLoc, tessSurfaceCpCountLoc, tessSurfaceResolutionLoc,
+    tessSurfaceDivisionLoc, tessSurfaceSegmentCountLoc,
+    tessSurfaceSegmentIdxLoc, tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc,
+    tessSurfaceDisplacementLoc;
 
 int main() { 
     // initial values
@@ -130,52 +141,39 @@ int main() {
 
     // shaders and uniforms
     Shader shaderProgram("Shaders\\default.vert", "Shaders\\default.frag");
-    int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-    int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-    int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
-    int colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
-    int displacementLoc =
-        glGetUniformLocation(shaderProgram.ID, "displacement");
+    modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+    viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+    projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+    colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
+    displacementLoc = glGetUniformLocation(shaderProgram.ID, "displacement");
 
     Shader tessShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
                              "Shaders\\tessellation.tesc", "Shaders\\tessellation.tese");
-    int tessModelLoc = glGetUniformLocation(tessShaderProgram.ID, "model");
-    int tessViewLoc = glGetUniformLocation(tessShaderProgram.ID, "view");
-    int tessProjLoc = glGetUniformLocation(tessShaderProgram.ID, "proj");
-    int tessColorLoc = glGetUniformLocation(tessShaderProgram.ID, "color");
-    int tessCpCountLoc = glGetUniformLocation(tessShaderProgram.ID, "cpCount");
-    int tessResolutionLoc =
-        glGetUniformLocation(tessShaderProgram.ID, "resolution");
-    int tessSegmentCountLoc =
-        glGetUniformLocation(tessShaderProgram.ID, "segmentCount");
-    int tessSegmentIdxLoc =
-        glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
-	int tessDivisionLoc =
-		glGetUniformLocation(tessShaderProgram.ID, "division");
-    int tessDisplacementLoc =
-        glGetUniformLocation(tessShaderProgram.ID, "displacement");
+    tessModelLoc = glGetUniformLocation(tessShaderProgram.ID, "model");
+    tessViewLoc = glGetUniformLocation(tessShaderProgram.ID, "view");
+    tessProjLoc = glGetUniformLocation(tessShaderProgram.ID, "proj");
+    tessColorLoc = glGetUniformLocation(tessShaderProgram.ID, "color");
+    tessCpCountLoc = glGetUniformLocation(tessShaderProgram.ID, "cpCount");
+    tessResolutionLoc = glGetUniformLocation(tessShaderProgram.ID, "resolution");
+    tessSegmentCountLoc = glGetUniformLocation(tessShaderProgram.ID, "segmentCount");
+    tessSegmentIdxLoc = glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
+	tessDivisionLoc = glGetUniformLocation(tessShaderProgram.ID, "division");
+    tessDisplacementLoc = glGetUniformLocation(tessShaderProgram.ID, "displacement");
 
 	Shader tessSurfaceShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
 		"Shaders\\tessellation.tesc", "Shaders\\tessellationSurface.tese");
-    int tessSurfaceModelLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "model");
-    int tessSurfaceViewLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "view");
-    int tessSurfaceProjLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "proj");
-    int tessSurfaceColorLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "color");
-    int tessSurfaceCpCountLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "cpCount");
-    int tessSurfaceResolutionLoc =
-        glGetUniformLocation(tessSurfaceShaderProgram.ID, "resolution");
-    int tessSurfaceDivisionLoc =
-        glGetUniformLocation(tessSurfaceShaderProgram.ID, "division");
-    int tessSurfaceSegmentCountLoc =
-        glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentCount");
-    int tessSurfaceSegmentIdxLoc =
-        glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentIdx");
-	int tessSurfaceOtherAxisLoc =
-		glGetUniformLocation(tessSurfaceShaderProgram.ID, "otherAxis");
-	int tessSurfaceBsplineLoc =
-		glGetUniformLocation(tessSurfaceShaderProgram.ID, "bspline");
-    int tessSurfaceDisplacementLoc =
-        glGetUniformLocation(tessSurfaceShaderProgram.ID, "displacement");
+    tessSurfaceModelLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "model");
+    tessSurfaceViewLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "view");
+    tessSurfaceProjLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "proj");
+    tessSurfaceColorLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "color");
+    tessSurfaceCpCountLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "cpCount");
+    tessSurfaceResolutionLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "resolution");
+    tessSurfaceDivisionLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "division");
+    tessSurfaceSegmentCountLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentCount");
+    tessSurfaceSegmentIdxLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "segmentIdx");
+	tessSurfaceOtherAxisLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "otherAxis");
+	tessSurfaceBsplineLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "bspline");
+    tessSurfaceDisplacementLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "displacement");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -881,7 +879,7 @@ int main() {
               std::cerr << e.what() << std::endl;
               // TODO: better error handling
             }
-            // auto &scene = MG1::Scene::Get();
+            loadScene();
           }
           ImGui::SameLine();
           if (ImGui::Button("Save")) {
@@ -1156,4 +1154,76 @@ bool checkIfSelectedArePartOfSurface()
         }
     }
     return false;
+}
+
+void loadScene() {
+  // clear selection
+  deselectFigures();
+  deselectCurve();
+  deselectSurface();
+  recalculateCenter();
+
+  // remove figures
+  std::for_each(figures.begin(), figures.end(), [](Figure *f) { f->Delete(); });
+  std::for_each(curves.begin(), curves.end(), [](Figure *c) { c->Delete(); });
+  std::for_each(surfaces.begin(), surfaces.end(),
+                [](Figure *p) { p->Delete(); });
+  figures.clear();
+  curves.clear();
+  surfaces.clear();
+
+  Figure::zeroCounter();
+
+  // load scene
+  auto &scene = MG1::Scene::Get();
+
+  // import points
+  for (auto &point : scene.points) {
+    Point *p = new Point(CAD::vec3casting(point.position));
+    p->name = point.name;
+    figures.push_back(p);
+  }
+
+  // import toruses
+  for (auto &torus : scene.tori) {
+    Torus *t = new Torus(CAD::vec3casting(torus.position), torus.largeRadius,
+                         torus.smallRadius, torus.samples.x, torus.samples.y);
+    t->name = torus.name;
+    t->SetAngle(CAD::vec3casting(torus.rotation));
+    t->SetScale(CAD::vec3casting(torus.scale));
+    figures.push_back(t);
+  }
+
+  // import bezierC0
+  for (auto &bezC0 : scene.bezierC0) {
+    BezierC0 *b = new BezierC0(tessCpCountLoc, tessSegmentCountLoc,
+                               tessSegmentIdxLoc, tessDivisionLoc);
+    b->name = bezC0.name;
+    for (auto &idx : bezC0.controlPoints) {
+      b->AddControlPoint(figures[CAD::getPointIdx(idx)]);
+    }
+    curves.push_back(b);
+  }
+
+  // import bezierC2
+  for (auto &bezC2 : scene.bezierC2) {
+    BezierC2 *b = new BezierC2(tessCpCountLoc, tessSegmentCountLoc,
+                               tessSegmentIdxLoc, tessDivisionLoc);
+    b->name = bezC2.name;
+    for (auto &idx : bezC2.controlPoints) {
+      b->AddControlPoint(figures[CAD::getPointIdx(idx)]);
+    }
+    curves.push_back(b);
+  }
+
+  // import bezierInt
+  for (auto &bezInt : scene.interpolatedC2) {
+    BezierInt *b = new BezierInt(tessCpCountLoc, tessSegmentCountLoc,
+                                 tessSegmentIdxLoc, tessDivisionLoc);
+    b->name = bezInt.name;
+    for (auto &idx : bezInt.controlPoints) {
+      b->AddControlPoint(figures[CAD::getPointIdx(idx)]);
+    }
+    curves.push_back(b);
+  }
 }

@@ -5,6 +5,8 @@
 #include <string>
 #include "Camera.h"
 #include <tuple>
+#include <Utils/Float3.h>
+#include <Models/PointRef.h>
 
 namespace CAD 
 {
@@ -49,4 +51,6 @@ namespace CAD
     glm::mat4 frustum(float left, float right, float bottom, float top,
                       float near, float far);
     void displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right);
+    glm::vec3 vec3casting(MG1::Float3 vec);
+    int getPointIdx(MG1::PointRef pointRef);
  }

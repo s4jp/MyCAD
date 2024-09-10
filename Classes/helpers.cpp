@@ -241,3 +241,7 @@ void CAD::displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right)
   right =
       CAD::translate(glm::mat4(1.f), glm::vec3(-eyeSeparation / 2.f, 0.f, 0.f));
 }
+
+glm::vec3 CAD::vec3casting(MG1::Float3 vec) { return glm::vec3(vec.x, vec.y, vec.z); }
+
+int CAD::getPointIdx(MG1::PointRef pointRef) { return pointRef.GetId() - 1; }

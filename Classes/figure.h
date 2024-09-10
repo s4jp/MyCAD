@@ -263,4 +263,5 @@ public:
 
     CalculateModelMatrix();
   }
+  void static zeroCounter() { counter = 0; }
 };
