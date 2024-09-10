@@ -3,13 +3,12 @@
 
 class Torus : public Figure 
 {
-private:
+public:
   float R1;
   float R2;
   int n1;
   int n2;
 
-public:
   Torus(glm::vec3 position = glm::vec3(0.f), float R1 = 0.5f, float R2 = 0.2f,
         int n1 = 10,
         int n2 = 20);

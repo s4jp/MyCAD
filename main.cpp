@@ -74,6 +74,7 @@ void deselectFigures();
 void deselectSurface(bool deleting = false);
 void recalculateCenter();
 void loadScene();
+void saveScene();
 
 glm::vec3 centerTranslation(0.f);
 glm::vec3 centerScale(1.f);
@@ -884,6 +885,7 @@ int main() {
           ImGui::SameLine();
           if (ImGui::Button("Save")) {
             try {
+            saveScene();
             serializer.SaveScene(filePath);
             } catch (const std::exception &e) {
               std::cerr << e.what() << std::endl;
@@ -1195,7 +1197,7 @@ void loadScene() {
 
   // import points
   for (auto &point : scene.points) {
-    Point *p = new Point(CAD::vec3casting(point.position));
+    Point *p = new Point(CAD::deserializeVec3(point.position));
     p->name = point.name;
     figures.push_back(p);
     pointIds.push_back(point.GetId());
@@ -1203,11 +1205,12 @@ void loadScene() {
 
   // import toruses
   for (auto &torus : scene.tori) {
-    Torus *t = new Torus(CAD::vec3casting(torus.position), torus.largeRadius,
+    Torus *t =
+        new Torus(CAD::deserializeVec3(torus.position), torus.largeRadius,
                          torus.smallRadius, torus.samples.x, torus.samples.y);
     t->name = torus.name;
-    t->SetAngle(CAD::vec3casting(torus.rotation));
-    t->SetScale(CAD::vec3casting(torus.scale));
+    t->SetAngle(CAD::deserializeVec3(torus.rotation));
+    t->SetScale(CAD::deserializeVec3(torus.scale));
     figures.push_back(t);
   }
 
@@ -1279,4 +1282,33 @@ void loadScene() {
     }
     surfaces.push_back(s);
   }
+}
+
+void saveScene() 
+{ 
+    auto &scene = MG1::Scene::Get(); 
+    scene.Clear();
+
+    for (auto &fig : figures) {
+      // add points
+      if (dynamic_cast<Point*>(fig)) {
+        MG1::Point p;
+        p.position = CAD::serializeVec3(fig->GetPosition());
+        p.name = fig->name;
+        scene.points.push_back(p);
+      } else {
+        // add toruses
+        MG1::Torus t;
+        Torus *torus = dynamic_cast<Torus*>(fig);
+        t.position = CAD::serializeVec3(torus->GetPosition());
+        t.largeRadius = torus->R1;
+        t.smallRadius = torus->R2;
+        t.samples.x = torus->n1;
+        t.samples.y = torus->n2;
+        t.rotation = CAD::serializeVec3(torus->GetAngle());
+        t.scale = CAD::serializeVec3(torus->GetScale());
+        t.name = torus->name;
+        scene.tori.push_back(t);
+      }
+    }
 }

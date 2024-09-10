@@ -51,5 +51,6 @@ namespace CAD
     glm::mat4 frustum(float left, float right, float bottom, float top,
                       float near, float far);
     void displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right);
-    glm::vec3 vec3casting(MG1::Float3 vec);
+    glm::vec3 deserializeVec3(MG1::Float3 vec);
+    MG1::Float3 serializeVec3(glm::vec3 vec);
  }
