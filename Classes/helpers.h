@@ -52,5 +52,4 @@ namespace CAD
                       float near, float far);
     void displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right);
     glm::vec3 vec3casting(MG1::Float3 vec);
-    int getPointIdx(MG1::PointRef pointRef);
  }

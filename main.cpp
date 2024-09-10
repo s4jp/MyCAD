@@ -1177,11 +1177,28 @@ void loadScene() {
   // load scene
   auto &scene = MG1::Scene::Get();
 
+  std::vector<uint32_t> pointIds;
+
+  auto findPointById = [&](MG1::PointRef ref) {
+    bool found = false;
+    for (int i = 0; i < pointIds.size(); i++) {
+      if (pointIds[i] == ref.GetId()) {
+        return figures[i];
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      throw std::runtime_error("Invalid JSON");
+    }
+  };
+
   // import points
   for (auto &point : scene.points) {
     Point *p = new Point(CAD::vec3casting(point.position));
     p->name = point.name;
     figures.push_back(p);
+    pointIds.push_back(point.GetId());
   }
 
   // import toruses
@@ -1200,7 +1217,7 @@ void loadScene() {
                                tessSegmentIdxLoc, tessDivisionLoc);
     b->name = bezC0.name;
     for (auto &idx : bezC0.controlPoints) {
-      b->AddControlPoint(figures[CAD::getPointIdx(idx)]);
+      b->AddControlPoint(findPointById(idx));
     }
     curves.push_back(b);
   }
@@ -1211,7 +1228,7 @@ void loadScene() {
                                tessSegmentIdxLoc, tessDivisionLoc);
     b->name = bezC2.name;
     for (auto &idx : bezC2.controlPoints) {
-      b->AddControlPoint(figures[CAD::getPointIdx(idx)]);
+      b->AddControlPoint(findPointById(idx));
     }
     curves.push_back(b);
   }
@@ -1222,7 +1239,7 @@ void loadScene() {
                                  tessSegmentIdxLoc, tessDivisionLoc);
     b->name = bezInt.name;
     for (auto &idx : bezInt.controlPoints) {
-      b->AddControlPoint(figures[CAD::getPointIdx(idx)]);
+      b->AddControlPoint(findPointById(idx));
     }
     curves.push_back(b);
   }
@@ -1234,7 +1251,7 @@ void loadScene() {
     for (auto &patch : surfC0.patches) {
       std::vector<Figure*> cps = std::vector<Figure*>();
       for (auto &idx : patch.controlPoints) {
-        cps.push_back(figures[CAD::getPointIdx(idx)]);
+        cps.push_back(findPointById(idx));
       }
       s->AddPatch(
           new BicubicPatch(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
@@ -1252,7 +1269,7 @@ void loadScene() {
     for (auto &patch : surfC2.patches) {
       std::vector<Figure *> cps = std::vector<Figure *>();
       for (auto &idx : patch.controlPoints) {
-        cps.push_back(figures[CAD::getPointIdx(idx)]);
+        cps.push_back(findPointById(idx));
       }
       s->AddPatch(
           new BicubicPatch(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
