@@ -1226,4 +1226,40 @@ void loadScene() {
     }
     curves.push_back(b);
   }
+
+  // import surface C0
+  for (auto &surfC0 : scene.surfacesC0) {
+    SurfaceC0 *s = new SurfaceC0(glm::vec3(0.f));
+    s->name = surfC0.name;
+    for (auto &patch : surfC0.patches) {
+      std::vector<Figure*> cps = std::vector<Figure*>();
+      for (auto &idx : patch.controlPoints) {
+        cps.push_back(figures[CAD::getPointIdx(idx)]);
+      }
+      s->AddPatch(
+          new BicubicPatch(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
+                           tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+                           tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc,
+                           false, cps, &s->division));
+    }
+    surfaces.push_back(s);
+  }
+
+  // import surface C2
+  for (auto &surfC2 : scene.surfacesC2) {
+    SurfaceC2 *s = new SurfaceC2(glm::vec3(0.f));
+    s->name = surfC2.name;
+    for (auto &patch : surfC2.patches) {
+      std::vector<Figure *> cps = std::vector<Figure *>();
+      for (auto &idx : patch.controlPoints) {
+        cps.push_back(figures[CAD::getPointIdx(idx)]);
+      }
+      s->AddPatch(
+          new BicubicPatch(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
+                           tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+                           tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, true,
+                           cps, &s->division));
+    }
+    surfaces.push_back(s);
+  }
 }

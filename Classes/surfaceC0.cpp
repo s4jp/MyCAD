@@ -33,8 +33,10 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, false, cps, &this->division));
+            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
+                                      segmentIdxLoc, divisionLoc,
+                                      otherAxisLoc, bsplineLoc,
+                                      false, cps, &this->division));
 		}
 	}
 	return newPoints;
@@ -86,13 +88,17 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, false, cps, &this->division));
+            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
+                                      segmentIdxLoc, divisionLoc,
+                                      otherAxisLoc, bsplineLoc,
+                                      false, cps, &this->division));
 		}
 	}
 
 	return newPoints;
 }
+
+void SurfaceC0::AddPatch(BicubicPatch *patch) { patches.push_back(patch); }
 
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}

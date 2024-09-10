@@ -35,8 +35,10 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, true, cps, &this->division));
+            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
+                                      segmentIdxLoc, divisionLoc,
+                                      otherAxisLoc, bsplineLoc,
+                                      true, cps, &this->division));
 		}
 	}
 
@@ -90,8 +92,10 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, true, cps, &this->division));
+            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
+                                      segmentIdxLoc, divisionLoc,
+                                      otherAxisLoc, bsplineLoc,
+                                      true, cps, &this->division));
 		}
 	}
 
