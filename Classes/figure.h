@@ -46,7 +46,7 @@ protected:
   };
 
   glm::vec4 GetPolylineColor(bool grayscale) const {
-    return grayscale ? glm::vec4(0.f, 0.587f, 0.f, 1.f)
+    return grayscale ? glm::vec4(0.587f, 0.587f, 0.587f, 1.f)
                      : glm::vec4(0.f, 1.f, 0.f, 1.f);
   };
 
