@@ -99,3 +99,8 @@ int Point::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs)
   scene.points.push_back(p);
   return p.GetId();
 }
+
+void Point::CalculateModelMatrix() 
+{
+  model = CAD::translate(glm::mat4(1.0f), GetPosition());
+}

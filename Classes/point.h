@@ -11,6 +11,7 @@ public:
   void Render(int colorLoc, int modelLoc, bool grayscale);
   bool GetBoundingSphere(CAD::Sphere &sphere);
   int addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs);
+  void CalculateModelMatrix() override;
 
 private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;

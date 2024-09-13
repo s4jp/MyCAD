@@ -108,6 +108,8 @@ int tessSurfaceModelLoc, tessSurfaceViewLoc, tessSurfaceProjLoc,
     tessSurfaceSegmentIdxLoc, tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc,
     tessSurfaceDisplacementLoc;
 
+bool renderGrid = true;
+
 int main() { 
     // initial values
     int width = 1500;
@@ -295,8 +297,7 @@ int main() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(displacementLoc, 1, GL_FALSE,
                            glm::value_ptr(glm::mat4(1.0f)));
-
-        grid->Render(colorLoc, modelLoc);
+        if (renderGrid) grid->Render(colorLoc, modelLoc);
         cursor->Render(colorLoc, modelLoc);
         if (selected.size() > 0) {
           center->Render(colorLoc, modelLoc);
@@ -567,7 +568,6 @@ int main() {
                     deselectCurve();
                   } else {
                     selectedCurveIdx = i;
-                    clickingOutCurve = temp;
                   }
 
                   recalculateSelected();
@@ -876,11 +876,12 @@ int main() {
           if (ImGui::Button("Load")) {
             try {
             serializer.LoadScene(filePath);
+            loadScene();
             } catch (const std::exception &e) {
               std::cerr << e.what() << std::endl;
               // TODO: better error handling
             }
-            loadScene();
+            std::cout << "Scene from '" << filePath << "' loaded" << std::endl;
           }
           ImGui::SameLine();
           if (ImGui::Button("Save")) {
@@ -891,6 +892,7 @@ int main() {
               std::cerr << e.what() << std::endl;
               // TODO: better error handling
             }
+            std::cout << "Scene saved to '" << filePath << "'" << std::endl;
           }
         }
 
@@ -964,6 +966,12 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     clickingOutCurve = false;
+  if (key == GLFW_KEY_G && action == GLFW_PRESS) 
+  {
+    renderGrid = !renderGrid;
+    std::cout << "Grid: " << (renderGrid ? "on" : "off") << std::endl;
+  }
+
 }
 
 void mouse_button_callback(GLFWwindow *window, int button, int action,
@@ -1207,7 +1215,7 @@ void loadScene() {
   for (auto &torus : scene.tori) {
     Torus *t =
         new Torus(CAD::deserializeVec3(torus.position), torus.largeRadius,
-                         torus.smallRadius, torus.samples.x, torus.samples.y);
+                  torus.smallRadius, torus.samples.x, torus.samples.y);
     t->name = torus.name;
     t->SetAngle(CAD::deserializeVec3(torus.rotation));
     t->SetScale(CAD::deserializeVec3(torus.scale));

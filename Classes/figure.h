@@ -158,7 +158,7 @@ public:
     vbo.Delete();
     ebo.Delete();
   }
-  void CalculateModelMatrix() {
+  void virtual CalculateModelMatrix() {
     glm::mat4 translateM =
         CAD::translate(glm::mat4(1.0f), GetPosition());
     glm::mat4 rotateM = CAD::rotate(glm::mat4(1.0f), GetAngle());
