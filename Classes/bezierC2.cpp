@@ -132,3 +132,13 @@ void BezierC2::CreateBsplineImgui() {
     bcp[idx]->selected = true;
   }
 }
+
+int BezierC2::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+  MG1::BezierC2 b;
+  b.name = name;
+  for (auto cpIdx : cpsIdxs) {
+    b.controlPoints.push_back(cpIdx);
+  }
+  scene.bezierC2.push_back(b);
+  return 69;
+}

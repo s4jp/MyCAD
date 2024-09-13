@@ -101,3 +101,27 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 
 	return newPoints;
 }
+
+int SurfaceC2::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+  MG1::BezierSurfaceC2 s;
+  s.name = name;
+  // to change
+  s.vWrapped = false;
+  s.uWrapped = false;
+  s.size.x = patches.size() / 2;
+  s.size.y = patches.size() / s.size.x;
+  // end
+  for (int i = 0; i < patches.size(); i++) {
+    std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
+                                       cpsIdxs.begin() + i * 16 + 16);
+    MG1::BezierPatchC2 p;
+    p.samples.x = division;
+    p.samples.y = division;
+    for (int j = 0; j < cpsIdxsPatch.size(); j++)
+      p.controlPoints.push_back(cpsIdxsPatch[j]);
+    ;
+    s.patches.push_back(p);
+  }
+  scene.surfacesC2.push_back(s);
+  return 69;
+}

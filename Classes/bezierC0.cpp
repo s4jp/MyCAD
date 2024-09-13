@@ -118,3 +118,14 @@ void BezierC0::ClearControlPoints() {
   controlPoints.clear();
   RefreshBuffers();
 }
+
+int BezierC0::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
+{ 
+    MG1::BezierC0 b;
+    b.name = name;
+    for (auto cpIdx : cpsIdxs) {
+      b.controlPoints.push_back(cpIdx);
+    }
+    scene.bezierC0.push_back(b);
+    return 69; 
+}

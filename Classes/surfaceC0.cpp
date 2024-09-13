@@ -100,6 +100,31 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 
 void SurfaceC0::AddPatch(BicubicPatch *patch) { patches.push_back(patch); }
 
+int SurfaceC0::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+  MG1::BezierSurfaceC0 s;
+  s.name = name;
+  // to change
+  s.vWrapped = false;
+  s.uWrapped = false;
+  s.size.x = patches.size() / 2;
+  s.size.y = patches.size() / s.size.x;
+  // end
+  for (int i = 0; i < patches.size(); i++) 
+  {
+	std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
+                                       cpsIdxs.begin() + i * 16 + 16);
+    MG1::BezierPatchC0 p;
+    p.samples.x = division;
+    p.samples.y = division;
+    for (int j = 0; j < cpsIdxsPatch.size(); j++) 
+		p.controlPoints.push_back(cpsIdxsPatch[j]);
+;
+   s.patches.push_back(p);
+  }
+  scene.surfacesC0.push_back(s);
+  return 69;
+}
+
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 

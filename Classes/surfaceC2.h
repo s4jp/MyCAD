@@ -12,4 +12,6 @@ public:
 
 	std::vector<Figure*> CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width) override;
 	std::vector<Figure*> CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height) override;
+        int addToMG1Scene(MG1::Scene &scene,
+                          std::vector<uint32_t> cpsIdxs) override;
 };

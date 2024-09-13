@@ -1289,26 +1289,70 @@ void saveScene()
     auto &scene = MG1::Scene::Get(); 
     scene.Clear();
 
-    for (auto &fig : figures) {
-      // add points
-      if (dynamic_cast<Point*>(fig)) {
-        MG1::Point p;
-        p.position = CAD::serializeVec3(fig->GetPosition());
-        p.name = fig->name;
-        scene.points.push_back(p);
-      } else {
-        // add toruses
-        MG1::Torus t;
-        Torus *torus = dynamic_cast<Torus*>(fig);
-        t.position = CAD::serializeVec3(torus->GetPosition());
-        t.largeRadius = torus->R1;
-        t.smallRadius = torus->R2;
-        t.samples.x = torus->n1;
-        t.samples.y = torus->n2;
-        t.rotation = CAD::serializeVec3(torus->GetAngle());
-        t.scale = CAD::serializeVec3(torus->GetScale());
-        t.name = torus->name;
-        scene.tori.push_back(t);
+    std::vector<std::tuple<int,uint32_t>> pointIds;
+
+    //for (auto &fig : figures) {
+    //  // add points
+    //  if (dynamic_cast<Point*>(fig)) {
+    //    MG1::Point p;
+    //    p.position = CAD::serializeVec3(fig->GetPosition());
+    //    p.name = fig->name;
+    //    scene.points.push_back(p);
+    //    pointIds.push_back(p.GetId());
+    //  } else {
+    //    // add toruses
+    //    MG1::Torus t;
+    //    Torus *torus = dynamic_cast<Torus*>(fig);
+    //    t.position = CAD::serializeVec3(torus->GetPosition());
+    //    t.largeRadius = torus->R1;
+    //    t.smallRadius = torus->R2;
+    //    t.samples.x = torus->n1;
+    //    t.samples.y = torus->n2;
+    //    t.rotation = CAD::serializeVec3(torus->GetAngle());
+    //    t.scale = CAD::serializeVec3(torus->GetScale());
+    //    t.name = torus->name;
+    //    scene.tori.push_back(t);
+    //  }
+    //}
+
+    for (int i = 0; i < figures.size(); i++)
+    {
+      int retVal = figures[i]->addToMG1Scene(scene);
+      if (retVal != -1)
+        pointIds.push_back(std::tuple < int, uint32_t>(i, retVal));
+    }
+
+    for (BezierC0* curv : curves)
+    {
+      std::vector<Figure *> cps = curv->GetControlPoints();
+
+      std::vector<uint32_t> cpIdxs;
+      for (int i = 0; i < cps.size(); i++) {
+        for (int j = 0; j < pointIds.size(); j++) {
+          if (cps[i] == figures[std::get<0>(pointIds[j])]) {
+            cpIdxs.push_back(std::get<1>(pointIds[j]));
+            break;
+          }
+        }
       }
+
+      curv->addToMG1Scene(scene, cpIdxs);
+    }
+     
+    for (SurfaceC0 *surf : surfaces) 
+    {
+      std::vector<Figure*> cps = surf->GetControlPoints();
+
+      std::vector<uint32_t> cpIdxs;
+      for (int i = 0; i < cps.size(); i++) {
+        for (int j = 0; j < pointIds.size(); j++) {
+          if (cps[i] == figures[std::get<0>(pointIds[j])]) {
+            cpIdxs.push_back(std::get<1>(pointIds[j]));
+            break;
+          }
+        }
+      }
+
+      surf->addToMG1Scene(scene, cpIdxs);
     }
 }

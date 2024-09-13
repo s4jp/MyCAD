@@ -14,6 +14,12 @@ void BicubicPatch::RefreshBuffers()
         std::get<1>(data).size() * sizeof(GLuint));
 }
 
+int BicubicPatch::addToMG1Scene(MG1::Scene &scene,
+                                std::vector<uint32_t> cpsIdxs) {
+  return 69;
+  
+}
+
 void BicubicPatch::Render(int colorLoc, int modelLoc, bool grayscale)
 {
     vao.Bind();

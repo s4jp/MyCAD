@@ -36,4 +36,5 @@ public:
   void virtual RenderPolyline(int colorLoc, int modelLoc, bool grayscale);
   void ClearControlPoints();
   void virtual CreateBsplineImgui() { ImGui::Text("That ain't Bezier C2"); };
+  int addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs);
 };

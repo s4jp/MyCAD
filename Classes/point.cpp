@@ -90,3 +90,12 @@ bool Point::GetBoundingSphere(CAD::Sphere &sphere) {
   sphere = CAD::Sphere(GetPosition(), R * 1.20f);
   return true;
 }
+
+int Point::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs)
+{ 
+  MG1::Point p;
+  p.position = CAD::serializeVec3(this->GetPosition());
+  p.name = name;
+  scene.points.push_back(p);
+  return p.GetId();
+}
