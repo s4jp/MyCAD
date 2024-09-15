@@ -5,6 +5,9 @@ SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position,
 
 std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width)
 {
+	uSize = xSegments;
+	vSize = zSegments;
+
 	int lengthSegmentCount = xSegments + 2;
 	float segmentLength = length / lengthSegmentCount;
 	int widthSegmentCount = zSegments + 2;
@@ -47,6 +50,9 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 
 std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height)
 {
+	uSize = xSegments;
+	vSize = zSegments;
+
 	float segmentRadius = M_PI * 2.f / xSegments;
 	int heightSegmentCount = zSegments + 2;
 	float segmentHeight = height / heightSegmentCount;
@@ -105,12 +111,11 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 int SurfaceC2::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::BezierSurfaceC2 s;
   s.name = name;
-  // to change
-  s.vWrapped = false;
-  s.uWrapped = false;
-  s.size.x = patches.size() / 2;
-  s.size.y = patches.size() / s.size.x;
-  // end
+  s.uWrapped = this->uWrapped;
+  s.vWrapped = this->vWrapped;
+  s.size.x = uSize;
+  s.size.y = vSize;
+
   for (int i = 0; i < patches.size(); i++) {
     std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
                                        cpsIdxs.begin() + i * 16 + 16);

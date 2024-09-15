@@ -1259,6 +1259,10 @@ void loadScene() {
   for (auto &surfC0 : scene.surfacesC0) {
     SurfaceC0 *s = new SurfaceC0(glm::vec3(0.f));
     s->name = surfC0.name;
+    s->uSize = surfC0.size.x;
+    s->vSize = surfC0.size.y;
+    s->uWrapped = surfC0.uWrapped;
+    s->vWrapped = surfC0.vWrapped;
     for (auto &patch : surfC0.patches) {
       std::vector<Figure*> cps = std::vector<Figure*>();
       for (auto &idx : patch.controlPoints) {
@@ -1277,6 +1281,10 @@ void loadScene() {
   for (auto &surfC2 : scene.surfacesC2) {
     SurfaceC2 *s = new SurfaceC2(glm::vec3(0.f));
     s->name = surfC2.name;
+    s->uSize = surfC2.size.x;
+    s->vSize = surfC2.size.y;
+    s->uWrapped = surfC2.uWrapped;
+    s->vWrapped = surfC2.vWrapped;
     for (auto &patch : surfC2.patches) {
       std::vector<Figure *> cps = std::vector<Figure *>();
       for (auto &idx : patch.controlPoints) {
@@ -1298,30 +1306,6 @@ void saveScene()
     scene.Clear();
 
     std::vector<std::tuple<int,uint32_t>> pointIds;
-
-    //for (auto &fig : figures) {
-    //  // add points
-    //  if (dynamic_cast<Point*>(fig)) {
-    //    MG1::Point p;
-    //    p.position = CAD::serializeVec3(fig->GetPosition());
-    //    p.name = fig->name;
-    //    scene.points.push_back(p);
-    //    pointIds.push_back(p.GetId());
-    //  } else {
-    //    // add toruses
-    //    MG1::Torus t;
-    //    Torus *torus = dynamic_cast<Torus*>(fig);
-    //    t.position = CAD::serializeVec3(torus->GetPosition());
-    //    t.largeRadius = torus->R1;
-    //    t.smallRadius = torus->R2;
-    //    t.samples.x = torus->n1;
-    //    t.samples.y = torus->n2;
-    //    t.rotation = CAD::serializeVec3(torus->GetAngle());
-    //    t.scale = CAD::serializeVec3(torus->GetScale());
-    //    t.name = torus->name;
-    //    scene.tori.push_back(t);
-    //  }
-    //}
 
     for (int i = 0; i < figures.size(); i++)
     {

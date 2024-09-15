@@ -14,6 +14,9 @@ protected:
 public:
     int division = 4;
 
+	int uSize = -1, vSize = -1;
+    bool uWrapped = false, vWrapped = false;
+
 	SurfaceC0(glm::vec3 position, std::string name = "Surface C0");
 
 	void Render(int colorLoc, int modelLoc, bool grayscale);

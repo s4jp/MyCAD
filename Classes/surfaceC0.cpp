@@ -3,6 +3,9 @@
 
 std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width)
 {
+	uSize = xSegments;
+	vSize = zSegments;
+
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
 	float patchWidth = width / zSegments;
@@ -42,7 +45,11 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 	return newPoints;
 }
 
-std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height) {
+std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height) 
+{
+	uSize = xSegments;
+	vSize = zSegments;
+
 	float patchRadius = 2 * M_PI / xSegments;
 	float patchRadiusStep = patchRadius / 3.f;
 	float patchHeight = height / zSegments;
@@ -103,12 +110,11 @@ void SurfaceC0::AddPatch(BicubicPatch *patch) { patches.push_back(patch); }
 int SurfaceC0::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::BezierSurfaceC0 s;
   s.name = name;
-  // to change
-  s.vWrapped = false;
-  s.uWrapped = false;
-  s.size.x = patches.size() / 2;
-  s.size.y = patches.size() / s.size.x;
-  // end
+  s.uWrapped = this->uWrapped;
+  s.vWrapped = this->vWrapped;
+  s.size.x = uSize;
+  s.size.y = vSize;
+
   for (int i = 0; i < patches.size(); i++) 
   {
 	std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
