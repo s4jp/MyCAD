@@ -107,7 +107,7 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 
 void SurfaceC0::AddPatch(BicubicPatch *patch) { patches.push_back(patch); }
 
-int SurfaceC0::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::BezierSurfaceC0 s;
   s.name = name;
   s.uWrapped = this->uWrapped;

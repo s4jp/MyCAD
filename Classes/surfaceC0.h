@@ -31,5 +31,5 @@ public:
 	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height);
 
 	void AddPatch(BicubicPatch *patch);
-    int addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs);
+    int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
 };

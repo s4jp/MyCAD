@@ -1309,7 +1309,7 @@ void saveScene()
 
     for (int i = 0; i < figures.size(); i++)
     {
-      int retVal = figures[i]->addToMG1Scene(scene);
+      int retVal = figures[i]->Serialize(scene);
       if (retVal != -1)
         pointIds.push_back(std::tuple < int, uint32_t>(i, retVal));
     }
@@ -1328,7 +1328,7 @@ void saveScene()
         }
       }
 
-      curv->addToMG1Scene(scene, cpIdxs);
+      curv->Serialize(scene, cpIdxs);
     }
      
     for (SurfaceC0 *surf : surfaces) 
@@ -1345,6 +1345,6 @@ void saveScene()
         }
       }
 
-      surf->addToMG1Scene(scene, cpIdxs);
+      surf->Serialize(scene, cpIdxs);
     }
 }

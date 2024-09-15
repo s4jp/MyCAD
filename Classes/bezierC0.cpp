@@ -119,7 +119,7 @@ void BezierC0::ClearControlPoints() {
   RefreshBuffers();
 }
 
-int BezierC0::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
+int BezierC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
 { 
     MG1::BezierC0 b;
     b.name = name;

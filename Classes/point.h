@@ -10,7 +10,7 @@ public:
 
   void Render(int colorLoc, int modelLoc, bool grayscale);
   bool GetBoundingSphere(CAD::Sphere &sphere);
-  int addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs);
+  int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
   void CalculateModelMatrix() override;
 
 private:

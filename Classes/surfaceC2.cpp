@@ -108,7 +108,7 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 	return newPoints;
 }
 
-int SurfaceC2::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+int SurfaceC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::BezierSurfaceC2 s;
   s.name = name;
   s.uWrapped = this->uWrapped;

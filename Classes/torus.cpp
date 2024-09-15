@@ -105,7 +105,7 @@ bool Torus::CreateImgui()
     return change;
 }
 
-int Torus::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
+int Torus::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
 { 
   MG1::Torus t;
   t.position = CAD::serializeVec3(this->GetPosition());

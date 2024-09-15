@@ -33,5 +33,4 @@ public:
 
 	std::vector<Figure*> GetControlPoints() { return controlPoints; };
 	void RefreshBuffers();
-    int addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs);
 };

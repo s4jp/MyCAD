@@ -267,6 +267,8 @@ public:
   }
   void static zeroCounter() { counter = 0; }
 
-  int virtual addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs =
-                                                   std::vector<uint32_t>()) = 0;
+  int virtual Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs =
+                                               std::vector<uint32_t>()) {
+    return -1;
+  };
 };

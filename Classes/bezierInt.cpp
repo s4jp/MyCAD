@@ -12,7 +12,7 @@ void BezierInt::Render(int colorLoc, int modelLoc, bool grayscale) {
   bSpline->Render(colorLoc, modelLoc, grayscale);
 }
 
-int BezierInt::addToMG1Scene(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+int BezierInt::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::InterpolatedC2 b;
   b.name = name;
   for (auto cpIdx : cpsIdxs) {
