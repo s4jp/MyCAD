@@ -1274,6 +1274,13 @@ void loadScene() {
         tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
         tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps);
     surfaces.push_back(s);
+
+    std::cout << "'" << s->name << "' (C0): " << std::endl;
+    std::cout << (s->uSize == s->Usize() ? "OK " : "WRONG ")
+              << "u size: " << s->uSize << "/" << s->Usize() << std::endl;
+    std::cout << (s->vSize == s->Vsize() ? "OK " : "WRONG ")
+              << "v size: " << s->vSize << "/" << s->Vsize() << std::endl
+              << std::endl;
   }
 
   // import surface C2
@@ -1295,6 +1302,13 @@ void loadScene() {
         tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
         tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps);
     surfaces.push_back(s);
+
+    std::cout << "'" << s->name << "' (C2): " << std::endl;
+    std::cout << (s->uSize == s->Usize() ? "OK " : "WRONG ")
+              << "u size: " << s->uSize << "/" << s->Usize() << std::endl;
+    std::cout << (s->vSize == s->Vsize() ? "OK " : "WRONG ")
+              << "v size: " << s->vSize << "/" << s->Vsize() << std::endl
+              << std::endl;
   }
 }
 

@@ -146,6 +146,29 @@ void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
   }
 }
 
+int SurfaceC0::CalcSize(int i, int j) 
+{ 
+if (patches.size() == 0)
+    return 0;
+
+  int counter = 1;
+  Figure *cpToCheck = patches[0]->GetControlPoints()[i];
+
+  for (int k = 1; k < patches.size(); k++) {
+    Figure *currentCp = patches[k]->GetControlPoints()[j];
+    if (cpToCheck == currentCp) {
+      counter++;
+      cpToCheck = patches[k]->GetControlPoints()[i];
+    }
+  }
+
+  return counter;
+}
+
+int SurfaceC0::Usize() { return CalcSize(3, 0); }
+
+int SurfaceC0::Vsize() { return CalcSize(12, 0); }
+
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 

@@ -12,6 +12,8 @@ protected:
 	bool showMesh = false;
 	int division = 4;
 
+	int CalcSize(int i, int j);
+
 public:
 	int uSize = -1, vSize = -1;
     bool uWrapped = false, vWrapped = false;
@@ -31,4 +33,7 @@ public:
 
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
     void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps);
+
+	int virtual Usize();
+    int virtual Vsize();
 };

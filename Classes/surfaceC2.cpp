@@ -148,3 +148,7 @@ void SurfaceC2::CreateFromControlPoints(int cpCount, int segmentCountLoc,
         bsplineLoc, true, cpsPatch, &this->division));
   }
 }
+
+int SurfaceC2::Usize() { return CalcSize(1, 0); }
+
+int SurfaceC2::Vsize() { return CalcSize(4, 0); }
