@@ -28,7 +28,7 @@
 		},
 		{
 			"objectType": "bezierSurfaceC0",
-			"name": "Surface C0 #175",
+			"name": "top fin",
 			"id": 168,
 			"patches": [
 				{
@@ -151,17 +151,17 @@
 				}
 			],
 			"parameterWrapped": {
-				"u": false,
+				"u": true,
 				"v": false
 			},
 			"size": {
-				"x": 1,
-				"y": 2
+				"x": 2,
+				"y": 1
 			}
 		},
 		{
 			"objectType": "bezierSurfaceC0",
-			"name": "Surface C0 #172",
+			"name": "side fins",
 			"id": 171,
 			"patches": [
 				{
@@ -520,17 +520,17 @@
 				}
 			],
 			"parameterWrapped": {
-				"u": false,
+				"u": true,
 				"v": false
 			},
 			"size": {
-				"x": 3,
-				"y": 2
+				"x": 2,
+				"y": 3
 			}
 		},
 		{
 			"objectType": "bezierSurfaceC2",
-			"name": "Surface C2 #1",
+			"name": "torso",
 			"id": 178,
 			"patches": [
 				{
@@ -2659,17 +2659,17 @@
 				}
 			],
 			"parameterWrapped": {
-				"u": false,
+				"u": true,
 				"v": false
 			},
 			"size": {
-				"x": 18,
-				"y": 2
+				"x": 6,
+				"y": 6
 			}
 		},
 		{
 			"objectType": "bezierSurfaceC2",
-			"name": "Surface C2 #371",
+			"name": "tail",
 			"id": 215,
 			"patches": [
 				{
@@ -3618,12 +3618,12 @@
 				}
 			],
 			"parameterWrapped": {
-				"u": false,
+				"u": true,
 				"v": false
 			},
 			"size": {
-				"x": 8,
-				"y": 2
+				"x": 4,
+				"y": 4
 			}
 		}
 	],
