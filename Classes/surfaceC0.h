@@ -13,11 +13,10 @@ protected:
 	int division = 4;
 
 	int CalcSize(int i, int j);
+    bool CheckWrappedU(int i, int j);
+    bool CheckWrappedV(int i, int j);
 
 public:
-	int uSize = -1, vSize = -1;
-    bool uWrapped = false, vWrapped = false;
-
 	SurfaceC0(glm::vec3 position, std::string name = "Surface C0");
 
 	void Render(int colorLoc, int modelLoc, bool grayscale);
@@ -34,6 +33,9 @@ public:
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
     void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps);
 
-	int virtual Usize();
-    int virtual Vsize();
+	int virtual CalcSizeU();
+    int virtual CalcSizeV();
+
+	bool virtual IsWrappedU();
+    bool virtual IsWrappedV();
 };

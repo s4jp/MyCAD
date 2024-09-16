@@ -5,9 +5,6 @@ SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position,
 
 std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width)
 {
-	uSize = xSegments;
-	vSize = zSegments;
-
 	int lengthSegmentCount = xSegments + 2;
 	float segmentLength = length / lengthSegmentCount;
 	int widthSegmentCount = zSegments + 2;
@@ -50,9 +47,6 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 
 std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height)
 {
-	uSize = xSegments;
-	vSize = zSegments;
-
 	float segmentRadius = M_PI * 2.f / xSegments;
 	int heightSegmentCount = zSegments + 2;
 	float segmentHeight = height / heightSegmentCount;
@@ -111,10 +105,10 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 int SurfaceC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::BezierSurfaceC2 s;
   s.name = name;
-  s.uWrapped = this->uWrapped;
-  s.vWrapped = this->vWrapped;
-  s.size.x = uSize;
-  s.size.y = vSize;
+  s.uWrapped = this->IsWrappedU();
+  s.vWrapped = this->IsWrappedV();
+  s.size.x = this->CalcSizeU();
+  s.size.y = this->CalcSizeV();
 
   for (int i = 0; i < patches.size(); i++) {
     std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
@@ -149,6 +143,10 @@ void SurfaceC2::CreateFromControlPoints(int cpCount, int segmentCountLoc,
   }
 }
 
-int SurfaceC2::Usize() { return CalcSize(1, 0); }
+int SurfaceC2::CalcSizeU() { return CalcSize(1, 0); }
 
-int SurfaceC2::Vsize() { return CalcSize(4, 0); }
+int SurfaceC2::CalcSizeV() { return CalcSize(4, 0); }
+
+bool SurfaceC2::IsWrappedU() { return CheckWrappedU(1, 0); }
+
+bool SurfaceC2::IsWrappedV() { return CheckWrappedV(4, 0); }

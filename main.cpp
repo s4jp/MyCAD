@@ -1259,10 +1259,6 @@ void loadScene() {
   for (auto &surfC0 : scene.surfacesC0) {
     SurfaceC0 *s = new SurfaceC0(glm::vec3(0.f));
     s->name = surfC0.name;
-    s->uSize = surfC0.size.x;
-    s->vSize = surfC0.size.y;
-    s->uWrapped = surfC0.uWrapped;
-    s->vWrapped = surfC0.vWrapped;
 
     std::vector<Figure*> cps = std::vector<Figure*>();
     for (auto &patch : surfC0.patches)
@@ -1274,23 +1270,11 @@ void loadScene() {
         tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
         tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps);
     surfaces.push_back(s);
-
-    std::cout << "'" << s->name << "' (C0): " << std::endl;
-    std::cout << (s->uSize == s->Usize() ? "OK " : "WRONG ")
-              << "u size: " << s->uSize << "/" << s->Usize() << std::endl;
-    std::cout << (s->vSize == s->Vsize() ? "OK " : "WRONG ")
-              << "v size: " << s->vSize << "/" << s->Vsize() << std::endl
-              << std::endl;
   }
 
   // import surface C2
   for (auto &surfC2 : scene.surfacesC2) {
     SurfaceC2 *s = new SurfaceC2(glm::vec3(0.f));
-    s->name = surfC2.name;
-    s->uSize = surfC2.size.x;
-    s->vSize = surfC2.size.y;
-    s->uWrapped = surfC2.uWrapped;
-    s->vWrapped = surfC2.vWrapped;
     
      std::vector<Figure*> cps = std::vector<Figure*>();
     for (auto &patch : surfC2.patches)
@@ -1302,13 +1286,6 @@ void loadScene() {
         tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
         tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps);
     surfaces.push_back(s);
-
-    std::cout << "'" << s->name << "' (C2): " << std::endl;
-    std::cout << (s->uSize == s->Usize() ? "OK " : "WRONG ")
-              << "u size: " << s->uSize << "/" << s->Usize() << std::endl;
-    std::cout << (s->vSize == s->Vsize() ? "OK " : "WRONG ")
-              << "v size: " << s->vSize << "/" << s->Vsize() << std::endl
-              << std::endl;
   }
 }
 

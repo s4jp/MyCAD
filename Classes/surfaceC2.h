@@ -15,6 +15,9 @@ public:
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
     void CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure *> cps) override;
 
-	int Usize() override;
-    int Vsize() override;
+	int CalcSizeU() override;
+    int CalcSizeV() override;
+
+	bool IsWrappedU() override;
+    bool IsWrappedV() override;
 };
