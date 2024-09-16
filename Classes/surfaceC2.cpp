@@ -128,5 +128,5 @@ int SurfaceC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
     s.patches.push_back(p);
   }
   scene.surfacesC2.push_back(s);
-  return 69;
+  return -1;
 }

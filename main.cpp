@@ -1182,7 +1182,7 @@ void loadScene() {
   curves.clear();
   surfaces.clear();
 
-  Figure::zeroCounter();
+  Figure::ZeroCounter();
 
   // load scene
   auto &scene = MG1::Scene::Get();
@@ -1306,45 +1306,30 @@ void saveScene()
     scene.Clear();
 
     std::vector<std::tuple<int,uint32_t>> pointIds;
-
     for (int i = 0; i < figures.size(); i++)
     {
       int retVal = figures[i]->Serialize(scene);
       if (retVal != -1)
-        pointIds.push_back(std::tuple < int, uint32_t>(i, retVal));
+        pointIds.push_back(std::tuple <int, uint32_t>(i, retVal));
     }
+
+    auto findPointIndexes = [&](std::vector<Figure*> cps) 
+    {
+      std::vector<uint32_t> cpIdxs;
+      for (int i = 0; i < cps.size(); i++) {
+        for (int j = 0; j < pointIds.size(); j++) {
+          if (cps[i] == figures[std::get<0>(pointIds[j])]) {
+            cpIdxs.push_back(std::get<1>(pointIds[j]));
+            break;
+          }
+        }
+      }
+      return cpIdxs;
+    };
 
     for (BezierC0* curv : curves)
-    {
-      std::vector<Figure *> cps = curv->GetControlPoints();
-
-      std::vector<uint32_t> cpIdxs;
-      for (int i = 0; i < cps.size(); i++) {
-        for (int j = 0; j < pointIds.size(); j++) {
-          if (cps[i] == figures[std::get<0>(pointIds[j])]) {
-            cpIdxs.push_back(std::get<1>(pointIds[j]));
-            break;
-          }
-        }
-      }
-
-      curv->Serialize(scene, cpIdxs);
-    }
+      curv->Serialize(scene, findPointIndexes(curv->GetControlPoints()));
      
     for (SurfaceC0 *surf : surfaces) 
-    {
-      std::vector<Figure*> cps = surf->GetControlPoints();
-
-      std::vector<uint32_t> cpIdxs;
-      for (int i = 0; i < cps.size(); i++) {
-        for (int j = 0; j < pointIds.size(); j++) {
-          if (cps[i] == figures[std::get<0>(pointIds[j])]) {
-            cpIdxs.push_back(std::get<1>(pointIds[j]));
-            break;
-          }
-        }
-      }
-
-      surf->Serialize(scene, cpIdxs);
-    }
+      surf->Serialize(scene, findPointIndexes(surf->GetControlPoints()));
 }

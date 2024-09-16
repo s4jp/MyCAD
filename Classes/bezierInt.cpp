@@ -12,14 +12,15 @@ void BezierInt::Render(int colorLoc, int modelLoc, bool grayscale) {
   bSpline->Render(colorLoc, modelLoc, grayscale);
 }
 
-int BezierInt::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+int BezierInt::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
+{
   MG1::InterpolatedC2 b;
   b.name = name;
   for (auto cpIdx : cpsIdxs) {
     b.controlPoints.push_back(cpIdx);
   }
   scene.interpolatedC2.push_back(b);
-  return 69;
+  return -1;
 }
 
 std::tuple<std::vector<GLfloat>, std::vector<GLuint>>

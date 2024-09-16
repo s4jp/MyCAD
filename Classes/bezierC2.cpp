@@ -133,12 +133,13 @@ void BezierC2::CreateBsplineImgui() {
   }
 }
 
-int BezierC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+int BezierC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
+{
   MG1::BezierC2 b;
   b.name = name;
   for (auto cpIdx : cpsIdxs) {
     b.controlPoints.push_back(cpIdx);
   }
   scene.bezierC2.push_back(b);
-  return 69;
+  return -1;
 }

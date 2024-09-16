@@ -6,7 +6,6 @@
 #include "Camera.h"
 #include <tuple>
 #include <Utils/Float3.h>
-#include <Models/PointRef.h>
 
 namespace CAD 
 {

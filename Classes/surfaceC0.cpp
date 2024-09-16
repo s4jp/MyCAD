@@ -128,7 +128,7 @@ int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
    s.patches.push_back(p);
   }
   scene.surfacesC0.push_back(s);
-  return 69;
+  return -1;
 }
 
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)

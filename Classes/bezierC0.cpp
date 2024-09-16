@@ -127,5 +127,5 @@ int BezierC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs)
       b.controlPoints.push_back(cpIdx);
     }
     scene.bezierC0.push_back(b);
-    return 69; 
+    return -1; 
 }
