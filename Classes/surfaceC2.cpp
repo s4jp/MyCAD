@@ -38,10 +38,10 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
-                                      segmentIdxLoc, divisionLoc,
-                                      otherAxisLoc, bsplineLoc,
-                                      true, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, true, cps,
+                &this->division));
 		}
 	}
 
@@ -98,10 +98,10 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
-                                      segmentIdxLoc, divisionLoc,
-                                      otherAxisLoc, bsplineLoc,
-                                      true, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, true, cps,
+                &this->division));
 		}
 	}
 
@@ -129,4 +129,22 @@ int SurfaceC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   }
   scene.surfacesC2.push_back(s);
   return -1;
+}
+
+void SurfaceC2::CreateFromControlPoints(int cpCount, int segmentCountLoc,
+                                        int segmentIdxLoc, int divisionLoc,
+                                        int otherAxisLoc, int bsplineLoc,
+                                        std::vector<Figure *> cps) 
+{
+  if (cps.size() % 16 != 0)
+    return;
+
+  int patchCount = cps.size() / 16;
+  for (int i = 0; i < patchCount; i++) {
+    std::vector<Figure *> cpsPatch(cps.begin() + i * 16,
+                                   cps.begin() + i * 16 + 16);
+    this->patches.push_back(new BicubicPatch(
+        cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc,
+        bsplineLoc, true, cpsPatch, &this->division));
+  }
 }

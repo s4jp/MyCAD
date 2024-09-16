@@ -10,10 +10,9 @@ class SurfaceC0 : public Figure
 protected:
 	std::vector<BicubicPatch*> patches = std::vector<BicubicPatch*>();
 	bool showMesh = false;
+	int division = 4;
 
 public:
-    int division = 4;
-
 	int uSize = -1, vSize = -1;
     bool uWrapped = false, vWrapped = false;
 
@@ -30,6 +29,6 @@ public:
 	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width);
 	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height);
 
-	void AddPatch(BicubicPatch *patch);
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
+    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps);
 };

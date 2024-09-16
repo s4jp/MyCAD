@@ -1263,17 +1263,16 @@ void loadScene() {
     s->vSize = surfC0.size.y;
     s->uWrapped = surfC0.uWrapped;
     s->vWrapped = surfC0.vWrapped;
-    for (auto &patch : surfC0.patches) {
-      std::vector<Figure*> cps = std::vector<Figure*>();
-      for (auto &idx : patch.controlPoints) {
+
+    std::vector<Figure*> cps = std::vector<Figure*>();
+    for (auto &patch : surfC0.patches)
+      for (auto &idx : patch.controlPoints)
         cps.push_back(findPointById(idx));
-      }
-      s->AddPatch(
-          new BicubicPatch(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
-                           tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-                           tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc,
-                           false, cps, &s->division));
-    }
+
+    s->CreateFromControlPoints(
+        tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
+        tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps);
     surfaces.push_back(s);
   }
 
@@ -1285,17 +1284,16 @@ void loadScene() {
     s->vSize = surfC2.size.y;
     s->uWrapped = surfC2.uWrapped;
     s->vWrapped = surfC2.vWrapped;
-    for (auto &patch : surfC2.patches) {
-      std::vector<Figure *> cps = std::vector<Figure *>();
-      for (auto &idx : patch.controlPoints) {
+    
+     std::vector<Figure*> cps = std::vector<Figure*>();
+    for (auto &patch : surfC2.patches)
+      for (auto &idx : patch.controlPoints)
         cps.push_back(findPointById(idx));
-      }
-      s->AddPatch(
-          new BicubicPatch(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
-                           tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-                           tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, true,
-                           cps, &s->division));
-    }
+
+    s->CreateFromControlPoints(
+        tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
+        tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
+        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps);
     surfaces.push_back(s);
   }
 }

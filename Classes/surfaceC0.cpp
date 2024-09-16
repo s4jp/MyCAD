@@ -36,10 +36,10 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
-                                      segmentIdxLoc, divisionLoc,
-                                      otherAxisLoc, bsplineLoc,
-                                      false, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
+                &this->division));
 		}
 	}
 	return newPoints;
@@ -95,17 +95,15 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-            AddPatch(new BicubicPatch(cpCount, segmentCountLoc,
-                                      segmentIdxLoc, divisionLoc,
-                                      otherAxisLoc, bsplineLoc,
-                                      false, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
+                &this->division));
 		}
 	}
 
 	return newPoints;
 }
-
-void SurfaceC0::AddPatch(BicubicPatch *patch) { patches.push_back(patch); }
 
 int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   MG1::BezierSurfaceC0 s;
@@ -129,6 +127,23 @@ int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   }
   scene.surfacesC0.push_back(s);
   return -1;
+}
+
+void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
+                                        int segmentIdxLoc, int divisionLoc,
+                                        int otherAxisLoc, int bsplineLoc,
+                                        std::vector<Figure*> cps) 
+{
+  if (cps.size() % 16 != 0) return;
+
+  int patchCount = cps.size() / 16;
+  for (int i = 0; i < patchCount; i++) {
+    std::vector<Figure *> cpsPatch(cps.begin() + i * 16,
+                                   cps.begin() + i * 16 + 16);
+    this->patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc,
+                              divisionLoc, otherAxisLoc, bsplineLoc, false,
+                              cpsPatch, &this->division));
+  }
 }
 
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
