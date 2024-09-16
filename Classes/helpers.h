@@ -5,6 +5,7 @@
 #include <string>
 #include "Camera.h"
 #include <tuple>
+#include <Utils/Float3.h>
 
 namespace CAD 
 {
@@ -49,4 +50,6 @@ namespace CAD
     glm::mat4 frustum(float left, float right, float bottom, float top,
                       float near, float far);
     void displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right);
+    glm::vec3 deserializeVec3(MG1::Float3 vec);
+    MG1::Float3 serializeVec3(glm::vec3 vec);
  }

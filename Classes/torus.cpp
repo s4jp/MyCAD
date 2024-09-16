@@ -104,3 +104,18 @@ bool Torus::CreateImgui()
 
     return change;
 }
+
+int Torus::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) 
+{ 
+  MG1::Torus t;
+  t.position = CAD::serializeVec3(this->GetPosition());
+  t.largeRadius = R1;
+  t.smallRadius = R2;
+  t.samples.x = n1;
+  t.samples.y = n2;
+  t.rotation = CAD::serializeVec3(this->GetAngle());
+  t.scale = CAD::serializeVec3(this->GetScale());
+  t.name = name;
+  scene.tori.push_back(t);
+  return -1;
+}

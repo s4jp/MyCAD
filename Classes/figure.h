@@ -10,6 +10,8 @@
 #include <string>
 #include"imgui.h"
 
+#include <Serializer.h>
+
 class Figure
 {
 private:
@@ -156,7 +158,7 @@ public:
     vbo.Delete();
     ebo.Delete();
   }
-  void CalculateModelMatrix() {
+  void virtual CalculateModelMatrix() {
     glm::mat4 translateM =
         CAD::translate(glm::mat4(1.0f), GetPosition());
     glm::mat4 rotateM = CAD::rotate(glm::mat4(1.0f), GetAngle());
@@ -263,4 +265,10 @@ public:
 
     CalculateModelMatrix();
   }
+  void static ZeroCounter() { counter = 0; }
+
+  int virtual Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs =
+                                               std::vector<uint32_t>()) {
+    return -1;
+  };
 };

@@ -13,4 +13,5 @@ public:
     void RenderPolyline(int colorLoc, int modelLoc, bool grayscale) override;
     bool CreateImgui() override;
     void CreateBsplineImgui() override;
+    int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
 };

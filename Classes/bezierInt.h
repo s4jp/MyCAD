@@ -15,4 +15,5 @@ public:
               const char *name = "Bezier Int");
 
 	void Render(int colorLoc, int modelLoc, bool grayscale) override;
+    int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
 };

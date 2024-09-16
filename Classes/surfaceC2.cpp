@@ -35,8 +35,10 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, true, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, true, cps,
+                &this->division));
 		}
 	}
 
@@ -90,10 +92,61 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, true, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, true, cps,
+                &this->division));
 		}
 	}
 
 	return newPoints;
 }
+
+int SurfaceC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+  MG1::BezierSurfaceC2 s;
+  s.name = name;
+  s.uWrapped = this->IsWrappedU();
+  s.vWrapped = this->IsWrappedV();
+  s.size.x = this->CalcSizeU();
+  s.size.y = this->CalcSizeV();
+
+  for (int i = 0; i < patches.size(); i++) {
+    std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
+                                       cpsIdxs.begin() + i * 16 + 16);
+    MG1::BezierPatchC2 p;
+    p.samples.x = division;
+    p.samples.y = division;
+    for (int j = 0; j < cpsIdxsPatch.size(); j++)
+      p.controlPoints.push_back(cpsIdxsPatch[j]);
+    ;
+    s.patches.push_back(p);
+  }
+  scene.surfacesC2.push_back(s);
+  return -1;
+}
+
+void SurfaceC2::CreateFromControlPoints(int cpCount, int segmentCountLoc,
+                                        int segmentIdxLoc, int divisionLoc,
+                                        int otherAxisLoc, int bsplineLoc,
+                                        std::vector<Figure *> cps) 
+{
+  if (cps.size() % 16 != 0)
+    return;
+
+  int patchCount = cps.size() / 16;
+  for (int i = 0; i < patchCount; i++) {
+    std::vector<Figure *> cpsPatch(cps.begin() + i * 16,
+                                   cps.begin() + i * 16 + 16);
+    this->patches.push_back(new BicubicPatch(
+        cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc,
+        bsplineLoc, true, cpsPatch, &this->division));
+  }
+}
+
+int SurfaceC2::CalcSizeU() { return CalcSize(1, 0); }
+
+int SurfaceC2::CalcSizeV() { return CalcSize(4, 0); }
+
+bool SurfaceC2::IsWrappedU() { return CheckWrappedU(1, 0); }
+
+bool SurfaceC2::IsWrappedV() { return CheckWrappedV(4, 0); }

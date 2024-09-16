@@ -33,14 +33,17 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, false, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
+                &this->division));
 		}
 	}
 	return newPoints;
 }
 
-std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height) {
+std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height) 
+{
 	float patchRadius = 2 * M_PI / xSegments;
 	float patchRadiusStep = patchRadius / 3.f;
 	float patchHeight = height / zSegments;
@@ -86,13 +89,101 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
-
-			patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, false, cps, &this->division));
+            this->patches.push_back(new BicubicPatch(
+                cpCount, segmentCountLoc, segmentIdxLoc,
+                divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
+                &this->division));
 		}
 	}
 
 	return newPoints;
 }
+
+int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
+  MG1::BezierSurfaceC0 s;
+  s.name = name;
+  s.uWrapped = this->IsWrappedU();
+  s.vWrapped = this->IsWrappedV();
+  s.size.x = this->CalcSizeU();
+  s.size.y = this->CalcSizeV();
+
+  for (int i = 0; i < patches.size(); i++) 
+  {
+	std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
+                                       cpsIdxs.begin() + i * 16 + 16);
+    MG1::BezierPatchC0 p;
+    p.samples.x = division;
+    p.samples.y = division;
+    for (int j = 0; j < cpsIdxsPatch.size(); j++) 
+		p.controlPoints.push_back(cpsIdxsPatch[j]);
+;
+   s.patches.push_back(p);
+  }
+  scene.surfacesC0.push_back(s);
+  return -1;
+}
+
+void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
+                                        int segmentIdxLoc, int divisionLoc,
+                                        int otherAxisLoc, int bsplineLoc,
+                                        std::vector<Figure*> cps) 
+{
+  if (cps.size() % 16 != 0) return;
+
+  int patchCount = cps.size() / 16;
+  for (int i = 0; i < patchCount; i++) {
+    std::vector<Figure *> cpsPatch(cps.begin() + i * 16,
+                                   cps.begin() + i * 16 + 16);
+    this->patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc,
+                              divisionLoc, otherAxisLoc, bsplineLoc, false,
+                              cpsPatch, &this->division));
+  }
+}
+
+int SurfaceC0::CalcSize(int i, int j) 
+{ 
+if (patches.size() == 0)
+    return 0;
+
+  int counter = 1;
+  Figure *cpToCheck = patches[0]->GetControlPoints()[i];
+
+  for (int k = 1; k < patches.size(); k++) {
+    Figure *currentCp = patches[k]->GetControlPoints()[j];
+    if (cpToCheck == currentCp) {
+      counter++;
+      cpToCheck = patches[k]->GetControlPoints()[i];
+    }
+  }
+
+  return counter;
+}
+
+bool SurfaceC0::CheckWrappedU(int i, int j) 
+{
+  if (patches.size() == 0)
+    return false;
+
+  return patches[0]->GetControlPoints()[j] ==
+         patches[this->CalcSizeU() - 1]->GetControlPoints()[i];
+}
+
+bool SurfaceC0::CheckWrappedV(int i, int j) {
+  if (patches.size() == 0)
+    return false;
+
+  return patches[0]->GetControlPoints()[j] ==
+         patches[this->CalcSizeU() * (this->CalcSizeV() - 1)]
+             ->GetControlPoints()[i];
+}
+
+int SurfaceC0::CalcSizeU() { return CalcSize(3, 0); }
+
+int SurfaceC0::CalcSizeV() { return CalcSize(12, 0); }
+
+bool SurfaceC0::IsWrappedU() { return CheckWrappedU(3, 0); }
+
+bool SurfaceC0::IsWrappedV() { return CheckWrappedV(12, 0); }
 
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
 	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}

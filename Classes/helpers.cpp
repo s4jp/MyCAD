@@ -241,3 +241,15 @@ void CAD::displacemt(float eyeSeparation, glm::mat4 &left, glm::mat4 &right)
   right =
       CAD::translate(glm::mat4(1.f), glm::vec3(-eyeSeparation / 2.f, 0.f, 0.f));
 }
+
+glm::vec3 CAD::deserializeVec3(MG1::Float3 vec) {
+  return glm::vec3(vec.x, vec.y, vec.z);
+}
+
+MG1::Float3 CAD::serializeVec3(glm::vec3 vec) {
+  MG1::Float3 result;
+  result.x = vec.x;
+  result.y = vec.y;
+  result.z = vec.z;
+  return result;
+}
