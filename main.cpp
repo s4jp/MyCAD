@@ -32,6 +32,7 @@
 #include"SurfaceC2.h"
 
 #include <Serializer.h>
+#include <filesystem>
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -109,6 +110,7 @@ int tessSurfaceModelLoc, tessSurfaceViewLoc, tessSurfaceProjLoc,
     tessSurfaceDisplacementLoc;
 
 bool renderGrid = true;
+std::string serializerErrorMsg = "";
 
 int main() { 
     // initial values
@@ -875,24 +877,54 @@ int main() {
           ImGui::InputText("Target path", &filePath);
           if (ImGui::Button("Load")) {
             try {
+            if (!std::filesystem::exists(filePath))
+                throw std::exception("File does not exist!");
             serializer.LoadScene(filePath);
             loadScene();
+            ImGui::OpenPopup("LoadSuccessPopup");
             } catch (const std::exception &e) {
-              std::cerr << e.what() << std::endl;
-              // TODO: better error handling
+              serializerErrorMsg = e.what();
+              ImGui::OpenPopup("LoadSaveErrorPopup");
             }
-            std::cout << "Scene from '" << filePath << "' loaded" << std::endl;
           }
           ImGui::SameLine();
           if (ImGui::Button("Save")) {
             try {
+            if (std::filesystem::exists(filePath))
+                throw std::exception("File already exists!");
             saveScene();
             serializer.SaveScene(filePath);
+            ImGui::OpenPopup("SaveSuccessPopup");
             } catch (const std::exception &e) {
-              std::cerr << e.what() << std::endl;
-              // TODO: better error handling
+              serializerErrorMsg = e.what();
+              ImGui::OpenPopup("LoadSaveErrorPopup");
             }
-            std::cout << "Scene saved to '" << filePath << "'" << std::endl;
+          }
+
+          if (ImGui::BeginPopup("LoadSaveErrorPopup")) {
+            ImGui::Text(serializerErrorMsg.c_str());
+            if (ImGui::Button("OK")) {
+              ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+          }
+          if (ImGui::BeginPopup("LoadSuccessPopup")) {
+            ImGui::Text("Scene loaded from");
+            ImGui::SameLine();
+            ImGui::Text(filePath.c_str());
+            if (ImGui::Button("OK")) {
+              ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+          }
+          if (ImGui::BeginPopup("SaveSuccessPopup")) {
+            ImGui::Text("Scene saved to");
+            ImGui::SameLine();
+            ImGui::Text(filePath.c_str());
+            if (ImGui::Button("OK")) {
+              ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
           }
         }
 
