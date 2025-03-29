@@ -1,5 +1,7 @@
 #version 460 core
 
+const float eps = 0.0001f;
+
 layout (isolines) in;
 
 uniform mat4 proj;
@@ -32,10 +34,15 @@ void main()
 
     vec3 result;
 
-    vec3 F0 = (u * gl_in[6].gl_Position.xyz + v * gl_in[5].gl_Position.xyz) / (u + v);
-    vec3 F1 = (minU * gl_in[7].gl_Position.xyz + v * gl_in[8].gl_Position.xyz) / (minU + v);
-    vec3 F2 = (minU * gl_in[13].gl_Position.xyz + minV * gl_in[14].gl_Position.xyz) / (minU + minV);
-    vec3 F3 = (u * gl_in[12].gl_Position.xyz + minV * gl_in[11].gl_Position.xyz) / (u + minV);
+    // NaN work-around
+    vec3 F0 = (u + v > eps) ? (u * gl_in[6].gl_Position.xyz + v * gl_in[5].gl_Position.xyz) / (u + v)
+                               : gl_in[6].gl_Position.xyz;
+    vec3 F1 = (minU + v > eps) ? (minU * gl_in[7].gl_Position.xyz + v * gl_in[8].gl_Position.xyz) / (minU + v)
+                                  : gl_in[7].gl_Position.xyz;
+    vec3 F2 = (minU + minV > eps) ? (minU * gl_in[13].gl_Position.xyz + minV * gl_in[14].gl_Position.xyz) / (minU + minV)
+                                     : gl_in[13].gl_Position.xyz;
+    vec3 F3 = (u + minV > eps) ? (u * gl_in[12].gl_Position.xyz + minV * gl_in[11].gl_Position.xyz) / (u + minV)
+                                  : gl_in[12].gl_Position.xyz;
 
     vec3 p0 = gregory   ? gl_in[0].gl_Position.xyz  : gl_in[0].gl_Position.xyz;
     vec3 p1 = gregory   ? gl_in[4].gl_Position.xyz  : gl_in[1].gl_Position.xyz;
