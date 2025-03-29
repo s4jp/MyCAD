@@ -169,7 +169,7 @@ GregoryPatch::Calculate() const {
   return std::make_tuple(vertices, indices);
 }
 
-GregoryPatch::GregoryPatch(std::vector<Figure*> controlPoints, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int gregoryLocs)
+GregoryPatch::GregoryPatch(std::vector<Figure*> controlPoints, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int gregoryLoc)
     : Figure(InitializeAndCalculate(controlPoints, cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc, bsplineLoc, gregoryLoc), "Gregory patch", glm::vec3(0.f), true) {
   this->controlPoints = controlPoints;
 }

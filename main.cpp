@@ -1129,7 +1129,8 @@ int main() {
                   }
                 }
                 deselectSurfacesAndPatches();
-				GregoryPatch* gp = new GregoryPatch(gregoryPatchCps,
+				GregoryPatch* gp = new GregoryPatch(
+                    gregoryPatchCps,
 					tessSurfaceCpCountLoc,
 					tessSurfaceSegmentCountLoc,
 					tessSurfaceSegmentIdxLoc,
