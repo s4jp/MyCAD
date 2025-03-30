@@ -144,8 +144,11 @@ GregoryPatch::Calculate() const {
       G2.push_back((A + B[j]) / 2.f);
       G1.push_back((G0[j] + G2[j]) / 2.f);
 
-      // replace with Bezier interpolation
-      cps[7 + j + offset] = cps[baseIdx + offset] + (2.f * G1[j] + G2[j]) / 3.f;              // 7 & 8
+      glm::vec3 xd = 1.f/3.f    * 1.f/3.f   * G0[j] +
+                     2.0f       * 1.f/3.f   * 2.f/3.f   * G1[j] + 
+                     2.f/3.f    * 2.f/3.f   * G2[j];
+
+      cps[7 + j + offset] = cps[baseIdx + offset] + xd;           // 7 & 8
     }
   }
 
