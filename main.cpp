@@ -106,7 +106,7 @@ bool checkIfSelectedArePartOfSurfaceOrPatch();
 void recalculateSelectedSurfacesAndPatches();
 
 MG1::SceneSerializer serializer;
-std::string filePath = "Scenes\\gregory_simple.json";
+std::string filePath = "Scenes\\gregory_test_2024.json";
 
 int modelLoc, viewLoc, projLoc, colorLoc, displacementLoc;
 int tessModelLoc, tessViewLoc, tessProjLoc, tessColorLoc, tessCpCountLoc,
@@ -1082,7 +1082,31 @@ int main() {
                   return results;
                 };
 
-                std::vector<Figure *> gregoryPatchCps = std::vector<Figure *>();
+                auto areCircularlyEqual = [](const std::vector<Figure*>& v1, const std::vector<Figure*>& v2) -> bool {
+                    if (v1.size() != v2.size() || v1.empty()) return false;
+
+                    auto isRotation = [](const std::vector<Figure*>& original, const std::vector<Figure*>& candidate) -> bool {
+                        auto it = std::find(candidate.begin(), candidate.end(), original[0]);
+                        while (it != candidate.end()) {
+                            size_t index = std::distance(candidate.begin(), it);
+                            bool match = true;
+                            for (size_t i = 0; i < original.size(); ++i) {
+                                if (original[i] != candidate[(index + i) % candidate.size()]) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                            if (match) return true;
+                            it = std::find(it + 1, candidate.end(), original[0]);
+                        }
+                        return false;
+                    };
+    
+                    std::vector<Figure*> reversedV1(v1.rbegin(), v1.rend());
+                    return isRotation(v1, v2) || isRotation(reversedV1, v2);
+                };
+
+                std::vector<Figure*> gregoryPatchCps = std::vector<Figure *>();
 
                 for (int i = 0;
                      i < cycles[getSelectedCycleIdx()]->graph->vertices.size();
@@ -1138,6 +1162,20 @@ int main() {
                     }
                   }
                 }
+
+				// check if gregory patch already exists
+				bool exists = false;
+				for (int i = 0; i < patches.size(); i++) {
+					if (areCircularlyEqual(gregoryPatchCps, patches[i]->GetControlPoints())) {
+						exists = true;
+						break;
+					}
+				}
+
+                if (exists) {
+					ImGui::OpenPopup("ExistingPatch");
+                }
+                else {
                 deselectSurfacesAndPatches();
 				GregoryPatch* gp = new GregoryPatch(
                     gregoryPatchCps,
@@ -1151,7 +1189,15 @@ int main() {
 				gp->selected = true;
 				patches.push_back(gp);
 				selectedPatches.push_back(patches.size() - 1);
+                }
               }
+            }
+            if (ImGui::BeginPopup("ExistingPatch")) {
+                ImGui::Text("Area already has a Gregory patch.");
+                if (ImGui::Button("OK")) {
+                  ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
             }
           }
         }
