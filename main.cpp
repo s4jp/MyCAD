@@ -826,7 +826,12 @@ int main() {
               selectedSurfaces.size() == 0 && selectedPatches.size() == 0) {
             if (ImGui::Button("Merge selected")) 
             {
-              Figure *mergeResult = new Point(center->GetPosition());
+			  float avgR = 0;
+			  for (int i = 0; i < selected.size(); i++)
+                avgR += figures[selected[i]]->GetR();
+			  avgR /= selected.size();
+
+              Figure *mergeResult = new Point(center->GetPosition(), avgR);
               replaceCpsInCurves(mergeResult);
               replaceCpsInSurfaces(mergeResult);
               for (int i = selected.size() - 1; i >= 0; i--) {

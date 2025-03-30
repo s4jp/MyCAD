@@ -31,4 +31,5 @@ public:
   std::vector<Figure *> GetControlPoints() { return controlPoints; };
   void RefreshBuffers();
   bool ReplaceControlPoint(int idx, Figure *cp);
+  float GetR() { return 0; };
 };

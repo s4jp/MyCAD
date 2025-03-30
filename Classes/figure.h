@@ -273,4 +273,6 @@ public:
                                                std::vector<uint32_t>()) {
     return -1;
   };
+
+  virtual float GetR() = 0;
 };

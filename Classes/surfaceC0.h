@@ -43,4 +43,5 @@ public:
     bool virtual IsWrappedV();
 
 	bool ReplaceControlPoint(int idx, Figure *cp);
+	float GetR() { return 0; };
 };

@@ -21,4 +21,5 @@ private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> InitializeAndCalculate(Graph *graph);
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
   glm::vec4 GetAnimatedColor(bool grayscale);
+  float GetR() { return 0; };
 };
