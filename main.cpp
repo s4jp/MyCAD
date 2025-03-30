@@ -81,6 +81,7 @@ void loadScene();
 void saveScene();
 void replaceCpsInCurves(Figure *newCp);
 void replaceCpsInSurfaces(Figure *newCp);
+void replaceCpsInPatches(Figure* newCp);
 int getSelectedCycleIdx();
 
 glm::vec3 centerTranslation(0.f);
@@ -699,25 +700,27 @@ int main() {
 
           if ((((selectedCurveIdx != -1) != (selectedSurfaces.size() == 1)) != (selectedPatches.size() == 1)) && selected.size() == 0) {
             // delete complex figure with all its control points
-            ImGui::SameLine();
-            if (ImGui::Button("Delete with cps")) {
-                  std::vector<Figure*> cpsToDelete;
-              if (selectedCurveIdx != -1) {
-                cpsToDelete = curves[selectedCurveIdx]->GetControlPoints();
-                curves.erase(curves.begin() + selectedCurveIdx);
-                deselectCurve(true);
-              }
-              if (selectedSurfaces.size() == 1) {
-                cpsToDelete = surfaces[selectedSurfaces[0]]->GetControlPoints();
-                surfaces.erase(surfaces.begin() + selectedSurfaces[0]);
-                recalculateSelectedSurfacesAndPatches();
-              }
-              if (selectedPatches.size() == 1) {
-                  cpsToDelete = patches[selectedPatches[0]]->GetControlPoints();
-                  patches.erase(patches.begin() + selectedPatches[0]);
+            if (selectedPatches.size() == 0) {
+                ImGui::SameLine();
+                if (ImGui::Button("Delete with cps")) {
+                    std::vector<Figure*> cpsToDelete;
+                if (selectedCurveIdx != -1) {
+                  cpsToDelete = curves[selectedCurveIdx]->GetControlPoints();
+                  curves.erase(curves.begin() + selectedCurveIdx);
+                  deselectCurve(true);
+                }
+                if (selectedSurfaces.size() == 1) {
+                  cpsToDelete = surfaces[selectedSurfaces[0]]->GetControlPoints();
+                  surfaces.erase(surfaces.begin() + selectedSurfaces[0]);
                   recalculateSelectedSurfacesAndPatches();
+                }
+                if (selectedPatches.size() == 1) {
+                    cpsToDelete = patches[selectedPatches[0]]->GetControlPoints();
+                    patches.erase(patches.begin() + selectedPatches[0]);
+                    recalculateSelectedSurfacesAndPatches();
+                }
+			    deleteCpsIfFree(cpsToDelete);
               }
-			  deleteCpsIfFree(cpsToDelete);
             }
             // select all control points
             if (ImGui::Button("Select all cps")) {
@@ -834,6 +837,7 @@ int main() {
               Figure *mergeResult = new Point(center->GetPosition(), avgR);
               replaceCpsInCurves(mergeResult);
               replaceCpsInSurfaces(mergeResult);
+			  replaceCpsInPatches(mergeResult);
               for (int i = selected.size() - 1; i >= 0; i--) {
                 figures.erase(figures.begin() + selected[i]);
               }
@@ -1703,6 +1707,20 @@ void replaceCpsInSurfaces(Figure *newCp)
       }
     }
   }
+}
+
+void replaceCpsInPatches(Figure* newCp)
+{
+	for (int i = 0; i < selected.size(); i++) {
+		for (int j = 0; j < patches.size(); j++) {
+			std::vector<Figure*> cps = patches[j]->GetControlPoints();
+			for (int k = 0; k < cps.size(); k++) {
+				if (figures[selected[i]] == cps[k]) {
+					patches[j]->ReplaceControlPoint(k, newCp);
+				}
+			}
+		}
+	}
 }
 
 int getSelectedCycleIdx() {
