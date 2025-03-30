@@ -83,6 +83,7 @@ void replaceCpsInCurves(Figure *newCp);
 void replaceCpsInSurfaces(Figure *newCp);
 void replaceCpsInPatches(Figure* newCp);
 int getSelectedCycleIdx();
+void zeroScene();
 
 glm::vec3 centerTranslation(0.f);
 glm::vec3 centerScale(1.f);
@@ -1227,6 +1228,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
     if (key == GLFW_KEY_G && action == GLFW_PRESS)
       renderGrid = !renderGrid;
+
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+		zeroScene();
   }
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     clickingOutCurve = false;
@@ -1466,7 +1470,7 @@ void recalculateSelectedSurfacesAndPatches() {
   cycles.clear();
   for (auto cycle : foundCycles) {
     cycles.push_back(new Polyline(new Graph(*commonGraph, cycle)));
-  }
+                    }
   if (cycles.size() > 0) {
     cycles[0]->selected = true;
   }
@@ -1522,26 +1526,9 @@ void deleteCpsIfFree(std::vector<Figure*> cpsToDelete)
     recalculateSelected(true);
 }
 
-void loadScene() {
-  // clear selection
-  deselectFigures();
-  deselectCurve();
-  deselectSurfacesAndPatches();
-  recalculateCenter();
-
-  // remove figures
-  std::for_each(figures.begin(), figures.end(), [](Figure *f) { f->Delete(); });
-  std::for_each(curves.begin(), curves.end(), [](Figure *c) { c->Delete(); });
-  std::for_each(surfaces.begin(), surfaces.end(),
-                [](Figure *p) { p->Delete(); });
-  std::for_each(patches.begin(), patches.end(),
-	  [](Figure* p) { p->Delete(); });
-  figures.clear();
-  curves.clear();
-  surfaces.clear();
-  patches.clear();
-
-  Figure::ZeroCounter();
+void loadScene() 
+{
+  zeroScene();
 
   // load scene
   auto &scene = MG1::Scene::Get();
@@ -1730,4 +1717,27 @@ int getSelectedCycleIdx() {
     }
   }
   return -1;
+}
+
+void zeroScene()
+{
+  // clear selection
+  deselectFigures();
+  deselectCurve();
+  deselectSurfacesAndPatches();
+  recalculateCenter();
+
+  // remove figures
+  std::for_each(figures.begin(), figures.end(), [](Figure *f) { f->Delete(); });
+  std::for_each(curves.begin(), curves.end(), [](Figure *c) { c->Delete(); });
+  std::for_each(surfaces.begin(), surfaces.end(),
+                [](Figure *p) { p->Delete(); });
+  std::for_each(patches.begin(), patches.end(),
+	  [](Figure* p) { p->Delete(); });
+  figures.clear();
+  curves.clear();
+  surfaces.clear();
+  patches.clear();
+
+  Figure::ZeroCounter();
 }
