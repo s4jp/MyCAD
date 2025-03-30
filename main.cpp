@@ -1174,6 +1174,8 @@ int main() {
                   [](Figure *c) { c->Delete(); });
 	std::for_each(surfaces.begin(), surfaces.end(),
 		          [](Figure* p) { p->Delete(); });
+	std::for_each(patches.begin(), patches.end(),
+		          [](Figure* p) { p->Delete(); });
     shaderProgram.Delete();
     tessShaderProgram.Delete();
 	tessSurfaceShaderProgram.Delete();
@@ -1528,9 +1530,12 @@ void loadScene() {
   std::for_each(curves.begin(), curves.end(), [](Figure *c) { c->Delete(); });
   std::for_each(surfaces.begin(), surfaces.end(),
                 [](Figure *p) { p->Delete(); });
+  std::for_each(patches.begin(), patches.end(),
+	  [](Figure* p) { p->Delete(); });
   figures.clear();
   curves.clear();
   surfaces.clear();
+  patches.clear();
 
   Figure::ZeroCounter();
 
