@@ -313,7 +313,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) 
     {
         #pragma region init
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();

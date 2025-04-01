@@ -53,7 +53,7 @@ Polyline::Calculate() const {
 glm::vec4 Polyline::GetAnimatedColor(bool grayscale) {
   if (!selected) {
     // counter = 0;
-    return color * minIntensity;
+    return glm::make_vec4(background_color);
   }
 
   counter++;

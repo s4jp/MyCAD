@@ -10,9 +10,11 @@
 #include <glm/glm.hpp>
 #include <tuple>
 #include <string>
-#include"imgui.h"
+#include "imgui.h"
 
 #include <Serializer.h>
+
+constexpr float background_color[] = { 0.1f, 0.1f, 0.1f, 1.f};
 
 class Figure
 {
