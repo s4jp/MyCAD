@@ -1,4 +1,5 @@
 #pragma once
+#include "Graph.h"
 #include "figure.h"
 #include "bicubicPatch.h"
 
@@ -17,6 +18,8 @@ protected:
     bool CheckWrappedV(int i, int j);
 
 public:
+    Graph *ambit = new Graph();
+
 	SurfaceC0(glm::vec3 position, std::string name = "Surface C0");
 
 	void Render(int colorLoc, int modelLoc, bool grayscale);
@@ -27,15 +30,18 @@ public:
 	std::vector<Figure*> GetControlPoints();
 	void RefreshBuffers();
 
-	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width);
-	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height);
+	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc);
+	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc);
 
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
-    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps);
+    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps, int gregoryLoc);
 
 	int virtual CalcSizeU();
     int virtual CalcSizeV();
 
 	bool virtual IsWrappedU();
     bool virtual IsWrappedV();
+
+	bool ReplaceControlPoint(int idx, Figure *cp);
+	float GetR() { return 0; };
 };

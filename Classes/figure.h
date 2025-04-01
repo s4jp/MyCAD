@@ -1,5 +1,7 @@
 #pragma once
-#define _USE_MATH_DEFINES
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
@@ -8,9 +10,11 @@
 #include <glm/glm.hpp>
 #include <tuple>
 #include <string>
-#include"imgui.h"
+#include "imgui.h"
 
 #include <Serializer.h>
+
+constexpr float background_color[] = { 0.1f, 0.1f, 0.1f, 1.f};
 
 class Figure
 {
@@ -271,4 +275,6 @@ public:
                                                std::vector<uint32_t>()) {
     return -1;
   };
+
+  virtual float GetR() = 0;
 };

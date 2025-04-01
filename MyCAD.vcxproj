@@ -22,9 +22,9 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{bfeb9890-e817-427e-82ff-a335a155f0d7}</ProjectGuid>
-    <RootNamespace>MKMG</RootNamespace>
+    <RootNamespace>MyCAD</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>MKMG_CAD</ProjectName>
+    <ProjectName>MyCAD</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -150,9 +150,12 @@
     <ClCompile Include="Classes\cursor.cpp" />
     <ClCompile Include="Classes\EBO.cpp" />
     <ClCompile Include="Classes\figure.cpp" />
+    <ClCompile Include="Classes\Graph.cpp" />
+    <ClCompile Include="Classes\gregoryPatch.cpp" />
     <ClCompile Include="Classes\grid.cpp" />
     <ClCompile Include="Classes\helpers.cpp" />
     <ClCompile Include="Classes\point.cpp" />
+    <ClCompile Include="Classes\polyline.cpp" />
     <ClCompile Include="Classes\Shader.cpp" />
     <ClCompile Include="Classes\surfaceC0.cpp" />
     <ClCompile Include="Classes\surfaceC2.cpp" />
@@ -179,9 +182,12 @@
     <ClInclude Include="Classes\cursor.h" />
     <ClInclude Include="Classes\EBO.h" />
     <ClInclude Include="Classes\figure.h" />
+    <ClInclude Include="Classes\Graph.h" />
+    <ClInclude Include="Classes\gregoryPatch.h" />
     <ClInclude Include="Classes\grid.h" />
     <ClInclude Include="Classes\helpers.h" />
     <ClInclude Include="Classes\point.h" />
+    <ClInclude Include="Classes\polyline.h" />
     <ClInclude Include="Classes\Shader.h" />
     <ClInclude Include="Classes\surfaceC0.h" />
     <ClInclude Include="Classes\surfaceC2.h" />
