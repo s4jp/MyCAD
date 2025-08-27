@@ -112,3 +112,41 @@ void BicubicPatch::RenderTess(int colorLoc, int modelLoc, bool grayscale)
     vao.Unbind();
 }
 
+glm::vec3 BicubicPatch::GetValue(float u, float v)
+{
+    u = glm::clamp(u, 0.0f, 1.0f);
+    v = glm::clamp(v, 0.0f, 1.0f);
+
+    auto B = [](float t, int i) {
+        switch (i) {
+        case 0: return (1 - t) * (1 - t) * (1 - t);
+        case 1: return 3 * t * (1 - t) * (1 - t);
+        case 2: return 3 * t * t * (1 - t);
+        case 3: return t * t * t;
+        }
+        return 0.0f;
+        };
+
+    glm::vec3 p(0.0f);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            glm::vec3 cp = controlPoints[i * 4 + j]->GetPosition();
+            p += cp * B(u, i) * B(v, j);
+        }
+    }
+    return p;
+}
+
+glm::vec3 BicubicPatch::GetTangentU(float u, float v)
+{
+    glm::vec3 t = (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
+        / (2.0f * tangentEpsilon);
+    return glm::normalize(t);
+}
+
+glm::vec3 BicubicPatch::GetTangentV(float u, float v)
+{
+    glm::vec3 t = (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
+        / (2.0f * tangentEpsilon);
+    return glm::normalize(t);
+}

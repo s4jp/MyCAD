@@ -15,6 +15,7 @@
 #include <Serializer.h>
 
 constexpr float background_color[] = { 0.1f, 0.1f, 0.1f, 1.f};
+constexpr float tangentEpsilon = 1e-3f;
 
 class Figure
 {
@@ -279,4 +280,7 @@ public:
   virtual float GetR() = 0;
 
   virtual bool Intersectional() = 0;
+  virtual glm::vec3 GetValue(float u, float v) { return glm::vec3(0.f); }
+  virtual glm::vec3 GetTangentU(float u, float v) { return glm::vec3(0.f); }
+  virtual glm::vec3 GetTangentV(float u, float v) { return glm::vec3(0.f); }
 };

@@ -44,5 +44,9 @@ public:
 
 	bool ReplaceControlPoint(int idx, Figure *cp);
 	float GetR() { return 0; };
+
 	bool Intersectional() { return true; }
+	glm::vec3 GetValue(float u, float v) override;
+	glm::vec3 GetTangentU(float u, float v) override;
+	glm::vec3 GetTangentV(float u, float v) override;
 };
