@@ -277,4 +277,6 @@ public:
   };
 
   virtual float GetR() = 0;
+
+  virtual bool Intersectional() = 0;
 };

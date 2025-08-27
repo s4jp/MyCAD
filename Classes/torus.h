@@ -19,6 +19,7 @@ public:
   bool CreateImgui();
   bool GetBoundingSphere(CAD::Sphere &sphere) { return false; };
   int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
+  bool Intersectional() { return true; }
 
 private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;

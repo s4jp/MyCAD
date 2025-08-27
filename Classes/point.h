@@ -13,6 +13,7 @@ public:
   int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
   void CalculateModelMatrix() override;
   float GetR() { return R; }
+  bool Intersectional() { return false; }
 
 private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;

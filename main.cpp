@@ -130,7 +130,7 @@ int main() {
     // initial values
     int width = 1500;
     int height = 800;
-    glm::vec3 cameraPosition = glm::vec3(3.0f, 3.0f, 3.0f);
+    glm::vec3 cameraPosition = glm::vec3(25.0f, 25.0f, 25.0f);
     float fov = M_PI / 4.0f;
     int guiWidth = 300;
 
@@ -1199,6 +1199,25 @@ int main() {
                 }
                 ImGui::EndPopup();
             }
+          }
+          if (selectedCurveIdx == -1 && (
+              (selectedSurfaces.size() == 2 && selected.size() == 0) ||
+              (selectedSurfaces.size() == 1 && selected.size() == 0) ||
+              (selectedSurfaces.size() == 1 && selected.size() == 1) ||
+              (selectedSurfaces.size() == 0 && selected.size() == 2))) 
+          {
+              //check if all selected surfaces/figures are intersectional
+              bool acceptable = true;
+              for (int i = 0; i < selectedSurfaces.size(); i++) {
+                  acceptable &= surfaces[selectedSurfaces[i]]->Intersectional();
+              }
+              for (int i = 0; i < selected.size(); i++) {
+                  acceptable &= figures[selected[i]]->Intersectional();
+              }
+              if (acceptable) {
+                  ImGui::SeparatorText("Intersections options:");
+                  if (ImGui::Button("Find intersection")) {}
+              }
           }
         }
 

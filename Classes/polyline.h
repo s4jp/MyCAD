@@ -11,6 +11,7 @@ public:
 
   void Render(int colorLoc, int modelLoc, bool grayscale = false);
   bool GetBoundingSphere(CAD::Sphere &sphere) { return false; };
+  bool Intersectional() { return false; }
 
 private:
   int counter = 0;

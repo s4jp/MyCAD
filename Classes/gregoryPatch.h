@@ -32,4 +32,5 @@ public:
   void RefreshBuffers();
   bool ReplaceControlPoint(int idx, Figure *cp);
   float GetR() { return 0; };
+  bool Intersectional() { return false; }
 };
