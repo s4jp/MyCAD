@@ -126,6 +126,9 @@
     <ClCompile Include="Classes\gregoryPatch.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
+    <ClCompile Include="IntersectionHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -217,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="Classes\gregoryPatch.h">
       <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionHelpers.h">
+      <Filter>Header Files\assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
