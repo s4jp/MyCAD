@@ -22,6 +22,6 @@ public:
     bool IsWrappedV() override;
 
 	glm::vec3 GetValue(float u, float v) override { return SurfaceC0::GetValue(u, v); }
-	glm::vec3 GetTangentU(float u, float v) override { return glm::normalize(SurfaceC0::GetTangentU(u, v)); }
-	glm::vec3 GetTangentV(float u, float v) override { return glm::normalize(SurfaceC0::GetTangentV(u, v)); }
+	glm::vec3 GetTangentU(float u, float v) override { return SurfaceC0::GetTangentU(u, v); }
+	glm::vec3 GetTangentV(float u, float v) override { return SurfaceC0::GetTangentV(u, v); }
 };

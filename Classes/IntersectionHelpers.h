@@ -17,7 +17,7 @@ namespace IntersectionConfig {
 	constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
 	constexpr int NEWTON_MAX_ITERS = 1000;
     constexpr float EPS = 1e-3;
-    constexpr int INNER_NEWTON_ITERS = 10;
+    constexpr int INNER_NEWTON_ITERS = 100;
 }
 
 class IntersectionHelpers {
@@ -96,7 +96,7 @@ public:
     };
 
     static StartPoint FindStartPoint(Figure* A, Figure* B);
-    static Intersection FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.001f);
+    static Intersection FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.01f);
 
 private:
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);

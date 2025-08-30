@@ -158,9 +158,11 @@ glm::vec4 IntersectionHelpers::Newton(Figure* A, Figure* B, glm::vec3 initialPoi
 float IntersectionHelpers::WrapIfApplicable(float v, bool wrap)
 {
     if (wrap) {
+        std::cout << "in: " << v;
         float wrapped = fmod(v, 1.0f);
         if (wrapped < 0.0f) wrapped += 1.0f;
         if (wrapped == 0.0f && v > 0.0f) wrapped = 1.0f;
+        std::cout << ", out: " << wrapped << std::endl;
         return wrapped;
     }
     else {
@@ -219,9 +221,9 @@ IntersectionHelpers::Intersection IntersectionHelpers::March(Figure* A, Figure* 
             }
 
             float dist = glm::length(A->GetValue(next.x, next.y) - B->GetValue(next.z, next.w));
-            std::cout << "inner loop dist iter:" << j << " - " << dist << std::endl;
+            //std::cout << "inner loop dist iter:" << j << " - " << dist << std::endl;
 
-            if (dist < 1e-4f) break;
+            if (dist < 0.02) break;
         }
 
         glm::vec3 pos = GetPosition(A, B, next);

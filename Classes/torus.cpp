@@ -140,14 +140,12 @@ glm::vec3 Torus::GetValue(float u, float v)
 
 glm::vec3 Torus::GetTangentU(float u, float v)
 {
-    glm::vec3 t = (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
+    return (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
         / (2.0f * tangentEpsilon);
-    return glm::normalize(t);
 }
 
 glm::vec3 Torus::GetTangentV(float u, float v)
 {
-    glm::vec3 t = (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
+    return (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
         / (2.0f * tangentEpsilon);
-    return glm::normalize(t);
 }
