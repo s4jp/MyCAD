@@ -154,6 +154,7 @@
     <ClCompile Include="Classes\gregoryPatch.cpp" />
     <ClCompile Include="Classes\grid.cpp" />
     <ClCompile Include="Classes\helpers.cpp" />
+    <ClCompile Include="Classes\IntersectionHelpers.cpp" />
     <ClCompile Include="Classes\point.cpp" />
     <ClCompile Include="Classes\polyline.cpp" />
     <ClCompile Include="Classes\Shader.cpp" />
@@ -171,7 +172,6 @@
     <ClCompile Include="imgui\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="IntersectionHelpers.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +187,7 @@
     <ClInclude Include="Classes\gregoryPatch.h" />
     <ClInclude Include="Classes\grid.h" />
     <ClInclude Include="Classes\helpers.h" />
+    <ClInclude Include="Classes\IntersectionHelpers.h" />
     <ClInclude Include="Classes\point.h" />
     <ClInclude Include="Classes\polyline.h" />
     <ClInclude Include="Classes\Shader.h" />
@@ -205,7 +206,6 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="IntersectionHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\default.frag" />
