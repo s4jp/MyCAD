@@ -1228,22 +1228,19 @@ int main() {
                     ImGui::SeparatorText("Intersections options:");
                     if (ImGui::Button("Find intersection"))
                     {
-                        IntersectionHelpers::StartPoint startPoint;
-                        if (candidates.size() > 1) {
-                            startPoint = IntersectionHelpers::FindStartPoint(
-                                candidates[0], candidates[1]);
-                        }
-                        else {
-                            startPoint = IntersectionHelpers::FindStartPoint(
-                                candidates[0], candidates[0]);
-                        }
+						Figure* f1 = candidates[0];
+						Figure* f2 = candidates.size() > 1 ? candidates[1] : candidates[0];
+
+                        IntersectionHelpers::StartPoint startPoint = IntersectionHelpers::FindStartPoint(f1, f2);
 
                         if (!startPoint.valid) {
 							std::cout << "No start point found!" << std::endl;
                         }
                         else {
                             cursor->SetPosition(startPoint.position);
-                            startPoint.Print();
+
+                            auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint);
+                            result.print();
                         }
                     }
                 }

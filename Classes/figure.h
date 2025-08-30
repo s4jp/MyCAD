@@ -283,4 +283,6 @@ public:
   virtual glm::vec3 GetValue(float u, float v) { return glm::vec3(0.f); }
   virtual glm::vec3 GetTangentU(float u, float v) { return glm::vec3(0.f); }
   virtual glm::vec3 GetTangentV(float u, float v) { return glm::vec3(0.f); }
+  virtual bool IsWrappedU() { return false; }
+  virtual bool IsWrappedV() { return false; }
 };

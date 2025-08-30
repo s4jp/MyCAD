@@ -24,6 +24,8 @@ public:
   glm::vec3 GetValue(float u, float v) override;
   glm::vec3 GetTangentU(float u, float v) override;
   glm::vec3 GetTangentV(float u, float v) override;
+  bool IsWrappedU() override { return true; }
+  bool IsWrappedV() override { return true; }
 
 private:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
