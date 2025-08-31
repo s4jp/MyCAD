@@ -12,12 +12,14 @@ namespace IntersectionConfig {
     constexpr int GRADIENT_DESCENT_ITERS = 1000;
     constexpr float LEARNING_RATE = 0.01f;
     constexpr float TOLERANCE = 1e-5f;
-    constexpr float MONTE_CARLO_THRESHOLD = 0.1f;
-	constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-5f;
+    constexpr float MONTE_CARLO_THRESHOLD = 1;
+	constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-3f;
 	constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
 	constexpr int NEWTON_MAX_ITERS = 1000;
     constexpr float EPS = 1e-3;
     constexpr int INNER_NEWTON_ITERS = 100;
+    constexpr float DAMPING = 1e-6f;
+    constexpr float SAFE_LR = 1e-3f;
 }
 
 class IntersectionHelpers {
@@ -122,7 +124,7 @@ public:
 private:
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);
     static StartPoint RefinePoint(Figure* A, Figure* B, glm::vec2 uv, glm::vec2 st);
-	static bool AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2);
+    static bool AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A, Figure* B);
     static glm::vec4 Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv);
     static float WrapIfApplicable(float v, bool wrap);
 	static glm::vec4 WrapIfApplicable(glm::vec4 v, Figure* A, Figure* B);

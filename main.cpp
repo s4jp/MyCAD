@@ -1234,7 +1234,7 @@ int main() {
                         IntersectionHelpers::StartPoint startPoint = IntersectionHelpers::FindStartPoint(f1, f2);
 
                         if (!startPoint.valid) {
-							std::cout << "No start point found!" << std::endl;
+                            std::cout << "No start point found!" << std::endl << std::endl;;
                         }
                         else {
                             cursor->SetPosition(startPoint.position);

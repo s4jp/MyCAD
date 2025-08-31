@@ -22,27 +22,48 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
 
         glm::vec3 dAu = A->GetTangentU(uvCurr.x, uvCurr.y);
         glm::vec3 dAv = A->GetTangentV(uvCurr.x, uvCurr.y);
-
         glm::vec3 dBs = B->GetTangentU(stCurr.x, stCurr.y);
         glm::vec3 dBt = B->GetTangentV(stCurr.x, stCurr.y);
 
-        float df_du = 2.0f * glm::dot(diff, dAu);
-        float df_dv = 2.0f * glm::dot(diff, dAv);
-        float df_ds = -2.0f * glm::dot(diff, dBs);
-        float df_dt = -2.0f * glm::dot(diff, dBt);
+        glm::mat3x4 J;
+        J[0] = glm::vec4(dAu.x, dAv.x, -dBs.x, -dBt.x);
+        J[1] = glm::vec4(dAu.y, dAv.y, -dBs.y, -dBt.y);
+        J[2] = glm::vec4(dAu.z, dAv.z, -dBs.z, -dBt.z);
 
-        uvCurr.x -= LEARNING_RATE * df_du;
-        uvCurr.y -= LEARNING_RATE * df_dv;
-        stCurr.x -= LEARNING_RATE * df_ds;
-        stCurr.y -= LEARNING_RATE * df_dt;
+        glm::mat4 JTJ(0.0f);
+        glm::vec4 JTr(0.0f);
+
+        for (int k = 0; k < 3; k++) {
+            glm::vec4 row = J[k];
+            JTJ += glm::outerProduct(row, row);
+            JTr += row * diff[k];
+        }
+
+        JTJ += IntersectionConfig::DAMPING * glm::mat4(1.0f);
+        float det = glm::determinant(JTJ);
+
+        if (fabs(det) < 1e-12f) {
+            glm::vec2 gradA(2.0f * glm::dot(diff, dAu),
+                2.0f * glm::dot(diff, dAv));
+            glm::vec2 gradB(-2.0f * glm::dot(diff, dBs),
+                -2.0f * glm::dot(diff, dBt));
+            uvCurr -= IntersectionConfig::SAFE_LR * gradA;
+            stCurr -= IntersectionConfig::SAFE_LR * gradB;
+        }
+        else {
+            glm::vec4 delta = glm::inverse(JTJ) * (-JTr);
+
+            uvCurr.x += delta.x;
+            uvCurr.y += delta.y;
+            stCurr.x += delta.z;
+            stCurr.y += delta.w;
+
+            if (glm::length(delta) < IntersectionConfig::EPS)
+                break;
+        }
 
         uvCurr = glm::clamp(uvCurr, glm::vec2(0.0f), glm::vec2(1.0f));
         stCurr = glm::clamp(stCurr, glm::vec2(0.0f), glm::vec2(1.0f));
-
-        float err = glm::dot(diff, diff);
-        if (err < TOLERANCE) {
-            break;
-        }
     }
 
     glm::vec3 Pfinal = A->GetValue(uvCurr.x, uvCurr.y);
@@ -54,13 +75,44 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
     result.uv1 = uvCurr;
     result.uv2 = stCurr;
     result.distance = glm::dot(Pfinal - Qfinal, Pfinal - Qfinal);
-
+    //result.valid = true;
     return result;
 }
 
-bool IntersectionHelpers::AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2)
+bool IntersectionHelpers::AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A, Figure* B)
 {
-    return glm::length(uv1 - uv2) < IntersectionConfig::TOO_CLOSE_THRESHOLD;
+    if (A != B) return false;
+
+	std::vector<glm::vec4> uvPairs;
+	uvPairs.emplace_back(uv1.x, uv1.y, uv2.x, uv2.y);
+
+	if (A->IsWrappedU()) {
+		uvPairs.emplace_back(uv1.x + 1.0f, uv1.y, uv2.x, uv2.y);
+		uvPairs.emplace_back(uv1.x - 1.0f, uv1.y, uv2.x, uv2.y);
+	}
+	if (A->IsWrappedV()) {
+		uvPairs.emplace_back(uv1.x, uv1.y + 1.0f, uv2.x, uv2.y);
+		uvPairs.emplace_back(uv1.x, uv1.y - 1.0f, uv2.x, uv2.y);
+	}
+	if (B->IsWrappedU()) {
+		uvPairs.emplace_back(uv1.x, uv1.y, uv2.x + 1.0f, uv2.y);
+		uvPairs.emplace_back(uv1.x, uv1.y, uv2.x - 1.0f, uv2.y);
+	}
+	if (B->IsWrappedV()) {
+		uvPairs.emplace_back(uv1.x, uv1.y, uv2.x, uv2.y + 1.0f);
+		uvPairs.emplace_back(uv1.x, uv1.y, uv2.x, uv2.y - 1.0f);
+	}
+	for (const auto& pair : uvPairs) {
+		glm::vec2 u1(pair.x, pair.y);
+		glm::vec2 u2(pair.z, pair.w);
+        float len1 = glm::abs(pair.x - pair.z);
+        float len2 = glm::abs(pair.y - pair.w);
+        //std::cout << len1 << " " << len2 << std::endl;
+		if (len1 < IntersectionConfig::TOO_CLOSE_THRESHOLD || len2 < IntersectionConfig::TOO_CLOSE_THRESHOLD) {
+			return true;
+		}
+	}
+	return false;
 }
 
 IntersectionHelpers::StartPoint 
@@ -76,10 +128,17 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B)
 
         float d2 = DistanceSquared(A, uv.x, uv.y, B, st.x, st.y);
 
-        if (d2 < MONTE_CARLO_THRESHOLD && !AreUVsTooClose(uv,st)) {
+        if (d2 < MONTE_CARLO_THRESHOLD && !AreUVsTooClose(uv,st,A,B)) {
             auto refined = RefinePoint(A, B, uv, st);
+            glm::vec4 wrapped = WrapIfApplicable({ refined.uv1, refined.uv2 }, A, B);
+            refined.uv1 = { wrapped.x, wrapped.y };
+            refined.uv2 = { wrapped.z, wrapped.w };
 
-            if (refined.distance < START_POINT_ACCEPTANCE_THRESHOLD && !AreUVsTooClose(refined.uv1, refined.uv2)) {
+            if (!std::isfinite(refined.distance)) continue;
+            if (!std::isfinite(refined.uv1.x) || !std::isfinite(refined.uv1.y)) continue;
+            if (!std::isfinite(refined.uv2.x) || !std::isfinite(refined.uv2.y)) continue;
+
+            if (refined.distance < START_POINT_ACCEPTANCE_THRESHOLD && !AreUVsTooClose(refined.uv1, refined.uv2,A,B)) {
                 return refined;
             }
         }
