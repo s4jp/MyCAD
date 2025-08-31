@@ -1238,7 +1238,6 @@ int main() {
                         }
                         else {
                             cursor->SetPosition(startPoint.position);
-
                             auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint);
                             result.print();
                         }

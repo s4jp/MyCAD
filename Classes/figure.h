@@ -13,6 +13,7 @@
 #include "imgui.h"
 
 #include <Serializer.h>
+#include <iostream>
 
 constexpr float background_color[] = { 0.1f, 0.1f, 0.1f, 1.f};
 constexpr float tangentEpsilon = 1e-3f;
@@ -285,4 +286,11 @@ public:
   virtual glm::vec3 GetTangentV(float u, float v) { return glm::vec3(0.f); }
   virtual bool IsWrappedU() { return false; }
   virtual bool IsWrappedV() { return false; }
+  virtual void Print() { 
+      std::cout << this->name << ": "
+          << (this->IsWrappedU() ? "U wrapped " : "")
+          << (this->IsWrappedV() ? "V wrapped " : "")
+		  << (!this->IsWrappedU() && !this->IsWrappedV() ? "NOT wrapped" : "")
+          << std::endl;
+  }
 };

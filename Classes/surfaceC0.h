@@ -49,4 +49,5 @@ public:
 	glm::vec3 GetValue(float u, float v) override;
 	glm::vec3 GetTangentU(float u, float v) override;
 	glm::vec3 GetTangentV(float u, float v) override;
+	void Print() override;
 };

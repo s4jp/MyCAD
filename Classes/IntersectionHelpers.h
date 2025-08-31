@@ -58,14 +58,15 @@ public:
     struct Intersection {
         bool isLoop;
         std::vector<IntersectionPoint> points;
+		int startIdx;
 
-        Intersection() : isLoop(false) {}
-        Intersection(bool loop, std::vector<IntersectionPoint>&& pts)
-            : isLoop(loop), points(std::move(pts)) {
+        Intersection() : isLoop(false), startIdx(-1) {}
+        Intersection(bool loop, std::vector<IntersectionPoint>&& pts, int startIdx)
+            : isLoop(loop), points(std::move(pts)), startIdx(startIdx) {
         }
 
         void print() const {
-            std::cout << "Intersection: " << (isLoop ? "Loop (closed)" : "Open") << "\n";
+            std::cout << "Intersection: " << (isLoop ? "Loop (closed)" : "Open") << std::endl << std::endl;
 
             std::cout << std::fixed << std::setprecision(6);
 
@@ -78,14 +79,34 @@ public:
                         << std::noshowpos;
                     };
 
-                std::cout << "[" << i << "] Pos(";
+                auto countDigits = [](int v) {
+                    int absVal = std::abs(v);
+                    int digits;
+                    if (absVal == 0) {
+                        digits = 1;
+                    }
+                    else {
+                        digits = static_cast<int>(std::log10(absVal)) + 1;
+                    }
+                    return digits;
+                    };
+
+                std::cout
+                    << std::setw(countDigits(points.size()-1) + 2)
+                    << ("[" + std::to_string(i) + "]")
+                    << " Pos(";
+
                 printFloat(p.position.x, 10); std::cout << ", ";
                 printFloat(p.position.y, 10); std::cout << ", ";
                 printFloat(p.position.z, 10); std::cout << ") uv1(";
                 printFloat(p.uv1.x, 8); std::cout << ", ";
                 printFloat(p.uv1.y, 8); std::cout << ") uv2(";
                 printFloat(p.uv2.x, 8); std::cout << ", ";
-                printFloat(p.uv2.y, 8); std::cout << ")\n";
+                printFloat(p.uv2.y, 8); std::cout << ")";
+                if (i == startIdx) {
+                    std::cout << "  <-- start";
+				}
+				std::cout << std::endl;
             }
 
             std::cout << std::endl;
@@ -96,7 +117,7 @@ public:
     };
 
     static StartPoint FindStartPoint(Figure* A, Figure* B);
-    static Intersection FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.01f);
+    static Intersection FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.1f);
 
 private:
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);

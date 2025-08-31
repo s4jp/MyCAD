@@ -91,14 +91,8 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B)
 IntersectionHelpers::Intersection IntersectionHelpers::FindIntersection(Figure* A, Figure* B, StartPoint start, float step)
 {
 	start.Print();
-    std::cout << "[FIG 1]: " << (A->IsWrappedU() ? "U wrapped " : "")
-		<< (A->IsWrappedV() ? "V wrapped" : "") 
-        << ((!A->IsWrappedU() && !A->IsWrappedV()) ? "NOT wrapped" : "")
-        << std::endl;
-	std::cout << "[FIG 2]: " << (B->IsWrappedU() ? "U wrapped " : "")
-		<< (B->IsWrappedV() ? "V wrapped" : "")
-        << ((!B->IsWrappedU() && !B->IsWrappedV()) ? "NOT wrapped" : "")
-        << std::endl;
+    A->Print();
+	B->Print();
     std::cout << std::endl;
 
     std::vector<IntersectionPoint> curve;
@@ -123,7 +117,7 @@ IntersectionHelpers::Intersection IntersectionHelpers::FindIntersection(Figure* 
         curve.insert(curve.end(), backward.points.begin(), backward.points.end());
         curve.insert(curve.end(), forward.points.begin(), forward.points.end());
 
-        return Intersection(false, std::move(curve));
+        return Intersection(false, std::move(curve), backward.points.size());
     }
 }
 
@@ -158,11 +152,9 @@ glm::vec4 IntersectionHelpers::Newton(Figure* A, Figure* B, glm::vec3 initialPoi
 float IntersectionHelpers::WrapIfApplicable(float v, bool wrap)
 {
     if (wrap) {
-        std::cout << "in: " << v;
         float wrapped = fmod(v, 1.0f);
         if (wrapped < 0.0f) wrapped += 1.0f;
         if (wrapped == 0.0f && v > 0.0f) wrapped = 1.0f;
-        std::cout << ", out: " << wrapped << std::endl;
         return wrapped;
     }
     else {
@@ -217,7 +209,7 @@ IntersectionHelpers::Intersection IntersectionHelpers::March(Figure* A, Figure* 
 				glm::vec4 clamped = Clamp(next);
                 glm::vec3 posEdge = GetPosition(A, B, clamped);
                 pts.emplace_back(posEdge, glm::vec2(clamped.x, clamped.y), glm::vec2(clamped.z, clamped.w));
-                return Intersection(false, std::move(pts));
+                return Intersection(false, std::move(pts), 0);
             }
 
             float dist = glm::length(A->GetValue(next.x, next.y) - B->GetValue(next.z, next.w));
@@ -229,14 +221,14 @@ IntersectionHelpers::Intersection IntersectionHelpers::March(Figure* A, Figure* 
         glm::vec3 pos = GetPosition(A, B, next);
 
         if (pts.size() > 6 && glm::length(pos - pts.front().position) < 0.7f * fabs(step)) {
-            return Intersection(true, std::move(pts));
+            return Intersection(true, std::move(pts), 0);
         }
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));
         last = next;
     }
 
-    return Intersection(false, std::move(pts));
+    return Intersection(false, std::move(pts), 0);
 }
 
 glm::vec4 IntersectionHelpers::Clamp(glm::vec4 v)
