@@ -37,6 +37,7 @@
 #include "polyline.h"
 #include <gregoryPatch.h>
 #include "IntersectionHelpers.h"
+#include "Intersection.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -126,6 +127,8 @@ std::vector<Polyline*> cycles;
 std::vector<GregoryPatch*> patches;
 std::vector<int> selectedPatches;
 void deleteCpsIfFree(std::vector<Figure*> cpsToDelete);
+
+Intersection* intersection;
 
 int main() { 
     // initial values
@@ -1240,9 +1243,14 @@ int main() {
                             cursor->SetPosition(startPoint.position);
                             auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint);
                             result.print();
+
+                            intersection = new Intersection(result,256);
                         }
                     }
                 }
+            }
+            if (intersection != nullptr) {
+                intersection->ShowImGui(256);
             }
         }
         ImGui::End();

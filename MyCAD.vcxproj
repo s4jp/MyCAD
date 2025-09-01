@@ -154,6 +154,7 @@
     <ClCompile Include="Classes\gregoryPatch.cpp" />
     <ClCompile Include="Classes\grid.cpp" />
     <ClCompile Include="Classes\helpers.cpp" />
+    <ClCompile Include="Classes\Intersection.cpp" />
     <ClCompile Include="Classes\IntersectionHelpers.cpp" />
     <ClCompile Include="Classes\point.cpp" />
     <ClCompile Include="Classes\polyline.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Classes\gregoryPatch.h" />
     <ClInclude Include="Classes\grid.h" />
     <ClInclude Include="Classes\helpers.h" />
+    <ClInclude Include="Classes\Intersection.h" />
     <ClInclude Include="Classes\IntersectionHelpers.h" />
     <ClInclude Include="Classes\point.h" />
     <ClInclude Include="Classes\polyline.h" />

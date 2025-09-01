@@ -57,20 +57,20 @@ public:
 			: position(sp.position), uv1(sp.uv1), uv2(sp.uv2) {}
     };
 
-    struct Intersection {
+    struct IntersectionCurve {
         bool isLoop;
         std::vector<IntersectionPoint> points;
 		int startIdx;
 
-        Intersection() : isLoop(false), startIdx(-1) {}
-        Intersection(bool loop, std::vector<IntersectionPoint>&& pts, int startIdx)
+        IntersectionCurve() : isLoop(false), startIdx(-1) {}
+        IntersectionCurve(bool loop, std::vector<IntersectionPoint>&& pts, int startIdx)
             : isLoop(loop), points(std::move(pts)), startIdx(startIdx) {
         }
 
         void print() const {
             std::cout << "Intersection: " << (isLoop ? "Loop (closed)" : "Open") << std::endl << std::endl;
 
-            std::cout << std::fixed << std::setprecision(6);
+            std::cout << std::fixed << std::setprecision(8);
 
             for (size_t i = 0; i < points.size(); i++) {
                 const auto& p = points[i];
@@ -98,13 +98,13 @@ public:
                     << ("[" + std::to_string(i) + "]")
                     << " Pos(";
 
-                printFloat(p.position.x, 10); std::cout << ", ";
-                printFloat(p.position.y, 10); std::cout << ", ";
-                printFloat(p.position.z, 10); std::cout << ") uv1(";
-                printFloat(p.uv1.x, 8); std::cout << ", ";
-                printFloat(p.uv1.y, 8); std::cout << ") uv2(";
-                printFloat(p.uv2.x, 8); std::cout << ", ";
-                printFloat(p.uv2.y, 8); std::cout << ")";
+                printFloat(p.position.x, 12); std::cout << ", ";
+                printFloat(p.position.y, 12); std::cout << ", ";
+                printFloat(p.position.z, 12); std::cout << ") uv1(";
+                printFloat(p.uv1.x, 10); std::cout << ", ";
+                printFloat(p.uv1.y, 10); std::cout << ") uv2(";
+                printFloat(p.uv2.x, 10); std::cout << ", ";
+                printFloat(p.uv2.y, 10); std::cout << ")";
                 if (i == startIdx) {
                     std::cout << "  <-- start";
 				}
@@ -119,7 +119,7 @@ public:
     };
 
     static StartPoint FindStartPoint(Figure* A, Figure* B);
-    static Intersection FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.1f);
+    static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.1f);
 
 private:
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);
@@ -130,6 +130,6 @@ private:
 	static glm::vec4 WrapIfApplicable(glm::vec4 v, Figure* A, Figure* B);
     static bool IsOutOfDomain(glm::vec4 v);
     static glm::vec3 GetPosition(Figure* A, Figure* B, glm::vec4 uv);
-    static Intersection March(Figure* A, Figure* B, StartPoint start, float step);
-    static glm::vec4 Clamp(glm::vec4 v);
+    static IntersectionCurve March(Figure* A, Figure* B, StartPoint start, float step);
+    static glm::vec4 Clamp(glm::vec4 curr, glm::vec4 prev, glm::vec4 delta);
 };

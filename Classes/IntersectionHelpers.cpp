@@ -147,7 +147,7 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B)
     return StartPoint(false);
 }
 
-IntersectionHelpers::Intersection IntersectionHelpers::FindIntersection(Figure* A, Figure* B, StartPoint start, float step)
+IntersectionHelpers::IntersectionCurve IntersectionHelpers::FindIntersection(Figure* A, Figure* B, StartPoint start, float step)
 {
 	start.Print();
     A->Print();
@@ -176,7 +176,7 @@ IntersectionHelpers::Intersection IntersectionHelpers::FindIntersection(Figure* 
         curve.insert(curve.end(), backward.points.begin(), backward.points.end());
         curve.insert(curve.end(), forward.points.begin(), forward.points.end());
 
-        return Intersection(false, std::move(curve), backward.points.size());
+        return IntersectionCurve(false, std::move(curve), backward.points.size());
     }
 }
 
@@ -212,8 +212,11 @@ float IntersectionHelpers::WrapIfApplicable(float v, bool wrap)
 {
     if (wrap) {
         float wrapped = fmod(v, 1.0f);
-        if (wrapped < 0.0f) wrapped += 1.0f;
-        if (wrapped == 0.0f && v > 0.0f) wrapped = 1.0f;
+        if (wrapped < 0.0f)
+            wrapped += 1.0f;
+        const float epsilon = 1e-3f;
+        if (wrapped > 1.0f - epsilon)
+            wrapped = 0.0f;
         return wrapped;
     }
     else {
@@ -245,7 +248,7 @@ glm::vec3 IntersectionHelpers::GetPosition(Figure* A, Figure* B, glm::vec4 uv)
     return 0.5f * (pA + pB);
 }
 
-IntersectionHelpers::Intersection IntersectionHelpers::March(Figure* A, Figure* B, StartPoint start, float step)
+IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Figure* B, StartPoint start, float step)
 {
     std::vector<IntersectionPoint> pts;
     pts.push_back(IntersectionPoint(start));
@@ -265,10 +268,13 @@ IntersectionHelpers::Intersection IntersectionHelpers::March(Figure* A, Figure* 
             next = WrapIfApplicable(next, A, B);
 
             if (IsOutOfDomain(next)) {
-				glm::vec4 clamped = Clamp(next);
+				glm::vec4 prev = next + delta;
+                prev = WrapIfApplicable(prev, A, B);
+				glm::vec4 clamped = Clamp(next, prev, delta);
+
                 glm::vec3 posEdge = GetPosition(A, B, clamped);
                 pts.emplace_back(posEdge, glm::vec2(clamped.x, clamped.y), glm::vec2(clamped.z, clamped.w));
-                return Intersection(false, std::move(pts), 0);
+                return IntersectionCurve(false, std::move(pts), 0);
             }
 
             float dist = glm::length(A->GetValue(next.x, next.y) - B->GetValue(next.z, next.w));
@@ -280,17 +286,60 @@ IntersectionHelpers::Intersection IntersectionHelpers::March(Figure* A, Figure* 
         glm::vec3 pos = GetPosition(A, B, next);
 
         if (pts.size() > 6 && glm::length(pos - pts.front().position) < 0.7f * fabs(step)) {
-            return Intersection(true, std::move(pts), 0);
+            return IntersectionCurve(true, std::move(pts), 0);
         }
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));
         last = next;
     }
 
-    return Intersection(false, std::move(pts), 0);
+    return IntersectionCurve(false, std::move(pts), 0);
 }
 
-glm::vec4 IntersectionHelpers::Clamp(glm::vec4 v)
+glm::vec4 IntersectionHelpers::Clamp(glm::vec4 curr, glm::vec4 prev, glm::vec4 delta)
 {
-    return glm::clamp(v, glm::vec4(0.0f), glm::vec4(1.0f));
+ //   int figWrap[] = { 0, 0, 0, 0 };
+
+	//if (curr.x < 0.0f) figWrap[0] = -1;
+	//else if (curr.x > 1.0f) figWrap[0] = 1;
+ //   if (curr.y < 0.0f) figWrap[1] = -1;
+	//else if (curr.y > 1.0f) figWrap[1] = 1;
+ //   if (curr.z < 0.0f) figWrap[2] = -1;
+ //   else if (curr.z > 1.0f) figWrap[2] = 1;
+ //   if (curr.w < 0.0f) figWrap[3] = -1;
+ //   else if (curr.w > 1.0f) figWrap[3] = 1;
+
+	//int biggestOverflowIdx = -1;
+	//bool forwardOverflow = false;
+	//float biggestOverflow = 0.0f;
+
+ //   for (int i = 0; i < 4; i++) {
+ //       if (figWrap[i] != 0) {
+ //           float overflow = figWrap[i] * (curr[i] - figWrap[i]);
+ //           if (overflow > biggestOverflow) {
+ //               biggestOverflow = overflow;
+ //               biggestOverflowIdx = i;
+ //               forwardOverflow = (figWrap[i] > 0);
+ //           }
+	//	}
+	//}
+
+ //   if (biggestOverflowIdx == -1) {
+ //       return curr;
+ //   }
+ //   else {
+ //       float t = (biggestOverflowIdx >= 2) ? (1.0f - prev[biggestOverflowIdx]) / delta[biggestOverflowIdx]
+ //           : -prev[biggestOverflowIdx] / delta[biggestOverflowIdx];
+ //       t = glm::clamp(t, 0.0f, 1.0f);
+ //       glm::vec4 clamped = prev + t * delta;
+ //       for (int i = 0; i < 4; i++) {
+ //           if (figWrap[i] != 0) {
+ //               clamped[i] = WrapIfApplicable(clamped[i], true);
+ //           }
+ //       }
+ //       return clamped;
+	//}
+
+	return glm::clamp(curr, glm::vec4(0.0f), glm::vec4(1.0f));
+
 }
