@@ -42,8 +42,9 @@ private:
     static GLuint CreateOrUpdateTextureRGBA(GLuint existingTex,
         int size,
         const std::vector<uint8_t>& rgba);
-    void FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    int FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     glm::vec2 ComputeAverageUV(const IntersectionHelpers::IntersectionCurve& curve, 
         std::function<glm::vec2(const IntersectionHelpers::IntersectionPoint&)> getUV);
     bool FindFloodFillStart(const std::vector<uint8_t>& img, int width, int height, int& startX, int& startY);
+	static void ReverseColors(std::vector<uint8_t>& img);
 };

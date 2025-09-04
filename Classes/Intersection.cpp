@@ -15,21 +15,38 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
     glm::vec2 avg2 = ComputeAverageUV(curve, [](const auto& p) { return p.uv2; });
 
     int startX, startY;
-
-    // --- uv1 flood-fill ---
     UVtoPixel(avg1, texSize, startX, startY);
     auto img1_flood = img1;
+    int count1 = 0;
     if (FindFloodFillStart(img1_flood, texSize, texSize, startX, startY)) {
-        FloodFill(img1_flood, texSize, texSize, startX, startY, 255, 0, 0, 255);
+        count1 = FloodFill(img1_flood, texSize, texSize, startX, startY, 255, 0, 0, 255);
     }
-    texUV1_2 = CreateOrUpdateTextureRGBA(texUV1_2, texSize, img1_flood);
 
-    // --- uv2 flood-fill ---
     UVtoPixel(avg2, texSize, startX, startY);
     auto img2_flood = img2;
+    int count2 = 0;
     if (FindFloodFillStart(img2_flood, texSize, texSize, startX, startY)) {
-        FloodFill(img2_flood, texSize, texSize, startX, startY, 255, 0, 0, 255);
+        count2 = FloodFill(img2_flood, texSize, texSize, startX, startY, 255, 0, 0, 255);
     }
+
+    bool img1toFix = false;
+    bool img2toFix = false;
+    if (count1 > 0.5 * texSize * texSize && count2 > 0.5 * texSize * texSize) {
+        img1toFix = true;
+        img2toFix = true;
+    }
+    else if (std::abs(count1 - count2) > (texSize * texSize / 10)) {
+        if (count1 > count2) {
+            img1toFix = true;
+        }
+        else {
+            img2toFix = true;
+        }
+    }
+
+	if (img1toFix) ReverseColors(img1_flood);
+	if (img2toFix) ReverseColors(img2_flood);
+    texUV1_2 = CreateOrUpdateTextureRGBA(texUV1_2, texSize, img1_flood);
     texUV2_2 = CreateOrUpdateTextureRGBA(texUV2_2, texSize, img2_flood);
 }
 
@@ -239,7 +256,7 @@ GLuint Intersection::CreateOrUpdateTextureRGBA(GLuint existingTex,
     return tex;
 }
 
-void Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
+int Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
     int startX, int startY,
     uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
@@ -258,8 +275,9 @@ void Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
         img[idx + 3] = a;
         };
 
-    if (!getPixel(startX, startY)) return;
+    if (!getPixel(startX, startY)) return 0;
 
+    int count = 0;
     std::queue<std::pair<int, int>> q;
     q.push({ startX, startY });
     setPixel(startX, startY);
@@ -274,9 +292,12 @@ void Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
             if (getPixel(nx, ny)) {
                 setPixel(nx, ny);
                 q.push({ nx, ny });
+                count++;
             }
         }
     }
+
+	return count;
 }
 
 glm::vec2 Intersection::ComputeAverageUV(
@@ -319,4 +340,18 @@ bool Intersection::FindFloodFillStart(
     }
 
     return false; // No black found nearby
+}
+
+void Intersection::ReverseColors(std::vector<uint8_t>& img)
+{
+    for (size_t i = 0; i < img.size(); i += 4) {
+        bool isRed = (img[i + 0] == 255 && img[i + 1] == 0 && img[i + 2] == 0);
+        bool isBlack = (img[i + 0] == 0 && img[i + 1] == 0 && img[i + 2] == 0);
+        if (isRed) {
+            img[i + 0] = 0; img[i + 1] = 0; img[i + 2] = 0;
+        }
+        else if (isBlack) {
+            img[i + 0] = 255; img[i + 1] = 0; img[i + 2] = 0;
+        }
+    }
 }
