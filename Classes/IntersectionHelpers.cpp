@@ -298,48 +298,26 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
 glm::vec4 IntersectionHelpers::Clamp(glm::vec4 curr, glm::vec4 prev, glm::vec4 delta)
 {
- //   int figWrap[] = { 0, 0, 0, 0 };
+    int figWrap[] = { -1, -1, -1, -1 };
 
-	//if (curr.x < 0.0f) figWrap[0] = -1;
-	//else if (curr.x > 1.0f) figWrap[0] = 1;
- //   if (curr.y < 0.0f) figWrap[1] = -1;
-	//else if (curr.y > 1.0f) figWrap[1] = 1;
- //   if (curr.z < 0.0f) figWrap[2] = -1;
- //   else if (curr.z > 1.0f) figWrap[2] = 1;
- //   if (curr.w < 0.0f) figWrap[3] = -1;
- //   else if (curr.w > 1.0f) figWrap[3] = 1;
+	if (curr.x < 0.0f) figWrap[0] = 0;
+	else if (curr.x > 1.0f) figWrap[0] = 1;
+    if (curr.y < 0.0f) figWrap[1] = 0;
+	else if (curr.y > 1.0f) figWrap[1] = 1;
+    if (curr.z < 0.0f) figWrap[2] = 0;
+    else if (curr.z > 1.0f) figWrap[2] = 1;
+    if (curr.w < 0.0f) figWrap[3] = 0;
+    else if (curr.w > 1.0f) figWrap[3] = 1;
 
-	//int biggestOverflowIdx = -1;
-	//bool forwardOverflow = false;
-	//float biggestOverflow = 0.0f;
+	float maxOverflowPercent = 0.0f;
+    for (int i = 0; i < 4; i++) {
+        if (figWrap[i] != -1) {
+            float overflowPercent = - (curr[i] - figWrap[i]) / delta[i];
+            if (overflowPercent > maxOverflowPercent) {
+                maxOverflowPercent = overflowPercent;
+            }
+		}
+	}
 
- //   for (int i = 0; i < 4; i++) {
- //       if (figWrap[i] != 0) {
- //           float overflow = figWrap[i] * (curr[i] - figWrap[i]);
- //           if (overflow > biggestOverflow) {
- //               biggestOverflow = overflow;
- //               biggestOverflowIdx = i;
- //               forwardOverflow = (figWrap[i] > 0);
- //           }
-	//	}
-	//}
-
- //   if (biggestOverflowIdx == -1) {
- //       return curr;
- //   }
- //   else {
- //       float t = (biggestOverflowIdx >= 2) ? (1.0f - prev[biggestOverflowIdx]) / delta[biggestOverflowIdx]
- //           : -prev[biggestOverflowIdx] / delta[biggestOverflowIdx];
- //       t = glm::clamp(t, 0.0f, 1.0f);
- //       glm::vec4 clamped = prev + t * delta;
- //       for (int i = 0; i < 4; i++) {
- //           if (figWrap[i] != 0) {
- //               clamped[i] = WrapIfApplicable(clamped[i], true);
- //           }
- //       }
- //       return clamped;
-	//}
-
-	return glm::clamp(curr, glm::vec4(0.0f), glm::vec4(1.0f));
-
+    return prev - (1 - maxOverflowPercent) * delta;
 }
