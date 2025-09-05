@@ -117,23 +117,45 @@ glm::vec3 BicubicPatch::GetValue(float u, float v)
     u = glm::clamp(u, 0.0f, 1.0f);
     v = glm::clamp(v, 0.0f, 1.0f);
 
-    auto B = [](float t, int i) {
-        switch (i) {
-        case 0: return (1 - t) * (1 - t) * (1 - t);
-        case 1: return 3 * t * (1 - t) * (1 - t);
-        case 2: return 3 * t * t * (1 - t);
-        case 3: return t * t * t;
-        }
-        return 0.0f;
-        };
-
     glm::vec3 p(0.0f);
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            glm::vec3 cp = controlPoints[i * 4 + j]->GetPosition();
-            p += cp * B(u, i) * B(v, j);
+
+    if (!bspline) {
+        auto B = [](float t, int i) {
+            switch (i) {
+            case 0: return (1 - t) * (1 - t) * (1 - t);
+            case 1: return 3 * t * (1 - t) * (1 - t);
+            case 2: return 3 * t * t * (1 - t);
+            case 3: return t * t * t;
+            }
+            return 0.0f;
+            };
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                glm::vec3 cp = controlPoints[i * 4 + j]->GetPosition();
+                p += cp * B(u, i) * B(v, j);
+            }
         }
     }
+    else {
+        auto N = [](float t, int i) {
+            switch (i) {
+            case 0: return (1 - t) * (1 - t) * (1 - t) / 6.0f;
+            case 1: return (3 * t * t * t - 6 * t * t + 4) / 6.0f;
+            case 2: return (-3 * t * t * t + 3 * t * t + 3 * t + 1) / 6.0f;
+            case 3: return (t * t * t) / 6.0f;
+            }
+            return 0.0f;
+            };
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                glm::vec3 cp = controlPoints[i * 4 + j]->GetPosition();
+                p += cp * N(u, i) * N(v, j);
+            }
+        }
+    }
+
     return p;
 }
 
