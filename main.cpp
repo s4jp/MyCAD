@@ -131,6 +131,7 @@ void deleteCpsIfFree(std::vector<Figure*> cpsToDelete);
 
 Intersection* intersection;
 ControlledInputFloat intersectionPrecision = ControlledInputFloat("Precision", 0.1f, 0.01f, 0.01f);
+bool useCursorAsStartPoint = false;
 
 int main() { 
     // initial values
@@ -1242,13 +1243,15 @@ int main() {
                 if (acceptable) {
                     ImGui::SeparatorText("Intersections options:");
                     intersectionPrecision.Render();
+					ImGui::Checkbox("Use cursor position", &useCursorAsStartPoint);
 
                     if (ImGui::Button("Find intersection"))
                     {
 						Figure* f1 = candidates[0];
 						Figure* f2 = candidates.size() > 1 ? candidates[1] : candidates[0];
 
-                        IntersectionHelpers::StartPoint startPoint = IntersectionHelpers::FindStartPoint(f1, f2);
+                        IntersectionHelpers::StartPoint startPoint = IntersectionHelpers::FindStartPoint(f1, f2, 
+                            IntersectionHelpers::CursorData(cursor->GetPosition(), useCursorAsStartPoint));
 
                         if (!startPoint.valid) {
                             std::cout << "No start point found!" << std::endl << std::endl;;

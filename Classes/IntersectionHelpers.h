@@ -118,11 +118,18 @@ public:
         }
     };
 
-    static StartPoint FindStartPoint(Figure* A, Figure* B);
+    struct CursorData {
+        glm::vec3 pos;
+		bool useCursor;
+
+		CursorData(glm::vec3 p, bool useCursor) : pos(p), useCursor(useCursor) {}
+    };
+
+    static StartPoint FindStartPoint(Figure* A, Figure* B, CursorData cursor);
     static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step);
 
 private:
-    static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);
+    static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t, CursorData cursor);
     static StartPoint RefinePoint(Figure* A, Figure* B, glm::vec2 uv, glm::vec2 st);
     static bool AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A, Figure* B);
     static glm::vec4 Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv);

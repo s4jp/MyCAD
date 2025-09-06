@@ -3,9 +3,14 @@
 using namespace IntersectionConfig;
 
 float IntersectionHelpers::DistanceSquared(Figure* A, float u, float v,
-    Figure* B, float s, float t) {
+    Figure* B, float s, float t, IntersectionHelpers::CursorData cursor) {
     glm::vec3 p1 = A->GetValue(u, v);
     glm::vec3 p2 = B->GetValue(s, t);
+
+    if (cursor.useCursor) {
+        return glm::dot(cursor.pos - p1, cursor.pos - p1) + glm::dot(cursor.pos - p2, cursor.pos - p2);
+	}
+
     return glm::dot(p1 - p2, p1 - p2);
 }
 
@@ -116,7 +121,7 @@ bool IntersectionHelpers::AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A
 }
 
 IntersectionHelpers::StartPoint 
-IntersectionHelpers::FindStartPoint(Figure* A, Figure* B)
+IntersectionHelpers::FindStartPoint(Figure* A, Figure* B, IntersectionHelpers::CursorData cursor)
 {
     std::mt19937 rng(std::random_device{}());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -126,7 +131,7 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B)
         glm::vec2 uv(dist(rng), dist(rng));
         glm::vec2 st(dist(rng), dist(rng));
 
-        float d2 = DistanceSquared(A, uv.x, uv.y, B, st.x, st.y);
+        float d2 = DistanceSquared(A, uv.x, uv.y, B, st.x, st.y, cursor);
 
         if (d2 < MONTE_CARLO_THRESHOLD && !AreUVsTooClose(uv,st,A,B)) {
             auto refined = RefinePoint(A, B, uv, st);
