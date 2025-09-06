@@ -181,6 +181,7 @@
     <ClInclude Include="Classes\bezierInt.h" />
     <ClInclude Include="Classes\bicubicPatch.h" />
     <ClInclude Include="Classes\Camera.h" />
+    <ClInclude Include="Classes\ControlledInputFloat.h" />
     <ClInclude Include="Classes\cursor.h" />
     <ClInclude Include="Classes\EBO.h" />
     <ClInclude Include="Classes\figure.h" />

@@ -1,8 +1,10 @@
 #include "Intersection.h"
 #include <cmath>
 #include <algorithm>
+#include <point.h>
 
-Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, int texSize) {
+Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc,
+    int segmentIdxLoc, int divisionLoc, int texSize) : bSpline(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc) {
     auto img1 = RasterizeCurveToImage(curve, texSize,
         [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv1; });
     auto img2 = RasterizeCurveToImage(curve, texSize,
@@ -48,6 +50,19 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
 	if (img2toFix) ReverseColors(img2_flood);
     texUV1_2 = CreateOrUpdateTextureRGBA(texUV1_2, texSize, img1_flood);
     texUV2_2 = CreateOrUpdateTextureRGBA(texUV2_2, texSize, img2_flood);
+
+	std::vector<Figure*> controlPoints;
+    for (const auto& p : curve.points) {
+		controlPoints.push_back(new Point(p.position, 0.02f, false));
+	}
+    if (curve.isLoop) {
+		controlPoints.push_back(new Point(curve.points.front().position, 0.02f, false));
+	}
+
+	bSpline.AddControlPoints(controlPoints);
+    bSpline.polylineWidth = 4.0f;
+    bSpline.bSpline->curveWidth = 4.0f;
+	bSpline.bSpline->usePolyLineColor = true;
 }
 
 Intersection::~Intersection() {
@@ -59,8 +74,10 @@ Intersection::~Intersection() {
 
 #ifdef IMGUI_VERSION
 #include <imgui.h>
-void Intersection::ShowImGui(int previewSize) const {
+void Intersection::ShowImGui(int previewSize){
     if (ImGui::Begin("UV Textures")) {
+        ImGui::Checkbox("Switch to bspline", &this->showInterpolated);
+
         // --- UV1 pair ---
         ImGui::TextUnformatted("uv1:");
         ImGui::Image((ImTextureID)(intptr_t)texUV1,
@@ -354,4 +371,12 @@ void Intersection::ReverseColors(std::vector<uint8_t>& img)
             img[i + 0] = 255; img[i + 1] = 0; img[i + 2] = 0;
         }
     }
+}
+
+void Intersection::Render(int colorLoc, int modelLoc, bool grayscale) {
+    if (showInterpolated) bSpline.Render(colorLoc, modelLoc, grayscale);
+}
+
+void Intersection::RenderPolyline(int colorLoc, int modelLoc, bool grayscale) {
+    if (!showInterpolated) bSpline.RenderPolyline(colorLoc, modelLoc, grayscale);
 }

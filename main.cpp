@@ -38,6 +38,7 @@
 #include <gregoryPatch.h>
 #include "IntersectionHelpers.h"
 #include "Intersection.h"
+#include "ControlledInputFloat.h"
 
 const float near = 0.1f;
 const float far = 100.0f;
@@ -129,6 +130,7 @@ std::vector<int> selectedPatches;
 void deleteCpsIfFree(std::vector<Figure*> cpsToDelete);
 
 Intersection* intersection;
+ControlledInputFloat intersectionPrecision = ControlledInputFloat("Precision", 0.1f, 0.01f, 0.01f);
 
 int main() { 
     // initial values
@@ -270,6 +272,11 @@ int main() {
         patches[i]->Render(colorLoc, modelLoc, grayscale);
       }
 
+	  // render intersections with default shader
+      if (intersection != nullptr) {
+          intersection->RenderPolyline(colorLoc, modelLoc, grayscale);
+      }
+
       // tessellation shader activation
       tessShaderProgram.Activate();
 
@@ -285,6 +292,11 @@ int main() {
       // curves rendering with tessellation shader
       for (int i = 0; i < curves.size(); i++) {
         curves[i]->Render(tessColorLoc, tessModelLoc, grayscale);
+      }
+
+      // render intersections with tessellation shader
+      if (intersection != nullptr) {
+          intersection->Render(tessColorLoc, tessModelLoc, grayscale);
       }
 
       // surface tessellation shader activation
@@ -1229,6 +1241,8 @@ int main() {
 
                 if (acceptable) {
                     ImGui::SeparatorText("Intersections options:");
+                    intersectionPrecision.Render();
+
                     if (ImGui::Button("Find intersection"))
                     {
 						Figure* f1 = candidates[0];
@@ -1241,10 +1255,11 @@ int main() {
                         }
                         else {
                             cursor->SetPosition(startPoint.position);
-                            auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint);
+                            auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint, intersectionPrecision.GetValue());
                             result.print();
 
-                            intersection = new Intersection(result,256);
+                            intersection = new Intersection(result, tessCpCountLoc, tessSegmentCountLoc,
+                                tessSegmentIdxLoc, tessDivisionLoc, 256);
                         }
                     }
                 }

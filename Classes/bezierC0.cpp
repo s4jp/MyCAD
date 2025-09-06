@@ -18,7 +18,7 @@ void BezierC0::RenderPolyline(int colorLoc, int modelLoc,
                               bool grayscale) {
   vao.Bind();
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-  glLineWidth(1.0f);
+  glLineWidth(polylineWidth);
 
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetPolylineColor(grayscale)));
   glDrawElements(GL_LINE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
@@ -66,7 +66,7 @@ void BezierC0::Render(int colorLoc, int modelLoc, bool grayscale) {
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor(grayscale)));
   glUniform1i(segmentCountLoc, renderSegments);
-  glLineWidth(3.0f);
+  glLineWidth(curveWidth);
   glUniform1i(divisionLoc, 1);
 
   int count = glm::ceil((indices_count - 1) / 3.0f);
@@ -103,6 +103,12 @@ bool BezierC0::CreateImgui() {
 
 void BezierC0::AddControlPoint(Figure *cp) {
   controlPoints.push_back(cp);
+  RefreshBuffers();
+}
+
+void BezierC0::AddControlPoints(std::vector<Figure*> cps)
+{
+  controlPoints.insert(controlPoints.end(), cps.begin(), cps.end());
   RefreshBuffers();
 }
 

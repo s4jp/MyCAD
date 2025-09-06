@@ -6,6 +6,7 @@
 #include <IntersectionHelpers.h>
 #include <queue>
 #include <functional>
+#include <bezierInt.h>
 
 class Intersection {
 public:
@@ -15,14 +16,21 @@ public:
     GLuint texUV2_2 = 0;
 
 
-    Intersection(const IntersectionHelpers::IntersectionCurve& curve, int texSize = 1024);
+    Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc, 
+        int segmentIdxLoc, int divisionLoc, int texSize = 1024);
     ~Intersection();
 
 #ifdef IMGUI_VERSION
-    void ShowImGui(int previewSize = 256) const;
+    void ShowImGui(int previewSize = 256);
 #endif
 
+	void Render(int colorLoc, int modelLoc, bool grayscale);
+	void RenderPolyline(int colorLoc, int modelLoc, bool grayscale);
+
 private:
+    BezierInt bSpline;
+    bool showInterpolated = false;
+
     static inline void PutPixelRGBA(std::vector<uint8_t>& img, int width, int height,
         int x, int y,
         uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);

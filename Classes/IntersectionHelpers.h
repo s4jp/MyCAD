@@ -15,7 +15,7 @@ namespace IntersectionConfig {
     constexpr float MONTE_CARLO_THRESHOLD = 1;
 	constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-3f;
 	constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
-	constexpr int NEWTON_MAX_ITERS = 1000;
+	constexpr int NEWTON_MAX_ITERS = 200;
     constexpr float EPS = 1e-3;
     constexpr int INNER_NEWTON_ITERS = 100;
     constexpr float DAMPING = 1e-6f;
@@ -119,7 +119,7 @@ public:
     };
 
     static StartPoint FindStartPoint(Figure* A, Figure* B);
-    static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step = 0.1f);
+    static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step);
 
 private:
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);

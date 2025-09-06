@@ -230,6 +230,9 @@
     <ClInclude Include="Classes\Intersection.h">
       <Filter>Header Files\assets</Filter>
     </ClInclude>
+    <ClInclude Include="Classes\ControlledInputFloat.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\default.frag">

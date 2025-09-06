@@ -42,6 +42,8 @@ protected:
   bool is3D = false;
 
   glm::vec4 GetColor(bool grayscale) const {
+    if (usePolyLineColor) return GetPolylineColor(grayscale);
+
     glm::vec4 color = selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
                                : glm::vec4(1.0f, 0.73f, 0.31f, 1.0f);
 
@@ -61,6 +63,7 @@ protected:
 public:
   std::string name;
   bool selected = false;
+  bool usePolyLineColor = false;
 
   virtual void Render(int colorLoc, int modelLoc, bool grayscale) = 0;
   virtual void RenderTess(int colorLoc, int modelLoc, bool grayscale){};

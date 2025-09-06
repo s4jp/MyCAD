@@ -7,10 +7,9 @@ private:
 	Calculate() const override;
 	void virtual CalculateBspline() const;
 
-protected:
-    BezierC0 *bSpline;
-
 public:
+	BezierC0* bSpline;
+
 	BezierInt(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
               const char *name = "Bezier Int");
 

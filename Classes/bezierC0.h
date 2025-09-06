@@ -22,6 +22,9 @@ protected:
   std::tuple<std::vector<GLfloat>, std::vector<GLuint>> virtual Calculate() const;
 
 public:
+  float polylineWidth = 1.0f;
+  float curveWidth = 3.0f;
+
   BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
            const char *name = "Bezier C0", bool numerate = true);
 
@@ -31,6 +34,7 @@ public:
 
   std::vector<Figure*> GetControlPoints() { return controlPoints; };
   void AddControlPoint(Figure* cp);
+  void AddControlPoints(std::vector<Figure*> cps);
   bool RemoveControlPoint(int idx);
   bool ReplaceControlPoint(int idx, Figure *cp);
   void RefreshBuffers();
