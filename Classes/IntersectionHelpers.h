@@ -13,9 +13,9 @@ namespace IntersectionConfig {
     constexpr float LEARNING_RATE = 0.01f;
     constexpr float TOLERANCE = 1e-5f;
     constexpr float MONTE_CARLO_THRESHOLD = 1;
-	constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-3f;
+	constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-4f;
 	constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
-	constexpr int NEWTON_MAX_ITERS = 200;
+	constexpr int NEWTON_MAX_ITERS = 300;
     constexpr float EPS = 1e-3;
     constexpr int INNER_NEWTON_ITERS = 100;
     constexpr float DAMPING = 1e-6f;
