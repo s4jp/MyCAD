@@ -13,12 +13,14 @@ Torus::Torus(glm::vec3 position, float R1n, float R2n, int n1n, int n2n)
 
 void Torus::Recalculate() 
 { 
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
-  indices_count = std::get<1>(data).size();
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
+  indices_count = std::get<2>(data).size();
   vbo.ReplaceBufferData(std::get<0>(data).data(),
                         std::get<0>(data).size() * sizeof(GLfloat));
-  ebo.ReplaceBufferData(std::get<1>(data).data(),
-                           std::get<1>(data).size() * sizeof(GLuint));
+  ebo.ReplaceBufferData(std::get<2>(data).data(),
+                        std::get<2>(data).size() * sizeof(GLuint));
+  uvVbo.ReplaceBufferData(std::get<1>(data).data(),
+	                      std::get<1>(data).size() * sizeof(GLfloat));
 }
 
 void Torus::Render(int colorLoc, int modelLoc, bool grayscale)
@@ -33,9 +35,10 @@ void Torus::Render(int colorLoc, int modelLoc, bool grayscale)
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const 
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const 
 {
   std::vector<GLfloat> vertices;
+  std::vector<GLfloat> uvs;
   std::vector<GLuint> indices;
 
   float R1step = 2 * M_PI / n1;
@@ -57,6 +60,11 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const
       vertices.push_back(vertex.y);
       vertices.push_back(vertex.z);
 
+      float u = static_cast<float>(i) / n1;
+      float v = static_cast<float>(j) / n2;
+      uvs.push_back(u);
+      uvs.push_back(v);
+
       // R2 loop
       indices.push_back(i * n2 + j);              // current
       indices.push_back(i * n2 + ((j + 1) % n2)); // next
@@ -66,10 +74,10 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const
     }
   }
 
-  return std::make_tuple(vertices, indices);
+  return std::make_tuple(vertices, uvs, indices);
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2) 
 {
   this->R1 = R1;

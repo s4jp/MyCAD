@@ -111,15 +111,17 @@ void recalculateSelectedSurfacesAndPatches();
 MG1::SceneSerializer serializer;
 std::string filePath = "Scenes\\itersectionsFull.json";
 
-int modelLoc, viewLoc, projLoc, colorLoc, displacementLoc;
+int modelLoc, viewLoc, projLoc, colorLoc, displacementLoc,
+    textureLoc, trimmingOptionLoc;
 int tessModelLoc, tessViewLoc, tessProjLoc, tessColorLoc, tessCpCountLoc,
     tessResolutionLoc, tessSegmentCountLoc, tessSegmentIdxLoc, tessDivisionLoc,
-    tessDisplacementLoc;
+    tessDisplacementLoc, tessTrimmingOptionLoc;
 int tessSurfaceModelLoc, tessSurfaceViewLoc, tessSurfaceProjLoc,
     tessSurfaceColorLoc, tessSurfaceCpCountLoc, tessSurfaceResolutionLoc,
     tessSurfaceDivisionLoc, tessSurfaceSegmentCountLoc,
     tessSurfaceSegmentIdxLoc, tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc,
-    tessSurfaceDisplacementLoc, tessSurfaceGregoryLoc;
+    tessSurfaceDisplacementLoc, tessSurfaceGregoryLoc,
+    tessSurfaceTextureLoc, tessSurfaceTrimmingOptionLoc;
 
 bool renderGrid = true;
 std::string serializerErrorMsg = "";
@@ -132,6 +134,8 @@ void deleteCpsIfFree(std::vector<Figure*> cpsToDelete);
 Intersection* intersection;
 ControlledInputFloat intersectionPrecision = ControlledInputFloat("Precision", 0.1f, 0.01f, 0.01f);
 bool useCursorAsStartPoint = false;
+void setTextureAndTrimmingOption(Figure* fig, int textureLoc, int trimmingOptionLoc);
+int mapTrimmingOption(bool hideRed, bool hideBlack);
 
 int main() { 
     // initial values
@@ -172,6 +176,8 @@ int main() {
     projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
     colorLoc = glGetUniformLocation(shaderProgram.ID, "color");
     displacementLoc = glGetUniformLocation(shaderProgram.ID, "displacement");
+	textureLoc = glGetUniformLocation(shaderProgram.ID, "tex");
+	trimmingOptionLoc = glGetUniformLocation(shaderProgram.ID, "trimmingOption");
 
     Shader tessShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
                              "Shaders\\tessellation.tesc", "Shaders\\tessellation.tese");
@@ -185,6 +191,7 @@ int main() {
     tessSegmentIdxLoc = glGetUniformLocation(tessShaderProgram.ID, "segmentIdx");
 	tessDivisionLoc = glGetUniformLocation(tessShaderProgram.ID, "division");
     tessDisplacementLoc = glGetUniformLocation(tessShaderProgram.ID, "displacement");
+	tessTrimmingOptionLoc = glGetUniformLocation(tessShaderProgram.ID, "trimmingOption");
 
 	Shader tessSurfaceShaderProgram("Shaders\\tessellation.vert", "Shaders\\default.frag",
 		"Shaders\\tessellation.tesc", "Shaders\\tessellationSurface.tese");
@@ -201,6 +208,8 @@ int main() {
 	tessSurfaceBsplineLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "bspline");
     tessSurfaceDisplacementLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "displacement");
 	tessSurfaceGregoryLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "gregory");
+	tessSurfaceTextureLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "tex");
+	tessSurfaceTrimmingOptionLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "trimmingOption");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -247,8 +256,11 @@ int main() {
 
       // objects rendering with default shader
       for (int i = 0; i < figures.size(); i++) {
+		setTextureAndTrimmingOption(figures[i], textureLoc, trimmingOptionLoc);
         figures[i]->Render(colorLoc, modelLoc, grayscale);
       }
+	  glUniform1i(trimmingOptionLoc, 0);
+
       // render curves polyline with default shader (still)
       for (int i = 0; i < curves.size(); i++) {
         if (curves[i]->selected) {
@@ -289,6 +301,7 @@ int main() {
       glUniform2i(tessResolutionLoc, camera->GetWidth(), camera->GetHeight());
       glUniformMatrix4fv(tessDisplacementLoc, 1, GL_FALSE,
                          glm::value_ptr(displacement));
+	  glUniform1i(tessTrimmingOptionLoc, 0);
 
       // curves rendering with tessellation shader
       for (int i = 0; i < curves.size(); i++) {
@@ -316,9 +329,10 @@ int main() {
                          glm::value_ptr(displacement));
 
       // surfaces rendering with surface tessellation shader
-      for (int i = 0; i < surfaces.size(); i++)
-        surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc,
-                                grayscale);
+      for (int i = 0; i < surfaces.size(); i++) {
+        setTextureAndTrimmingOption(surfaces[i], tessSurfaceTextureLoc, tessSurfaceTrimmingOptionLoc);
+        surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc, grayscale);
+      }
 
 	  // render patches with surface tessellation shader
 	  for (int i = 0; i < patches.size(); i++) {
@@ -1639,6 +1653,42 @@ void deleteCpsIfFree(std::vector<Figure*> cpsToDelete)
             }
 
     recalculateSelected(true);
+}
+
+void setTextureAndTrimmingOption(Figure* fig, int textureLoc, int trimmingOptionLoc)
+{
+    if (intersection == nullptr ||
+        !(fig == intersection->fig1 || fig == intersection->fig2)) {
+        glUniform1i(trimmingOptionLoc, 0);
+        return;
+    }
+
+    if (fig == intersection->fig1) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, intersection->tex1);
+        glUniform1i(textureLoc, 0);
+
+        glUniform1i(trimmingOptionLoc, mapTrimmingOption(intersection->tex1_hideRed, intersection->tex1_hideBlack));
+    }
+    else {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, intersection->tex2);
+		glUniform1i(textureLoc, 0);
+
+        glUniform1i(trimmingOptionLoc, mapTrimmingOption(intersection->tex2_hideRed, intersection->tex2_hideBlack));
+    }
+}
+
+int mapTrimmingOption(bool hideRed, bool hideBlack)
+{
+    if (hideRed && hideBlack)
+        return 3;
+    else if (hideRed)
+        return 2;
+    else if (hideBlack)
+        return 1;
+    else
+        return 0;
 }
 
 void loadScene() 

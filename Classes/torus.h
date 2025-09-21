@@ -28,8 +28,8 @@ public:
   bool IsWrappedV() override { return true; }
 
 private:
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
   InitializeAndCalculate(float R1, float R2, int n1, int n2);
   float GetR() { return 0; };
 };

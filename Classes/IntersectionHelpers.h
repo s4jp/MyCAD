@@ -61,11 +61,12 @@ public:
         bool isLoop;
         std::vector<IntersectionPoint> points;
 		int startIdx;
+        Figure* figA;
+		Figure* figB;
 
         IntersectionCurve() : isLoop(false), startIdx(-1) {}
-        IntersectionCurve(bool loop, std::vector<IntersectionPoint>&& pts, int startIdx)
-            : isLoop(loop), points(std::move(pts)), startIdx(startIdx) {
-        }
+        IntersectionCurve(bool loop, std::vector<IntersectionPoint>&& pts, int startIdx, Figure* figA, Figure* figB)
+            : isLoop(loop), points(std::move(pts)), startIdx(startIdx), figA(figA), figB(figB) {}
 
         void print() const {
             std::cout << "Intersection: " << (isLoop ? "Loop (closed)" : "Open") << std::endl << std::endl;

@@ -10,9 +10,6 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
     auto img2 = RasterizeCurveToImage(curve, texSize,
         [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv2; });
 
-    texUV1 = CreateOrUpdateTextureRGBA(texUV1, texSize, img1);
-    texUV2 = CreateOrUpdateTextureRGBA(texUV2, texSize, img2);
-
     glm::vec2 avg1 = ComputeAverageUV(curve, [](const auto& p) { return p.uv1; });
     glm::vec2 avg2 = ComputeAverageUV(curve, [](const auto& p) { return p.uv2; });
 
@@ -48,8 +45,8 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
 
 	if (img1toFix) ReverseColors(img1_flood);
 	if (img2toFix) ReverseColors(img2_flood);
-    texUV1_2 = CreateOrUpdateTextureRGBA(texUV1_2, texSize, img1_flood);
-    texUV2_2 = CreateOrUpdateTextureRGBA(texUV2_2, texSize, img2_flood);
+    tex1 = CreateOrUpdateTextureRGBA(tex1, texSize, img1_flood);
+    tex2 = CreateOrUpdateTextureRGBA(tex2, texSize, img2_flood);
 
 	std::vector<Figure*> controlPoints;
     for (const auto& p : curve.points) {
@@ -63,13 +60,14 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
     bSpline.polylineWidth = 4.0f;
     bSpline.bSpline->curveWidth = 4.0f;
 	bSpline.bSpline->usePolyLineColor = true;
+
+	fig1 = curve.figA;
+	fig2 = curve.figB;
 }
 
 Intersection::~Intersection() {
-    if (texUV1) glDeleteTextures(1, &texUV1);
-    if (texUV2) glDeleteTextures(1, &texUV2);
-    if (texUV1_2) glDeleteTextures(1, &texUV1_2);
-    if (texUV2_2) glDeleteTextures(1, &texUV2_2);
+    if (tex1) glDeleteTextures(1, &tex1);
+    if (tex2) glDeleteTextures(1, &tex2);
 }
 
 #ifdef IMGUI_VERSION
@@ -78,25 +76,20 @@ void Intersection::ShowImGui(int previewSize){
     if (ImGui::Begin("UV Textures")) {
         ImGui::Checkbox("Switch to bspline", &this->showInterpolated);
 
-        // --- UV1 pair ---
-        ImGui::TextUnformatted("uv1:");
-        ImGui::Image((ImTextureID)(intptr_t)texUV1,
-            ImVec2((float)previewSize, (float)previewSize),
-            ImVec2(0, 0), ImVec2(1, 1));
-        ImGui::SameLine();
-        ImGui::Image((ImTextureID)(intptr_t)texUV1_2,
-            ImVec2((float)previewSize, (float)previewSize),
-            ImVec2(0, 0), ImVec2(1, 1));
+        ImGui::Separator();
+		ImGui::Checkbox("Hide red in uv1", &tex1_hideRed); ImGui::SameLine();
+		ImGui::Checkbox("Hide black in uv1", &tex1_hideBlack);
+
+		ImGui::Checkbox("Hide red in uv2", &tex2_hideRed); ImGui::SameLine();
+		ImGui::Checkbox("Hide black in uv2", &tex2_hideBlack);
 
         ImGui::Separator();
 
-        // --- UV2 pair ---
-        ImGui::TextUnformatted("uv2:");
-        ImGui::Image((ImTextureID)(intptr_t)texUV2,
+        ImGui::Image((ImTextureID)(intptr_t)tex1,
             ImVec2((float)previewSize, (float)previewSize),
             ImVec2(0, 0), ImVec2(1, 1));
-        ImGui::SameLine();
-        ImGui::Image((ImTextureID)(intptr_t)texUV2_2,
+		ImGui::SameLine();
+        ImGui::Image((ImTextureID)(intptr_t)tex2,
             ImVec2((float)previewSize, (float)previewSize),
             ImVec2(0, 0), ImVec2(1, 1));
     }

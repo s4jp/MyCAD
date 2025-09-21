@@ -25,12 +25,20 @@ bool GregoryPatch::CreateImgui() {
 }
 
 void GregoryPatch::RefreshBuffers() {
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
-  indices_count = std::get<1>(data).size();
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
+  indices_count = std::get<2>(data).size();
   vbo.ReplaceBufferData(std::get<0>(data).data(),
                         std::get<0>(data).size() * sizeof(GLfloat));
-  ebo.ReplaceBufferData(std::get<1>(data).data(),
-                        std::get<1>(data).size() * sizeof(GLuint));
+  ebo.ReplaceBufferData(std::get<2>(data).data(),
+                        std::get<2>(data).size() * sizeof(GLuint));
+
+  for (size_t i = 0; i < std::get<0>(data).size() / 3; i++) {
+    std::get<1>(data).push_back(0.f);
+    std::get<1>(data).push_back(0.f);
+  }
+  uvVbo.ReplaceBufferData(std::get<1>(data).data(),
+	  std::get<1>(data).size() * sizeof(GLfloat));
+
 }
 
 bool GregoryPatch::ReplaceControlPoint(int idx, Figure *cp) {
@@ -42,7 +50,7 @@ bool GregoryPatch::ReplaceControlPoint(int idx, Figure *cp) {
   return true;
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 GregoryPatch::InitializeAndCalculate(std::vector<Figure*> controlPoints, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int gregoryLoc) {
   this->controlPoints = controlPoints;
   this->cpCountLoc = cpCountLoc;
@@ -56,7 +64,7 @@ GregoryPatch::InitializeAndCalculate(std::vector<Figure*> controlPoints, int cpC
   return Calculate();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 GregoryPatch::Calculate() const {
   std::vector<glm::vec3> R;
   for (int i = 0; i < 6; i++) {
@@ -169,7 +177,7 @@ GregoryPatch::Calculate() const {
     }
   }
 
-  return std::make_tuple(vertices, indices);
+  return std::make_tuple(vertices, std::vector<GLfloat>(), indices);
 }
 
 GregoryPatch::GregoryPatch(std::vector<Figure*> controlPoints, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int gregoryLoc)

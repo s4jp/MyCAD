@@ -181,7 +181,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::FindIntersection(Fig
         curve.insert(curve.end(), backward.points.begin(), backward.points.end());
         curve.insert(curve.end(), forward.points.begin(), forward.points.end());
 
-        return IntersectionCurve(false, std::move(curve), backward.points.size());
+        return IntersectionCurve(false, std::move(curve), backward.points.size(), A, B);
     }
 }
 
@@ -279,7 +279,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
                 glm::vec3 posEdge = GetPosition(A, B, clamped);
                 pts.emplace_back(posEdge, glm::vec2(clamped.x, clamped.y), glm::vec2(clamped.z, clamped.w));
-                return IntersectionCurve(false, std::move(pts), 0);
+                return IntersectionCurve(false, std::move(pts), 0, A, B);
             }
 
             float dist = glm::length(A->GetValue(next.x, next.y) - B->GetValue(next.z, next.w));
@@ -291,14 +291,14 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
         glm::vec3 pos = GetPosition(A, B, next);
 
         if (pts.size() > 6 && glm::length(pos - pts.front().position) < 0.7f * fabs(step)) {
-            return IntersectionCurve(true, std::move(pts), 0);
+            return IntersectionCurve(true, std::move(pts), 0, A, B);
         }
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));
         last = next;
     }
 
-    return IntersectionCurve(false, std::move(pts), 0);
+    return IntersectionCurve(false, std::move(pts), 0, A, B);
 }
 
 glm::vec4 IntersectionHelpers::Clamp(glm::vec4 curr, glm::vec4 prev, glm::vec4 delta)

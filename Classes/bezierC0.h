@@ -12,14 +12,14 @@ private:
   int segmentIdxLoc;
   int divisionLoc;
 
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
   InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
                          int segmentIdxLoc, int divisionLoc);
 
 protected:
   std::vector<Figure *> controlPoints;
 
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> virtual Calculate() const;
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> virtual Calculate() const;
 
 public:
   float polylineWidth = 1.0f;

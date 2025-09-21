@@ -15,7 +15,7 @@ public:
   bool Intersectional() { return false; }
 
 private:
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate();
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Calculate();
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
   InitializeAndCalculate(float length);
 };

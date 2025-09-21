@@ -10,11 +10,16 @@
 
 class Intersection {
 public:
-    GLuint texUV1 = 0;
-    GLuint texUV2 = 0;
-    GLuint texUV1_2 = 0;
-    GLuint texUV2_2 = 0;
+    Figure* fig1 = nullptr;
+	Figure* fig2 = nullptr;
 
+    GLuint tex1 = 0;
+    GLuint tex2 = 0;
+
+	bool tex1_hideRed = false;
+	bool tex1_hideBlack = false;
+	bool tex2_hideRed = false;
+	bool tex2_hideBlack = false;
 
     Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc, 
         int segmentIdxLoc, int divisionLoc, int texSize = 1024);

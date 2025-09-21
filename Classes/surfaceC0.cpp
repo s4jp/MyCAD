@@ -199,7 +199,7 @@ bool SurfaceC0::ReplaceControlPoint(int idx, Figure *cp) {
 }
 
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
-	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
+	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 
 void SurfaceC0::RenderTess(int colorLoc, int modelLoc, bool grayscale)
 {

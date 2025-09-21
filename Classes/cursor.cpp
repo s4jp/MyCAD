@@ -44,7 +44,7 @@ bool Cursor::CreateImgui() {
   return change;
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Cursor::Calculate() {
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Cursor::Calculate() {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;
 
@@ -73,10 +73,10 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Cursor::Calculate() {
   indices.push_back(0);
   indices.push_back(3);
 
-  return std::make_tuple(vertices, indices);
+  return std::make_tuple(vertices, std::vector<GLfloat>(), indices);
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 Cursor::InitializeAndCalculate(float length) {
   this->length = length;
 

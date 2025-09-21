@@ -3,7 +3,7 @@
 
 class BezierInt : public BezierC0 {
 private:
-	std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+	std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 	Calculate() const override;
 	void virtual CalculateBspline() const;
 
