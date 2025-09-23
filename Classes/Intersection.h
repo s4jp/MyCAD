@@ -13,8 +13,8 @@ public:
     Figure* fig1 = nullptr;
 	Figure* fig2 = nullptr;
 
-    GLuint tex1 = 0;
-    GLuint tex2 = 0;
+    GLuint bigTex1;
+    GLuint bigTex2;
 
 	bool tex1_hideRed = false;
 	bool tex1_hideBlack = false;
@@ -28,17 +28,18 @@ public:
 	bool useFirstTexture = true;
 
     Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc, 
-        int segmentIdxLoc, int divisionLoc, int texSize = 1024);
+        int segmentIdxLoc, int divisionLoc, int texSize);
     ~Intersection();
 
-#ifdef IMGUI_VERSION
-    void ShowImGui(int previewSize = 256);
-#endif
+    void ShowImGui(int previewSize);
 
 	void Render(int colorLoc, int modelLoc, bool grayscale);
 	void RenderPolyline(int colorLoc, int modelLoc, bool grayscale);
 
 private:
+    GLuint tex1;
+    GLuint tex2;
+
     BezierInt bSpline;
     bool showInterpolated = false;
 	bool show = true;
@@ -46,28 +47,19 @@ private:
     bool fig1hasRed;
     bool fig2hasRed;
 
-    static inline void PutPixelRGBA(std::vector<uint8_t>& img, int width, int height,
-        int x, int y,
-        uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
-
-    static void DrawLineBresenham(std::vector<uint8_t>& img, int width, int height,
-        int x0, int y0, int x1, int y1,
-        uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t a = 255);
+    static inline void PutWhitePixel(std::vector<uint8_t>& img, int width, int height, int x, int y);
+    static void DrawLineBresenham(std::vector<uint8_t>& img, int width, int height, int x0, int y0, int x1, int y1);
 
     static inline int ClampToInt(int v, int lo, int hi);
     static inline void UVtoPixel(const glm::vec2& uv, int size, int& outX, int& outY);
 
     template <typename UVGetter>
-    static std::vector<uint8_t> RasterizeCurveToImage(const IntersectionHelpers::IntersectionCurve& curve,
-        int size,
-        UVGetter&& getUV);
+    static std::vector<uint8_t> RasterizeCurveToImage(const IntersectionHelpers::IntersectionCurve& curve, int size, UVGetter&& getUV);
 
-    static GLuint CreateOrUpdateTextureRGBA(GLuint existingTex,
-        int size,
-        const std::vector<uint8_t>& rgba);
-    int FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool uWrapped, bool vWrapped);
-    glm::vec2 ComputeAverageUV(const IntersectionHelpers::IntersectionCurve& curve, 
-        std::function<glm::vec2(const IntersectionHelpers::IntersectionPoint&)> getUV);
+    static GLuint CreateOrUpdateTextureRGBA(GLuint existingTex, int size, const std::vector<uint8_t>& rgba);
+    int FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, bool uWrapped, bool vWrapped);
+    glm::vec2 ComputeAverageUV(const IntersectionHelpers::IntersectionCurve& curve, std::function<glm::vec2(const IntersectionHelpers::IntersectionPoint&)> getUV);
     bool FindFloodFillStart(const std::vector<uint8_t>& img, int width, int height, int& startX, int& startY);
 	static int ReverseColors(std::vector<uint8_t>& img);
+    void TextureCreationLogic(GLuint& texture1, GLuint& texture2, const IntersectionHelpers::IntersectionCurve& curve, int texSize);
 };

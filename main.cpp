@@ -1725,14 +1725,14 @@ void setTextureAndTrimmingOption(Figure* fig, int textureLoc, int trimmingOption
 
     if (isFig1 && (!intersection->sameFig || (intersection->sameFig && intersection->useFirstTexture))) {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, intersection->tex1);
+        glBindTexture(GL_TEXTURE_2D, intersection->bigTex1);
         glUniform1i(textureLoc, 0);
 
         glUniform1i(trimmingOptionLoc, mapTrimmingOption(intersection->tex1_hideRed, intersection->tex1_hideBlack));
     }
     if (isFig2 && (!intersection->sameFig || (intersection->sameFig && !intersection->useFirstTexture))) {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, intersection->tex2);
+        glBindTexture(GL_TEXTURE_2D, intersection->bigTex2);
 	    glUniform1i(textureLoc, 0);
 
         glUniform1i(trimmingOptionLoc, mapTrimmingOption(intersection->tex2_hideRed, intersection->tex2_hideBlack));

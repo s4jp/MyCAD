@@ -4,58 +4,19 @@
 #include <point.h>
 #include <imgui.h>
 
+const glm::vec4 RED(255, 0, 0, 255);
+const glm::vec4 BLACK(0, 0, 0, 255);
+const glm::vec4 WHITE(255, 255, 255, 255);
+const int BIG_TEXTURE_MULTIPLIER = 4;
+
 Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc,
     int segmentIdxLoc, int divisionLoc, int texSize) : bSpline(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc) {
     fig1 = curve.figA;
 	fig2 = curve.figB;
 	sameFig = fig1 == fig2;
 
-    auto img1 = RasterizeCurveToImage(curve, texSize,
-        [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv1; });
-    auto img2 = RasterizeCurveToImage(curve, texSize,
-        [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv2; });
-
-    glm::vec2 avg1 = ComputeAverageUV(curve, [](const auto& p) { return p.uv1; });
-    glm::vec2 avg2 = ComputeAverageUV(curve, [](const auto& p) { return p.uv2; });
-
-    int startX, startY;
-    UVtoPixel(avg1, texSize, startX, startY);
-    auto img1_flood = img1;
-    int count1 = 0;
-    if (FindFloodFillStart(img1_flood, texSize, texSize, startX, startY)) {
-        count1 = FloodFill(img1_flood, texSize, texSize, startX, startY, 255, 0, 0, 255, fig1->IsWrappedU(), fig1->IsWrappedV());
-    }
-
-    UVtoPixel(avg2, texSize, startX, startY);
-    auto img2_flood = img2;
-    int count2 = 0;
-    if (FindFloodFillStart(img2_flood, texSize, texSize, startX, startY)) {
-        count2 = FloodFill(img2_flood, texSize, texSize, startX, startY, 255, 0, 0, 255, fig2->IsWrappedU(), fig2->IsWrappedV());
-    }
-
-    bool img1toFix = false;
-    bool img2toFix = false;
-    if (count1 > 0.5 * texSize * texSize && count2 > 0.5 * texSize * texSize) {
-        img1toFix = true;
-        img2toFix = true;
-    }
-    else if (std::abs(count1 - count2) > (texSize * texSize / 10)) {
-        if (count1 > count2) {
-            img1toFix = true;
-        }
-        else {
-            img2toFix = true;
-        }
-    }
-
-	if (img1toFix) count1 = ReverseColors(img1_flood);
-	if (img2toFix) count2 = ReverseColors(img2_flood);
-
-	fig1hasRed = count1 > 0;
-	fig2hasRed = count2 > 0;
-
-    tex1 = CreateOrUpdateTextureRGBA(tex1, texSize, img1_flood);
-    tex2 = CreateOrUpdateTextureRGBA(tex2, texSize, img2_flood);
+	TextureCreationLogic(tex1, tex2, curve, texSize);
+	TextureCreationLogic(bigTex1, bigTex2, curve, texSize * BIG_TEXTURE_MULTIPLIER);
 
 	std::vector<Figure*> controlPoints;
     for (const auto& p : curve.points) {
@@ -109,22 +70,18 @@ void Intersection::ShowImGui(int previewSize){
         ImVec2(0,1), ImVec2(1,0));
 }
 
-inline void Intersection::PutPixelRGBA(std::vector<uint8_t>& img, int width, int height,
-    int x, int y,
-    uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+inline void Intersection::PutWhitePixel(std::vector<uint8_t>& img, int width, int height, int x, int y) {
     if (x < 0 || y < 0 || x >= width || y >= height) return;
     const size_t idx = static_cast<size_t>((y * width + x) * 4);
-    img[idx + 0] = r;
-    img[idx + 1] = g;
-    img[idx + 2] = b;
-    img[idx + 3] = a;
+    img[idx + 0] = WHITE.x;
+    img[idx + 1] = WHITE.y;
+    img[idx + 2] = WHITE.z;
+    img[idx + 3] = WHITE.w;
 }
 
-void Intersection::DrawLineBresenham(std::vector<uint8_t>& img, int width, int height,
-    int x0, int y0, int x1, int y1,
-    uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void Intersection::DrawLineBresenham(std::vector<uint8_t>& img, int width, int height, int x0, int y0, int x1, int y1) {
     if (x0 == x1 && y0 == y1) {
-        PutPixelRGBA(img, width, height, x0, y0, r, g, b, a);
+        PutWhitePixel(img, width, height, x0, y0);
         return;
     }
 
@@ -147,10 +104,10 @@ void Intersection::DrawLineBresenham(std::vector<uint8_t>& img, int width, int h
     int y = y0;
     for (int x = x0; x <= x1; ++x) {
         if (steep) {
-            PutPixelRGBA(img, width, height, y, x, r, g, b, a);
+            PutWhitePixel(img, width, height, y, x);
         }
         else {
-            PutPixelRGBA(img, width, height, x, y, r, g, b, a);
+            PutWhitePixel(img, width, height, x, y);
         }
         err -= dy;
         if (err < 0) {
@@ -242,7 +199,7 @@ std::vector<uint8_t> Intersection::RasterizeCurveToImage(
         int x0, y0, x1, y1;
         UVtoPixel(a, size, x0, y0);
         UVtoPixel(b, size, x1, y1);
-        DrawLineBresenham(img, size, size, x0, y0, x1, y1, 255, 255, 255, 255);
+        DrawLineBresenham(img, size, size, x0, y0, x1, y1);
         };
 
     for (const auto& sub : subCurves) {
@@ -277,23 +234,20 @@ GLuint Intersection::CreateOrUpdateTextureRGBA(GLuint existingTex,
     return tex;
 }
 
-int Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
-    int startX, int startY,
-    uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool uWrapped, bool vWrapped)
+int Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, bool uWrapped, bool vWrapped)
 {
     auto getPixel = [&](int x, int y) -> bool {
         if (x < 0 || y < 0 || x >= width || y >= height) return false;
         size_t idx = static_cast<size_t>((y * width + x) * 4);
-        return img[idx + 0] == 0 && img[idx + 1] == 0 &&
-            img[idx + 2] == 0; // black pixel
+        return img[idx + 0] == BLACK.x && img[idx + 1] == BLACK.y && img[idx + 2] == BLACK.z;
         };
 
     auto setPixel = [&](int x, int y) {
         size_t idx = static_cast<size_t>((y * width + x) * 4);
-        img[idx + 0] = r;
-        img[idx + 1] = g;
-        img[idx + 2] = b;
-        img[idx + 3] = a;
+        img[idx + 0] = RED.x;
+        img[idx + 1] = RED.y;
+        img[idx + 2] = RED.z;
+        img[idx + 3] = RED.w;
         };
 
     auto wrapIfApplicable = [&](int& x, int& y) {
@@ -353,10 +307,8 @@ bool Intersection::FindFloodFillStart(
         return img[idx + 0] == 0 && img[idx + 1] == 0 && img[idx + 2] == 0;
         };
 
-    // If already black, fine
     if (isBlack(startX, startY)) return true;
 
-    // Try neighbors in order: left, right, up, down
     const int dirs[4][2] = { {-1,0}, {1,0}, {0,-1}, {0,1} };
     for (auto& d : dirs) {
         int nx = startX + d[0];
@@ -368,7 +320,7 @@ bool Intersection::FindFloodFillStart(
         }
     }
 
-    return false; // No black found nearby
+    return false;
 }
 
 int Intersection::ReverseColors(std::vector<uint8_t>& img)
@@ -376,18 +328,68 @@ int Intersection::ReverseColors(std::vector<uint8_t>& img)
 	int count = 0;
 
     for (size_t i = 0; i < img.size(); i += 4) {
-        bool isRed = (img[i + 0] == 255 && img[i + 1] == 0 && img[i + 2] == 0);
-        bool isBlack = (img[i + 0] == 0 && img[i + 1] == 0 && img[i + 2] == 0);
+        bool isRed = (img[i + 0] == RED.x && img[i + 1] == RED.y && img[i + 2] == RED.z);
+        bool isBlack = (img[i + 0] == BLACK.x && img[i + 1] == BLACK.y && img[i + 2] == BLACK.z);
         if (isRed) {
-            img[i + 0] = 0; img[i + 1] = 0; img[i + 2] = 0;
+            img[i + 0] = BLACK.x; img[i + 1] = BLACK.y; img[i + 2] = BLACK.z;
         }
         else if (isBlack) {
-            img[i + 0] = 255; img[i + 1] = 0; img[i + 2] = 0;
+            img[i + 0] = RED.x; img[i + 1] = RED.y; img[i + 2] = RED.z;
             count++;
         }
     }
 
 	return count;
+}
+
+void Intersection::TextureCreationLogic(GLuint& texture1, GLuint& texture2, const IntersectionHelpers::IntersectionCurve& curve, int texSize)
+{
+    auto img1 = RasterizeCurveToImage(curve, texSize,
+        [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv1; });
+    auto img2 = RasterizeCurveToImage(curve, texSize,
+        [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv2; });
+
+    glm::vec2 avg1 = ComputeAverageUV(curve, [](const auto& p) { return p.uv1; });
+    glm::vec2 avg2 = ComputeAverageUV(curve, [](const auto& p) { return p.uv2; });
+
+    int startX, startY;
+    UVtoPixel(avg1, texSize, startX, startY);
+    auto img1_flood = img1;
+    int count1 = 0;
+    if (FindFloodFillStart(img1_flood, texSize, texSize, startX, startY)) {
+        count1 = FloodFill(img1_flood, texSize, texSize, startX, startY, fig1->IsWrappedU(), fig1->IsWrappedV());
+    }
+
+    UVtoPixel(avg2, texSize, startX, startY);
+    auto img2_flood = img2;
+    int count2 = 0;
+    if (FindFloodFillStart(img2_flood, texSize, texSize, startX, startY)) {
+        count2 = FloodFill(img2_flood, texSize, texSize, startX, startY, fig2->IsWrappedU(), fig2->IsWrappedV());
+    }
+
+    bool img1toFix = false;
+    bool img2toFix = false;
+    if (count1 > 0.5 * texSize * texSize && count2 > 0.5 * texSize * texSize) {
+        img1toFix = true;
+        img2toFix = true;
+    }
+    else if (std::abs(count1 - count2) > (texSize * texSize / 10)) {
+        if (count1 > count2) {
+            img1toFix = true;
+        }
+        else {
+            img2toFix = true;
+        }
+    }
+
+	if (img1toFix) count1 = ReverseColors(img1_flood);
+	if (img2toFix) count2 = ReverseColors(img2_flood);
+
+	fig1hasRed = count1 > 0;
+	fig2hasRed = count2 > 0;
+
+    texture1 = CreateOrUpdateTextureRGBA(texture1, texSize, img1_flood);
+    texture2 = CreateOrUpdateTextureRGBA(texture2, texSize, img2_flood);
 }
 
 void Intersection::Render(int colorLoc, int modelLoc, bool grayscale) {
