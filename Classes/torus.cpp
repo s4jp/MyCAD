@@ -44,11 +44,11 @@ std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Toru
   float R1step = 2 * M_PI / n1;
   float R2step = 2 * M_PI / n2;
 
-  for (int i = 0; i < n1; i++) {
+  for (int i = 0; i <= n1; i++) {
     float xyElem = R1 + R2 * cos(i * R1step);
     float z = R2 * sin(i * R1step);
 
-    for (int j = 0; j < n2; j++) {
+    for (int j = 0; j <= n2; j++) {
       // some work-around
       glm::vec4 vertex = glm::vec4(
           xyElem * cos(j * R2step),                 // X
@@ -64,14 +64,22 @@ std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Toru
       float v = static_cast<float>(j) / n2;
       uvs.push_back(u);
       uvs.push_back(v);
-
-      // R2 loop
-      indices.push_back(i * n2 + j);              // current
-      indices.push_back(i * n2 + ((j + 1) % n2)); // next
-      // R1 loop
-      indices.push_back(i * n2 + j);              // current
-      indices.push_back(((i + 1) % n1) * n2 + j); // next
     }
+  }
+
+  int stride = n2 + 1;
+  for (int i = 0; i < n1; i++) {
+      for (int j = 0; j < n2; j++) {
+          int curr = i * stride + j;
+
+          // horizontal edge
+          indices.push_back(curr);
+          indices.push_back(curr + 1);
+
+          // vertical edge
+          indices.push_back(curr);
+          indices.push_back(curr + stride);
+      }
   }
 
   return std::make_tuple(vertices, uvs, indices);
