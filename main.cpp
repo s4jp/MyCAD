@@ -132,17 +132,19 @@ std::vector<GregoryPatch*> patches;
 std::vector<int> selectedPatches;
 void deleteCpsIfFree(std::vector<Figure*> cpsToDelete);
 
-Intersection* intersection;
 ControlledInputFloat intersectionPrecision = ControlledInputFloat("Precision", 0.1f, 0.01f, 0.01f);
 bool useCursorAsStartPoint = false;
 void setTextureAndTrimmingOption(Figure* fig, int textureLoc, int trimmingOptionLoc);
 int mapTrimmingOption(bool hideRed, bool hideBlack);
+std::vector<Intersection*> intersections;
+void deselectIntersections();
+bool isIntersectionSelected();
 
 int main() { 
     // initial values
     int width = 1500;
     int height = 800;
-    glm::vec3 cameraPosition = glm::vec3(25.0f, 25.0f, 25.0f);
+    glm::vec3 cameraPosition = glm::vec3(25.0f, 10.0f, 25.0f);
     float fov = M_PI / 4.0f;
     int guiWidth = 300;
 
@@ -289,9 +291,9 @@ int main() {
       }
 
 	  // render intersections with default shader
-      if (intersection != nullptr) {
-          intersection->RenderPolyline(colorLoc, modelLoc, grayscale);
-      }
+      for (int i = 0; i < intersections.size(); i++) {
+          intersections[i]->RenderPolyline(colorLoc, modelLoc, grayscale);
+	  }
 
       // tessellation shader activation
       tessShaderProgram.Activate();
@@ -312,9 +314,9 @@ int main() {
       }
 
       // render intersections with tessellation shader
-      if (intersection != nullptr) {
-          intersection->Render(tessColorLoc, tessModelLoc, grayscale);
-      }
+      for (int i = 0; i < intersections.size(); i++) {
+          intersections[i]->Render(tessColorLoc, tessModelLoc, grayscale);
+	  }
 
       // surface tessellation shader activation
       tessSurfaceShaderProgram.Activate();
@@ -605,6 +607,27 @@ int main() {
 
 
             ImGui::BeginChild("figures", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
+            // intersection selection
+            if (intersections.size() > 0) {
+                ImGui::SeparatorText("Intersections");
+			}
+            for (int i = 0; i < intersections.size(); i++)
+            {
+                if (ImGui::Selectable(intersections[i]->name.c_str(),
+                    &intersections[i]->selected))
+                {
+                    bool temp = intersections[i]->selected;
+                    std::for_each(intersections.begin(),
+                        intersections.end(),
+                        [](Intersection* in) {
+                            in->selected = false;
+                            ;
+
+                        });
+                    intersections[i]->selected = temp;
+                }
+            };
+
             // patches selection
             if (patches.size() > 0) {
                 ImGui::SeparatorText("Patches");
@@ -696,7 +719,7 @@ int main() {
             ImGui::EndChild();
 
             // delete button
-            if (selected.size() > 0 || selectedCurveIdx != -1 || selectedSurfaces.size() > 0 || selectedPatches.size() > 0) {
+            if (selected.size() > 0 || selectedCurveIdx != -1 || selectedSurfaces.size() > 0 || selectedPatches.size() > 0 || isIntersectionSelected()) {
                 ImGui::Separator();
                 if (ImGui::Button("Delete selected"))
                 {
@@ -719,6 +742,12 @@ int main() {
                             recalculateSelectedSurfacesAndPatches();
                         }
                         recalculateSelected(true);
+
+                        for (int i = intersections.size() - 1; i >= 0; i--) {
+                            if (intersections[i]->selected) {
+                                intersections.erase(intersections.begin() + i);
+                            }
+						}
                     }
                     else
                     {
@@ -785,12 +814,13 @@ int main() {
                 }
             }
 
-            if (selected.size() != 0 || selectedCurveIdx != -1 || selectedSurfaces.size() != 0 || selectedPatches.size() != 0) {
+            if (selected.size() != 0 || selectedCurveIdx != -1 || selectedSurfaces.size() != 0 || selectedPatches.size() != 0 || isIntersectionSelected()) {
                 ImGui::SameLine();
                 if (ImGui::Button("Deselect all")) {
                     deselectFigures();
                     deselectCurve();
                     deselectSurfacesAndPatches();
+                    deselectIntersections();
                 }
             }
 
@@ -1271,22 +1301,37 @@ int main() {
                             IntersectionHelpers::CursorData(cursor->GetPosition(), useCursorAsStartPoint));
 
                         if (!startPoint.valid) {
-                            std::cout << "No start point found!" << std::endl << std::endl;;
+							ImGui::OpenPopup("NoStartPointFound");
                         }
                         else {
-                            cursor->SetPosition(startPoint.position);
                             auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint, intersectionPrecision.GetValue());
-                            result.print();
+                            intersections.push_back(new Intersection(result, tessCpCountLoc, tessSegmentCountLoc,
+                                tessSegmentIdxLoc, tessDivisionLoc, guiWidth));
 
-                            intersection = new Intersection(result, tessCpCountLoc, tessSegmentCountLoc,
-                                tessSegmentIdxLoc, tessDivisionLoc, 256);
+                            deselectFigures();
+                            // deselectCurve();
+                            deselectSurfacesAndPatches();
+                            deselectIntersections();
+
+							intersections[intersections.size() - 1]->selected = true;
                         }
+                    }
+                    if (ImGui::BeginPopup("NoStartPointFound")) {
+                        ImGui::Text("Cannot find start point for intersection calculation!");
+                        if (ImGui::Button("OK")) {
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
                     }
                 }
             }
-            if (intersection != nullptr) {
-                intersection->ShowImGui(256);
-            }
+            for (int i = 0; i < intersections.size(); i++) {
+                if (intersections[i]->selected) {
+                    ImGui::Separator();
+					ImGui::Text("Intersection options:");
+                    intersections[i]->ShowImGui(guiWidth);
+                }
+			}
         }
         ImGui::End();
         #pragma region rest
@@ -1660,23 +1705,35 @@ void deleteCpsIfFree(std::vector<Figure*> cpsToDelete)
 
 void setTextureAndTrimmingOption(Figure* fig, int textureLoc, int trimmingOptionLoc)
 {
-    if (intersection == nullptr ||
-        !(fig == intersection->fig1 || fig == intersection->fig2)) {
+    Intersection* intersection = nullptr;
+	bool isFig1 = false;
+	bool isFig2 = false;
+    for (int i = 0; i < intersections.size(); i++) {
+        isFig1 = fig == intersections[i]->fig1;
+        isFig2 = fig == intersections[i]->fig2;
+
+        if (isFig1 || isFig2) {
+            intersection = intersections[i];
+            break;
+        }
+	}
+
+    if (!isFig1 && !isFig2) {
         glUniform1i(trimmingOptionLoc, 0);
         return;
     }
 
-    if (fig == intersection->fig1) {
+    if (isFig1 && (!intersection->sameFig || (intersection->sameFig && intersection->useFirstTexture))) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, intersection->tex1);
         glUniform1i(textureLoc, 0);
 
         glUniform1i(trimmingOptionLoc, mapTrimmingOption(intersection->tex1_hideRed, intersection->tex1_hideBlack));
     }
-    else {
+    if (isFig2 && (!intersection->sameFig || (intersection->sameFig && !intersection->useFirstTexture))) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, intersection->tex2);
-		glUniform1i(textureLoc, 0);
+	    glUniform1i(textureLoc, 0);
 
         glUniform1i(trimmingOptionLoc, mapTrimmingOption(intersection->tex2_hideRed, intersection->tex2_hideBlack));
     }
@@ -1692,6 +1749,22 @@ int mapTrimmingOption(bool hideRed, bool hideBlack)
         return 1;
     else
         return 0;
+}
+
+void deselectIntersections()
+{
+    for (int i = 0; i < intersections.size(); i++) {
+        intersections[i]->selected = false;
+	}
+}
+
+bool isIntersectionSelected()
+{
+    for (int i = 0; i < intersections.size(); i++) {
+        if (intersections[i]->selected)
+            return true;
+    }
+	return false;
 }
 
 void loadScene() 
@@ -1893,6 +1966,7 @@ void zeroScene()
   deselectFigures();
   deselectCurve();
   deselectSurfacesAndPatches();
+  deselectIntersections();
   recalculateCenter();
 
   // remove figures

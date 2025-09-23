@@ -154,11 +154,6 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B, IntersectionHelpers::C
 
 IntersectionHelpers::IntersectionCurve IntersectionHelpers::FindIntersection(Figure* A, Figure* B, StartPoint start, float step)
 {
-	start.Print();
-    A->Print();
-	B->Print();
-    std::cout << std::endl;
-
     std::vector<IntersectionPoint> curve;
 
     bool loop = false;

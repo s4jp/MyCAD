@@ -2,9 +2,14 @@
 #include <cmath>
 #include <algorithm>
 #include <point.h>
+#include <imgui.h>
 
 Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc,
     int segmentIdxLoc, int divisionLoc, int texSize) : bSpline(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc) {
+    fig1 = curve.figA;
+	fig2 = curve.figB;
+	sameFig = fig1 == fig2;
+
     auto img1 = RasterizeCurveToImage(curve, texSize,
         [](const IntersectionHelpers::IntersectionPoint& p) { return p.uv1; });
     auto img2 = RasterizeCurveToImage(curve, texSize,
@@ -18,14 +23,14 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
     auto img1_flood = img1;
     int count1 = 0;
     if (FindFloodFillStart(img1_flood, texSize, texSize, startX, startY)) {
-        count1 = FloodFill(img1_flood, texSize, texSize, startX, startY, 255, 0, 0, 255);
+        count1 = FloodFill(img1_flood, texSize, texSize, startX, startY, 255, 0, 0, 255, fig1->IsWrappedU(), fig1->IsWrappedV());
     }
 
     UVtoPixel(avg2, texSize, startX, startY);
     auto img2_flood = img2;
     int count2 = 0;
     if (FindFloodFillStart(img2_flood, texSize, texSize, startX, startY)) {
-        count2 = FloodFill(img2_flood, texSize, texSize, startX, startY, 255, 0, 0, 255);
+        count2 = FloodFill(img2_flood, texSize, texSize, startX, startY, 255, 0, 0, 255, fig2->IsWrappedU(), fig2->IsWrappedV());
     }
 
     bool img1toFix = false;
@@ -43,8 +48,12 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
         }
     }
 
-	if (img1toFix) ReverseColors(img1_flood);
-	if (img2toFix) ReverseColors(img2_flood);
+	if (img1toFix) count1 = ReverseColors(img1_flood);
+	if (img2toFix) count2 = ReverseColors(img2_flood);
+
+	fig1hasRed = count1 > 0;
+	fig2hasRed = count2 > 0;
+
     tex1 = CreateOrUpdateTextureRGBA(tex1, texSize, img1_flood);
     tex2 = CreateOrUpdateTextureRGBA(tex2, texSize, img2_flood);
 
@@ -61,8 +70,7 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
     bSpline.bSpline->curveWidth = 4.0f;
 	bSpline.bSpline->usePolyLineColor = true;
 
-	fig1 = curve.figA;
-	fig2 = curve.figB;
+	name = fig1->name + " &\n" + fig2->name;
 }
 
 Intersection::~Intersection() {
@@ -70,33 +78,36 @@ Intersection::~Intersection() {
     if (tex2) glDeleteTextures(1, &tex2);
 }
 
-#ifdef IMGUI_VERSION
-#include <imgui.h>
 void Intersection::ShowImGui(int previewSize){
-    if (ImGui::Begin("UV Textures")) {
-        ImGui::Checkbox("Switch to bspline", &this->showInterpolated);
+    ImGui::Checkbox("Render", &this->show);
+	ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
+    ImGui::Checkbox("Bspline mode", &this->showInterpolated);
 
-        ImGui::Separator();
-		ImGui::Checkbox("Hide red in uv1", &tex1_hideRed); ImGui::SameLine();
-		ImGui::Checkbox("Hide black in uv1", &tex1_hideBlack);
-
-		ImGui::Checkbox("Hide red in uv2", &tex2_hideRed); ImGui::SameLine();
-		ImGui::Checkbox("Hide black in uv2", &tex2_hideBlack);
-
-        ImGui::Separator();
-
-        ImGui::Image((ImTextureID)(intptr_t)tex1,
-            ImVec2((float)previewSize, (float)previewSize),
-            ImVec2(0, 0), ImVec2(1, 1));
-		ImGui::SameLine();
-        ImGui::Image((ImTextureID)(intptr_t)tex2,
-            ImVec2((float)previewSize, (float)previewSize),
-            ImVec2(0, 0), ImVec2(1, 1));
+    ImGui::SeparatorText(("%s options:",fig1->name).c_str());
+    if (sameFig && (fig1hasRed || fig2hasRed))
+		ImGui::Checkbox("Use first texture", &useFirstTexture);
+    if (fig1hasRed && (!sameFig || (sameFig && useFirstTexture))) {
+        ImGui::Checkbox("Hide red", &tex1_hideRed);
+        ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
+	    ImGui::Checkbox("Hide black", &tex1_hideBlack);
     }
-    ImGui::End();
-}
-#endif
 
+    ImGui::Image((ImTextureID)(intptr_t)tex1,
+        ImVec2((float)previewSize, (float)previewSize),
+        ImVec2(0,1), ImVec2(1,0));
+
+    if (!sameFig)
+        ImGui::SeparatorText(("%s options:",fig2->name).c_str());
+    if (fig2hasRed && (!sameFig || (sameFig && !useFirstTexture))) {
+        ImGui::Checkbox("Hide red ", &tex2_hideRed);
+        ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
+	    ImGui::Checkbox("Hide black ", &tex2_hideBlack);
+    }
+
+    ImGui::Image((ImTextureID)(intptr_t)tex2,
+        ImVec2((float)previewSize, (float)previewSize),
+        ImVec2(0,1), ImVec2(1,0));
+}
 
 inline void Intersection::PutPixelRGBA(std::vector<uint8_t>& img, int width, int height,
     int x, int y,
@@ -155,7 +166,7 @@ inline int Intersection::ClampToInt(int v, int lo, int hi) {
 
 inline void Intersection::UVtoPixel(const glm::vec2& uv, int size, int& outX, int& outY) {
     float uf = uv.x * float(size - 1);
-    float vf = (1.0f - uv.y) * float(size - 1);
+    float vf = uv.y * float(size - 1);
     outX = ClampToInt(int(std::round(uf)), 0, size - 1);
     outY = ClampToInt(int(std::round(vf)), 0, size - 1);
 }
@@ -268,7 +279,7 @@ GLuint Intersection::CreateOrUpdateTextureRGBA(GLuint existingTex,
 
 int Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
     int startX, int startY,
-    uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+    uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool uWrapped, bool vWrapped)
 {
     auto getPixel = [&](int x, int y) -> bool {
         if (x < 0 || y < 0 || x >= width || y >= height) return false;
@@ -285,9 +296,16 @@ int Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
         img[idx + 3] = a;
         };
 
+    auto wrapIfApplicable = [&](int& x, int& y) {
+        if (uWrapped)
+            x = (x + width) % width;
+		if (vWrapped)
+			y = (y + height) % height;
+		};
+
     if (!getPixel(startX, startY)) return 0;
 
-    int count = 0;
+    int count = 1;
     std::queue<std::pair<int, int>> q;
     q.push({ startX, startY });
     setPixel(startX, startY);
@@ -299,6 +317,7 @@ int Intersection::FloodFill(std::vector<uint8_t>& img, int width, int height,
         for (auto& d : dirs) {
             int nx = x + d[0];
             int ny = y + d[1];
+			wrapIfApplicable(nx, ny);
             if (getPixel(nx, ny)) {
                 setPixel(nx, ny);
                 q.push({ nx, ny });
@@ -352,8 +371,10 @@ bool Intersection::FindFloodFillStart(
     return false; // No black found nearby
 }
 
-void Intersection::ReverseColors(std::vector<uint8_t>& img)
+int Intersection::ReverseColors(std::vector<uint8_t>& img)
 {
+	int count = 0;
+
     for (size_t i = 0; i < img.size(); i += 4) {
         bool isRed = (img[i + 0] == 255 && img[i + 1] == 0 && img[i + 2] == 0);
         bool isBlack = (img[i + 0] == 0 && img[i + 1] == 0 && img[i + 2] == 0);
@@ -362,14 +383,17 @@ void Intersection::ReverseColors(std::vector<uint8_t>& img)
         }
         else if (isBlack) {
             img[i + 0] = 255; img[i + 1] = 0; img[i + 2] = 0;
+            count++;
         }
     }
+
+	return count;
 }
 
 void Intersection::Render(int colorLoc, int modelLoc, bool grayscale) {
-    if (showInterpolated) bSpline.Render(colorLoc, modelLoc, grayscale);
+    if (showInterpolated && show) bSpline.Render(colorLoc, modelLoc, grayscale);
 }
 
 void Intersection::RenderPolyline(int colorLoc, int modelLoc, bool grayscale) {
-    if (!showInterpolated) bSpline.RenderPolyline(colorLoc, modelLoc, grayscale);
+    if (!showInterpolated && show) bSpline.RenderPolyline(colorLoc, modelLoc, grayscale);
 }

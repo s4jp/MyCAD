@@ -21,6 +21,12 @@ public:
 	bool tex2_hideRed = false;
 	bool tex2_hideBlack = false;
 
+	bool selected = false;
+	std::string name;
+
+    bool sameFig;
+	bool useFirstTexture = true;
+
     Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc, 
         int segmentIdxLoc, int divisionLoc, int texSize = 1024);
     ~Intersection();
@@ -35,6 +41,10 @@ public:
 private:
     BezierInt bSpline;
     bool showInterpolated = false;
+	bool show = true;
+
+    bool fig1hasRed;
+    bool fig2hasRed;
 
     static inline void PutPixelRGBA(std::vector<uint8_t>& img, int width, int height,
         int x, int y,
@@ -55,9 +65,9 @@ private:
     static GLuint CreateOrUpdateTextureRGBA(GLuint existingTex,
         int size,
         const std::vector<uint8_t>& rgba);
-    int FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    int FloodFill(std::vector<uint8_t>& img, int width, int height, int startX, int startY, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool uWrapped, bool vWrapped);
     glm::vec2 ComputeAverageUV(const IntersectionHelpers::IntersectionCurve& curve, 
         std::function<glm::vec2(const IntersectionHelpers::IntersectionPoint&)> getUV);
     bool FindFloodFillStart(const std::vector<uint8_t>& img, int width, int height, int& startX, int& startY);
-	static void ReverseColors(std::vector<uint8_t>& img);
+	static int ReverseColors(std::vector<uint8_t>& img);
 };
