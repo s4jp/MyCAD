@@ -1,7 +1,7 @@
 #include "SurfaceC0.h"
 #include "point.h"
 
-std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc)
+std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc)
 {
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
@@ -33,17 +33,22 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
+			glm::vec2 uvOffset(
+				static_cast<float>(j) / xSegments,
+				static_cast<float>(i) / zSegments
+			);
             this->patches.push_back(new BicubicPatch(
                 cpCount, segmentCountLoc, segmentIdxLoc,
                 divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
-                &this->division, gregoryLoc));
+                &this->division, gregoryLoc, uvOffset, uvOffsetLoc));
 		}
 	}
     this->ambit = new Graph(*this);
+	this->uvScaleLoc = uvScaleLoc;
 	return newPoints;
 }
 
-std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc) 
+std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc) 
 {
 	float patchRadius = 2 * M_PI / xSegments;
 	float patchRadiusStep = patchRadius / 3.f;
@@ -90,13 +95,18 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
+			glm::vec2 uvOffset(
+				static_cast<float>(j) / xSegments,
+				static_cast<float>(i) / zSegments
+			);
             this->patches.push_back(new BicubicPatch(
                 cpCount, segmentCountLoc, segmentIdxLoc,
                 divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
-                &this->division, gregoryLoc));
+                &this->division, gregoryLoc, uvOffset, uvOffsetLoc));
 		}
 	}
     this->ambit = new Graph(*this);
+	this->uvScaleLoc = uvScaleLoc;
 	return newPoints;
 }
 
@@ -127,7 +137,8 @@ int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
 void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
                                         int segmentIdxLoc, int divisionLoc,
                                         int otherAxisLoc, int bsplineLoc,
-                                        std::vector<Figure*> cps, int gregoryLoc) 
+                                        std::vector<Figure*> cps, int gregoryLoc,
+										int uvOffsetLoc, int uvScaleLoc) 
 {
   if (cps.size() % 16 != 0) return;
 
@@ -137,9 +148,24 @@ void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
                                    cps.begin() + i * 16 + 16);
     this->patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc,
                               divisionLoc, otherAxisLoc, bsplineLoc, false,
-                              cpsPatch, &this->division, gregoryLoc));
+                              cpsPatch, &this->division, gregoryLoc, glm::vec2(0.f), uvOffsetLoc));
   }
   this->ambit = new Graph(*this);
+  this->uvScaleLoc = uvScaleLoc;
+
+  int uCount = CalcSizeU();
+  int vCount = CalcSizeV();
+
+  for (int iv = 0; iv < vCount; iv++) {
+      for (int iu = 0; iu < uCount; iu++) {
+          int patchIdx = iv * uCount + iu;
+          glm::vec2 uvOffset(
+              iu / static_cast<float>(uCount),
+              iv / static_cast<float>(vCount)
+          );
+          this->patches[patchIdx]->uvOffset = uvOffset;
+      }
+  }
 }
 
 int SurfaceC0::CalcSize(int i, int j) 
@@ -203,6 +229,7 @@ SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
 
 void SurfaceC0::RenderTess(int colorLoc, int modelLoc, bool grayscale)
 {
+	glUniform2f(uvScaleLoc, CalcSizeU(), CalcSizeV());
 	for (int i = 0; i < patches.size(); i++) {
 		patches[i]->selected = selected;
 		patches[i]->RenderTess(colorLoc, modelLoc, grayscale);

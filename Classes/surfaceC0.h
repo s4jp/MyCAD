@@ -12,6 +12,7 @@ protected:
 	std::vector<BicubicPatch*> patches = std::vector<BicubicPatch*>();
 	bool showMesh = false;
 	int division = 4;
+	int uvScaleLoc;
 
 	int CalcSize(int i, int j);
     bool CheckWrappedU(int i, int j);
@@ -30,11 +31,11 @@ public:
 	std::vector<Figure*> GetControlPoints();
 	void RefreshBuffers();
 
-	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc);
-	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc);
+	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc);
+	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc);
 
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
-    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps, int gregoryLoc);
+    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc);
 
 	int virtual CalcSizeU();
     int virtual CalcSizeV();

@@ -121,7 +121,8 @@ int tessSurfaceModelLoc, tessSurfaceViewLoc, tessSurfaceProjLoc,
     tessSurfaceDivisionLoc, tessSurfaceSegmentCountLoc,
     tessSurfaceSegmentIdxLoc, tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc,
     tessSurfaceDisplacementLoc, tessSurfaceGregoryLoc,
-    tessSurfaceTextureLoc, tessSurfaceTrimmingOptionLoc;
+    tessSurfaceTextureLoc, tessSurfaceTrimmingOptionLoc, 
+	tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc;
 
 bool renderGrid = true;
 std::string serializerErrorMsg = "";
@@ -210,6 +211,8 @@ int main() {
 	tessSurfaceGregoryLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "gregory");
 	tessSurfaceTextureLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "tex");
 	tessSurfaceTrimmingOptionLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "trimmingOption");
+	tessSurfaceUvOffsetLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "uvOffset");
+	tessSurfaceUvScaleLoc = glGetUniformLocation(tessSurfaceShaderProgram.ID, "uvScale");
 
     // callbacks
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -460,7 +463,7 @@ int main() {
 
                         SurfaceC0* plane = new SurfaceC0(cursor->GetPosition());
                         std::vector<Figure*> newFigures = plane->CalculatePlane(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc);
+                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
                         for (int i = 0; i < newFigures.size(); i++) {
                             figures.push_back(newFigures[i]);
                         }
@@ -500,7 +503,7 @@ int main() {
 
                         SurfaceC0* cylinder = new SurfaceC0(cursor->GetPosition());
                         std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc);
+                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
                         for (int i = 0; i < newFigures.size(); i++) {
                             figures.push_back(newFigures[i]);
                         }
@@ -540,7 +543,7 @@ int main() {
 
                         SurfaceC0* plane = new SurfaceC2(cursor->GetPosition());
                         std::vector<Figure*> newFigures = plane->CalculatePlane(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc);
+                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
                         for (int i = 0; i < newFigures.size(); i++) {
                             figures.push_back(newFigures[i]);
                         }
@@ -581,7 +584,7 @@ int main() {
 
                         SurfaceC0* cylinder = new SurfaceC2(cursor->GetPosition());
                         std::vector<Figure*> newFigures = cylinder->CalculateCylinder(tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc, tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc);
+                            tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, PxSegments, PzSegments, Pparam1, Pparam2, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
                         for (int i = 0; i < newFigures.size(); i++) {
                             figures.push_back(newFigures[i]);
                         }
@@ -1779,7 +1782,7 @@ void loadScene()
     s->CreateFromControlPoints(
         tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
         tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps, tessSurfaceGregoryLoc);
+        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
     surfaces.push_back(s);
   }
 
@@ -1795,7 +1798,7 @@ void loadScene()
     s->CreateFromControlPoints(
         tessSurfaceCpCountLoc, tessSurfaceSegmentCountLoc,
         tessSurfaceSegmentIdxLoc, tessSurfaceDivisionLoc,
-        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps, tessSurfaceGregoryLoc);
+        tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
     surfaces.push_back(s);
   }
 }

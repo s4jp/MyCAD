@@ -20,12 +20,16 @@ private:
 	int bsplineLoc;
 	int gregoryLoc;
 
+	int uvOffsetLoc;
+
 	std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> InitializeAndCalculate
-	(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, bool bspline, std::vector<Figure*> controlPoints, int* division, int gregoryLoc);
+	(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, bool bspline, std::vector<Figure*> controlPoints, int* division, int gregoryLoc, glm::vec2 uvOffset, int uvOffsetLoc);
 	std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
 
 public:
-	BicubicPatch(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, bool bspline, std::vector<Figure*> controlPoints, int* division, int gregoryLoc);
+	glm::vec2 uvOffset;
+
+	BicubicPatch(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, bool bspline, std::vector<Figure*> controlPoints, int* division, int gregoryLoc, glm::vec2 uvOffset, int uvOffsetLoc);
 
 	void Render(int colorLoc, int modelLoc, bool grayscale);
     void RenderTess(int colorLoc, int modelLoc, bool grayscale);

@@ -14,6 +14,9 @@ uniform bool otherAxis;
 uniform bool bspline;
 uniform bool gregory;
 
+uniform vec2 uvOffset;
+uniform vec2 uvScale;
+
 void main()
 {
     float u, v;
@@ -102,5 +105,5 @@ void main()
              W_u[3] * W_v[3] * p15;
 
     gl_Position = proj * vec4(result, 1.f);
-    TexCoord = vec2(u, v);
+    TexCoord = vec2(u, v) / uvScale + uvOffset;
 }
