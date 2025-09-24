@@ -133,7 +133,7 @@ private:
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);
     static StartPoint RefinePoint(Figure* A, Figure* B, glm::vec2 uv, glm::vec2 st);
     static bool AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A, Figure* B);
-    static glm::vec4 Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv);
+    static glm::vec4 Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv, const glm::vec3& t);
     static float WrapIfApplicable(float v, bool wrap);
 	static glm::vec4 WrapIfApplicable(glm::vec4 v, Figure* A, Figure* B);
     static bool IsOutOfDomain(glm::vec4 v);

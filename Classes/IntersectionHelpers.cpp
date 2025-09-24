@@ -192,7 +192,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::FindIntersection(Fig
     }
 }
 
-glm::vec4 IntersectionHelpers::Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv)
+glm::vec4 IntersectionHelpers::Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv, const glm::vec3& t)
 {
     glm::vec3 p = A->GetValue(uv.x, uv.y);
     glm::vec3 q = B->GetValue(uv.z, uv.w);
@@ -201,11 +201,6 @@ glm::vec4 IntersectionHelpers::Newton(Figure* A, Figure* B, glm::vec3 initialPoi
     glm::vec3 pdv = A->GetTangentV(uv.x, uv.y);
     glm::vec3 qdu = B->GetTangentU(uv.z, uv.w);
     glm::vec3 qdv = B->GetTangentV(uv.z, uv.w);
-
-    glm::vec3 np = glm::normalize(glm::cross(pdu, pdv));
-    glm::vec3 nq = glm::normalize(glm::cross(qdu, qdv));
-
-    glm::vec3 t = glm::normalize(glm::cross(np, nq));
 
     glm::vec4 f(p - q, glm::dot(p - initialPoint, t) - step);
 
@@ -266,23 +261,41 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
     pts.push_back(IntersectionPoint(start));
 
     glm::vec4 last = { start.uv1, start.uv2 };
+    glm::vec3 lastTangent = glm::vec3(0.0f); 
 
-    for (int i = 0; i < IntersectionConfig::NEWTON_MAX_ITERS; i++) 
+    for (int i = 0; i < IntersectionConfig::NEWTON_MAX_ITERS; i++)
     {
         glm::vec4 next = last;
-		glm::vec3 p0 = GetPosition(A, B, next);
+        glm::vec3 p0 = GetPosition(A, B, next);
 
-        for (int j = 0; j < IntersectionConfig::INNER_NEWTON_ITERS; j++) 
+        // workaround for 2x cylinder case
+        glm::vec3 pdu = A->GetTangentU(next.x, next.y);
+        glm::vec3 pdv = A->GetTangentV(next.x, next.y);
+        glm::vec3 qdu = B->GetTangentU(next.z, next.w);
+        glm::vec3 qdv = B->GetTangentV(next.z, next.w);
+        glm::vec3 np = glm::normalize(glm::cross(pdu, pdv));
+        glm::vec3 nq = glm::normalize(glm::cross(qdu, qdv));
+        glm::vec3 currentTangent = glm::normalize(glm::cross(np, nq));
+
+        if (i > 0) {
+            float tangentDotProduct = glm::dot(lastTangent, currentTangent);
+            if (tangentDotProduct < 0.0f) {
+                currentTangent = -currentTangent;
+            }
+        }
+        lastTangent = currentTangent;
+
+        for (int j = 0; j < IntersectionConfig::INNER_NEWTON_ITERS; j++)
         {
-            glm::vec4 delta = Newton(A, B, p0, step, next);
+            glm::vec4 delta = Newton(A, B, p0, step, next, currentTangent);
             next -= delta;
 
             next = WrapIfApplicable(next, A, B);
 
             if (IsOutOfDomain(next)) {
-				glm::vec4 prev = next + delta;
+                glm::vec4 prev = next + delta;
                 prev = WrapIfApplicable(prev, A, B);
-				glm::vec4 clamped = Clamp(next, prev, delta);
+                glm::vec4 clamped = Clamp(next, prev, delta);
 
                 glm::vec3 posEdge = GetPosition(A, B, clamped);
                 pts.emplace_back(posEdge, glm::vec2(clamped.x, clamped.y), glm::vec2(clamped.z, clamped.w));
@@ -303,18 +316,6 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));
         last = next;
-
-   //     // print distance between last and pre-pre-last point
-   //     if (pts.size() > 2) {
-   //         float dist = glm::length(pts[pts.size() - 1].position - pts[pts.size() - 3].position);
-   //         //std::cout << dist << std::endl;
-   //         if (dist < step * 0.1f) {
-			//	// remove pre-last and pre-pre-last points
-   //             pts.erase(pts.end() - 2);
-			//	pts.erase(pts.end() - 2);
-			//	i -= 2;
-			//}
-   //     }
     }
 
     return IntersectionCurve(false, std::move(pts), 0, A, B);
