@@ -9,6 +9,8 @@ const glm::vec4 BLACK(0, 0, 0, 255);
 const glm::vec4 WHITE(255, 255, 255, 255);
 const int BIG_TEXTURE_MULTIPLIER = 4;
 
+int Intersection::counter = 0;
+
 Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc,
     int segmentIdxLoc, int divisionLoc, int texSize) : bSpline(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc) {
     fig1 = curve.figA;
@@ -31,7 +33,8 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
     bSpline.bSpline->curveWidth = 4.0f;
 	bSpline.bSpline->usePolyLineColor = true;
 
-	name = fig1->name + " &\n" + fig2->name;
+    // name = '#' + std::to_string(++counter) + ' ' + fig1->name + " & " + fig2->name;
+	name = "Intersection " + std::to_string(++counter);
 }
 
 Intersection::~Intersection() {

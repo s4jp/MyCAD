@@ -91,7 +91,7 @@ void zeroScene();
 glm::vec3 centerTranslation(0.f);
 glm::vec3 centerScale(1.f);
 glm::vec3 centerAngle(0.f);
-int cursorRadius = 5;
+int cursorRadius = 2;
 
 std::vector<BezierC0*> curves;
 int selectedCurveIdx = -1;
@@ -1290,8 +1290,8 @@ int main() {
                 if (acceptable) {
                     ImGui::SeparatorText("Intersections options:");
                     intersectionPrecision.Render();
-					ImGui::Checkbox("Use cursor position", &useCursorAsStartPoint);
-
+					ImGui::Checkbox("Use cursor", &useCursorAsStartPoint);
+                    ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
                     if (ImGui::Button("Find intersection"))
                     {
 						Figure* f1 = candidates[0];

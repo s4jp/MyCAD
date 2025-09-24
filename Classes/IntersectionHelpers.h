@@ -33,7 +33,7 @@ public:
 
 		StartPoint() : position(0.0f), uv1(0.0f), uv2(0.0f), distance(std::numeric_limits<float>::max()), valid(true) {}
 		StartPoint(bool isValid) : position(0.0f), uv1(0.0f), uv2(0.0f), distance(std::numeric_limits<float>::max()), valid(isValid) {}
-        void const Print() {
+        void Print() const {
             if (valid) {
                 std::cout << "Start position: (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
                 std::cout << "UV1: (" << uv1.x << ", " << uv1.y << ")" << std::endl;
@@ -64,7 +64,7 @@ public:
         Figure* figA;
 		Figure* figB;
 
-        IntersectionCurve() : isLoop(false), startIdx(-1) {}
+        IntersectionCurve() : isLoop(false), startIdx(-1), figA(nullptr), figB(nullptr) {}
         IntersectionCurve(bool loop, std::vector<IntersectionPoint>&& pts, int startIdx, Figure* figA, Figure* figB)
             : isLoop(loop), points(std::move(pts)), startIdx(startIdx), figA(figA), figB(figB) {}
 
@@ -130,7 +130,7 @@ public:
     static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step);
 
 private:
-    static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t, CursorData cursor);
+    static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);
     static StartPoint RefinePoint(Figure* A, Figure* B, glm::vec2 uv, glm::vec2 st);
     static bool AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A, Figure* B);
     static glm::vec4 Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv);

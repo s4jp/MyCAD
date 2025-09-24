@@ -47,6 +47,8 @@ private:
     bool fig1hasRed;
     bool fig2hasRed;
 
+    static int counter;
+
     static inline void PutWhitePixel(std::vector<uint8_t>& img, int width, int height, int x, int y);
     static void DrawLineBresenham(std::vector<uint8_t>& img, int width, int height, int x0, int y0, int x1, int y1);
 

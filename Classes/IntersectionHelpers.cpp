@@ -2,14 +2,9 @@
 #include <iostream>
 using namespace IntersectionConfig;
 
-float IntersectionHelpers::DistanceSquared(Figure* A, float u, float v,
-    Figure* B, float s, float t, IntersectionHelpers::CursorData cursor) {
+float IntersectionHelpers::DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t) {
     glm::vec3 p1 = A->GetValue(u, v);
     glm::vec3 p2 = B->GetValue(s, t);
-
-    if (cursor.useCursor) {
-        return glm::dot(cursor.pos - p1, cursor.pos - p1) + glm::dot(cursor.pos - p2, cursor.pos - p2);
-	}
 
     return glm::dot(p1 - p2, p1 - p2);
 }
@@ -126,12 +121,13 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B, IntersectionHelpers::C
     std::mt19937 rng(std::random_device{}());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
+	std::vector<IntersectionHelpers::StartPoint> candidates;
 
     for (int i = 0; i < MONTE_CARLO_SAMPLES; i++) {
         glm::vec2 uv(dist(rng), dist(rng));
         glm::vec2 st(dist(rng), dist(rng));
 
-        float d2 = DistanceSquared(A, uv.x, uv.y, B, st.x, st.y, cursor);
+        float d2 = DistanceSquared(A, uv.x, uv.y, B, st.x, st.y);
 
         if (d2 < MONTE_CARLO_THRESHOLD && !AreUVsTooClose(uv,st,A,B)) {
             auto refined = RefinePoint(A, B, uv, st);
@@ -144,10 +140,26 @@ IntersectionHelpers::FindStartPoint(Figure* A, Figure* B, IntersectionHelpers::C
             if (!std::isfinite(refined.uv2.x) || !std::isfinite(refined.uv2.y)) continue;
 
             if (refined.distance < START_POINT_ACCEPTANCE_THRESHOLD && !AreUVsTooClose(refined.uv1, refined.uv2,A,B)) {
-                return refined;
+                if (cursor.useCursor)
+                    candidates.push_back(refined);
+                else
+                    return refined;
             }
         }
     }
+
+    if (cursor.useCursor && !candidates.empty()) {
+        StartPoint bestPoint;
+        float bestDist2 = std::numeric_limits<float>::max();
+        for (const auto& candidate : candidates) {
+            float dist2 = glm::dot(candidate.position - cursor.pos, candidate.position - cursor.pos);
+            if (dist2 < bestDist2) {
+                bestDist2 = dist2;
+                bestPoint = candidate;
+            }
+        }
+        return bestPoint;
+	}
 
     return StartPoint(false);
 }
@@ -291,6 +303,18 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));
         last = next;
+
+   //     // print distance between last and pre-pre-last point
+   //     if (pts.size() > 2) {
+   //         float dist = glm::length(pts[pts.size() - 1].position - pts[pts.size() - 3].position);
+   //         //std::cout << dist << std::endl;
+   //         if (dist < step * 0.1f) {
+			//	// remove pre-last and pre-pre-last points
+   //             pts.erase(pts.end() - 2);
+			//	pts.erase(pts.end() - 2);
+			//	i -= 2;
+			//}
+   //     }
     }
 
     return IntersectionCurve(false, std::move(pts), 0, A, B);

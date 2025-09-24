@@ -5,6 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui.h"
 
+const glm::mat4x4 ROTATION_MATRIX = CAD::rotate(glm::mat4(1.0f), glm::vec3(M_PI_2, 0.f, 0.f));
+
 Torus::Torus(glm::vec3 position, float R1n, float R2n, int n1n, int n2n)
     : Figure(InitializeAndCalculate(R1n, R2n, n1n, n2n), "Torus", position,
              true) {
@@ -147,11 +149,7 @@ glm::vec3 Torus::GetValue(float u, float v)
 
     glm::vec4 pos(x, y, z, 1.0f);
 
-    pos = CAD::rotate(glm::mat4(1.0f), glm::vec3(M_PI_2, 0.f, 0.f)) * pos;
-
-    pos = model * pos;
-
-    return glm::vec3(pos);
+    return glm::vec3(model * ROTATION_MATRIX * pos);
 }
 
 glm::vec3 Torus::GetTangentU(float u, float v)
