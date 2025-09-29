@@ -310,7 +310,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
         glm::vec3 pos = GetPosition(A, B, next);
 
-        if (pts.size() > 6 && glm::length(pos - pts.front().position) < 0.7f * fabs(step)) {
+        if (pts.size() > 1 && glm::length(pos - pts.front().position) < 0.7f * fabs(step)) {
             return IntersectionCurve(true, std::move(pts), 0, A, B);
         }
 

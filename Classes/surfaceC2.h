@@ -7,6 +7,10 @@
 
 class SurfaceC2 : public SurfaceC0
 {
+private:
+	int CalcSizeU() override;
+    int CalcSizeV() override;
+
 public:
 	SurfaceC2(glm::vec3 position, std::string name = "Surface C2");
 
@@ -14,9 +18,6 @@ public:
 	std::vector<Figure*> CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc) override;
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
     void CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc) override;
-
-	int CalcSizeU() override;
-    int CalcSizeV() override;
 
 	bool IsWrappedU() override;
     bool IsWrappedV() override;

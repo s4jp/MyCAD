@@ -46,6 +46,7 @@ std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc,
 		}
 	}
 	this->uvScaleLoc = uvScaleLoc;
+	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
 	return newPoints;
 }
 
@@ -107,6 +108,7 @@ std::vector<Figure*> SurfaceC2::CalculateCylinder(int cpCount, int segmentCountL
 		}
 	}
 	this->uvScaleLoc = uvScaleLoc;
+	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
 	return newPoints;
 }
 
@@ -115,8 +117,8 @@ int SurfaceC2::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   s.name = name;
   s.uWrapped = this->IsWrappedU();
   s.vWrapped = this->IsWrappedV();
-  s.size.x = this->CalcSizeU();
-  s.size.y = this->CalcSizeV();
+  s.size.x = size.x;
+  s.size.y = size.y;
 
   for (int i = 0; i < patches.size(); i++) {
     std::vector<uint32_t> cpsIdxsPatch(cpsIdxs.begin() + i * 16,
@@ -150,17 +152,16 @@ void SurfaceC2::CreateFromControlPoints(int cpCount, int segmentCountLoc,
         cpCount, segmentCountLoc, segmentIdxLoc, divisionLoc, otherAxisLoc,
         bsplineLoc, true, cpsPatch, &this->division, gregoryLoc, glm::vec2(0.f), uvOffsetLoc));
   }
+
+  this->size = glm::vec2(CalcSizeU(), CalcSizeV());
   this->uvScaleLoc = uvScaleLoc;
 
-  int uCount = CalcSizeU();
-  int vCount = CalcSizeV();
-
-  for (int iv = 0; iv < vCount; iv++) {
-      for (int iu = 0; iu < uCount; iu++) {
-          int patchIdx = iv * uCount + iu;
+  for (int iv = 0; iv < size.y; iv++) {
+      for (int iu = 0; iu < size.x; iu++) {
+          int patchIdx = iv * size.x + iu;
           glm::vec2 uvOffset(
-              iu / static_cast<float>(uCount),
-              iv / static_cast<float>(vCount)
+              iu / static_cast<float>(size.x),
+              iv / static_cast<float>(size.y)
           );
           this->patches[patchIdx]->uvOffset = uvOffset;
       }
