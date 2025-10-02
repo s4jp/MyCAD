@@ -1980,6 +1980,8 @@ void zeroScene()
   curves.clear();
   surfaces.clear();
   patches.clear();
+  intersections.clear();
 
   Figure::ZeroCounter();
+  Intersection::ZeroCounter();
 }

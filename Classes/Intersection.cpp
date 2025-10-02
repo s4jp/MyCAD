@@ -10,6 +10,7 @@ const glm::vec4 WHITE(255, 255, 255, 255);
 const int BIG_TEXTURE_MULTIPLIER = 4;
 
 int Intersection::counter = 0;
+void Intersection::ZeroCounter() { counter = 0; }
 
 Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, int cpCountLoc, int segmentCountLoc,
     int segmentIdxLoc, int divisionLoc, int texSize) : bSpline(cpCountLoc, segmentCountLoc, segmentIdxLoc, divisionLoc) {
@@ -40,6 +41,9 @@ Intersection::Intersection(const IntersectionHelpers::IntersectionCurve& curve, 
 Intersection::~Intersection() {
     if (tex1) glDeleteTextures(1, &tex1);
     if (tex2) glDeleteTextures(1, &tex2);
+	if (bigTex1) glDeleteTextures(1, &bigTex1);
+	if (bigTex2) glDeleteTextures(1, &bigTex2);
+    bSpline.Delete();
 }
 
 void Intersection::ShowImGui(int previewSize){

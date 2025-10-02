@@ -36,6 +36,8 @@ public:
 	void Render(int colorLoc, int modelLoc, bool grayscale);
 	void RenderPolyline(int colorLoc, int modelLoc, bool grayscale);
 
+    static void ZeroCounter();
+
 private:
     GLuint tex1;
     GLuint tex2;
