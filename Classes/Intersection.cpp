@@ -375,20 +375,8 @@ void Intersection::TextureCreationLogic(GLuint& texture1, GLuint& texture2, cons
         count2 = FloodFill(img2_flood, texSize, texSize, startX, startY, fig2->IsWrappedU(), fig2->IsWrappedV());
     }
 
-    bool img1toFix = false;
-    bool img2toFix = false;
-    if (count1 > 0.5 * texSize * texSize && count2 > 0.5 * texSize * texSize) {
-        img1toFix = true;
-        img2toFix = true;
-    }
-    else if (std::abs(count1 - count2) > (texSize * texSize / 10)) {
-        if (count1 > count2) {
-            img1toFix = true;
-        }
-        else {
-            img2toFix = true;
-        }
-    }
+    bool img1toFix = count1 > 0.5 * texSize * texSize;
+    bool img2toFix = count2 > 0.5 * texSize * texSize;
 
 	if (img1toFix) count1 = ReverseColors(img1_flood);
 	if (img2toFix) count2 = ReverseColors(img2_flood);
