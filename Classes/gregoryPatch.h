@@ -17,9 +17,9 @@ private:
   int bsplineLoc;
   int gregoryLoc;
 
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
   InitializeAndCalculate(std::vector<Figure*> controlPoints, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int gregoryLoc);
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Calculate() const;
 
 public:
   GregoryPatch(std::vector<Figure*> controlPoints, int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int gregoryLoc);
@@ -32,4 +32,5 @@ public:
   void RefreshBuffers();
   bool ReplaceControlPoint(int idx, Figure *cp);
   float GetR() { return 0; };
+  bool Intersectional() { return false; }
 };

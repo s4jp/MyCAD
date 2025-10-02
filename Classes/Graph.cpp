@@ -59,8 +59,8 @@ Graph::Graph() {
 }
 
 Graph::Graph(SurfaceC0 &surface) {
-  int sizeU = surface.CalcSizeU();
-  int sizeV = surface.CalcSizeV();
+  glm::vec2 size = surface.GetSize();
+  int sizeU = size.x; int sizeV = size.y;
   bool wrappedU = surface.IsWrappedU();
   bool wrappedV = surface.IsWrappedV();
 

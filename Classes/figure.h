@@ -13,8 +13,10 @@
 #include "imgui.h"
 
 #include <Serializer.h>
+#include <iostream>
 
 constexpr float background_color[] = { 0.1f, 0.1f, 0.1f, 1.f};
+constexpr float tangentEpsilon = 1e-3f;
 
 class Figure
 {
@@ -33,6 +35,7 @@ private:
 protected:
   VAO vao;
   VBO vbo;
+  VBO uvVbo;
   EBO ebo;
 
   glm::mat4 model;
@@ -40,6 +43,8 @@ protected:
   bool is3D = false;
 
   glm::vec4 GetColor(bool grayscale) const {
+    if (usePolyLineColor) return GetPolylineColor(grayscale);
+
     glm::vec4 color = selected ? glm::vec4(0.89f, 0.29f, 0.15f, 1.0f)
                                : glm::vec4(1.0f, 0.73f, 0.31f, 1.0f);
 
@@ -59,6 +64,7 @@ protected:
 public:
   std::string name;
   bool selected = false;
+  bool usePolyLineColor = false;
 
   virtual void Render(int colorLoc, int modelLoc, bool grayscale) = 0;
   virtual void RenderTess(int colorLoc, int modelLoc, bool grayscale){};
@@ -160,6 +166,7 @@ public:
   void Delete() {
     vao.Delete();
     vbo.Delete();
+	uvVbo.Delete();
     ebo.Delete();
   }
   void virtual CalculateModelMatrix() {
@@ -171,12 +178,12 @@ public:
     model = translateM * rotateM * scaleM;
   }
 
-  Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 center, bool numerate = false) {
+  Figure(std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> data, std::string type, glm::vec3 center, bool numerate = false) {
     scale = glm::vec3(1.0f);
     angle = glm::vec3(0.0f);
     translation = glm::vec3(0.0f);
     this->center = center;
-    indices_count = std::get<1>(data).size();
+    indices_count = std::get<2>(data).size();
     model = glm::mat4(1.0f);
 
     cScale = glm::vec3(1.0f);
@@ -186,12 +193,23 @@ public:
     vao.Bind();
     vbo = VBO(std::get<0>(data).data(),
               std::get<0>(data).size() * sizeof(GLfloat));
-    ebo =
-        EBO(std::get<1>(data).data(), std::get<1>(data).size() * sizeof(GLint));
-
     vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 0, (void *)0);
+
+    if (std::get<1>(data).size() == 0) {
+        for (size_t i = 0; i < std::get<0>(data).size() / 3; i++) {
+            std::get<1>(data).push_back(0.f);
+            std::get<1>(data).push_back(0.f);
+		}
+    }
+    uvVbo = VBO(std::get<1>(data).data(),
+              std::get<1>(data).size() * sizeof(GLfloat));
+    vao.LinkAttrib(uvVbo, 1, 2, GL_FLOAT, 0, (void*)0);
+
+    ebo = EBO(std::get<2>(data).data(), std::get<2>(data).size() * sizeof(GLuint));
+    
     vao.Unbind();
     vbo.Unbind();
+	uvVbo.Unbind();
     ebo.Unbind();
 
     name = type;
@@ -277,4 +295,18 @@ public:
   };
 
   virtual float GetR() = 0;
+
+  virtual bool Intersectional() = 0;
+  virtual glm::vec3 GetValue(float u, float v) { return glm::vec3(0.f); }
+  virtual glm::vec3 GetTangentU(float u, float v) { return glm::vec3(0.f); }
+  virtual glm::vec3 GetTangentV(float u, float v) { return glm::vec3(0.f); }
+  virtual bool IsWrappedU() { return false; }
+  virtual bool IsWrappedV() { return false; }
+  virtual void Print() { 
+      std::cout << this->name << ": "
+          << (this->IsWrappedU() ? "U wrapped " : "")
+          << (this->IsWrappedV() ? "V wrapped " : "")
+		  << (!this->IsWrappedU() && !this->IsWrappedV() ? "NOT wrapped" : "")
+          << std::endl;
+  }
 };

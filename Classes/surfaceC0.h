@@ -12,8 +12,12 @@ protected:
 	std::vector<BicubicPatch*> patches = std::vector<BicubicPatch*>();
 	bool showMesh = false;
 	int division = 4;
+	int uvScaleLoc = -1;
+	glm::vec2 size = glm::vec2(-1, -1);
 
 	int CalcSize(int i, int j);
+	int virtual CalcSizeU();
+    int virtual CalcSizeV();
     bool CheckWrappedU(int i, int j);
     bool CheckWrappedV(int i, int j);
 
@@ -30,18 +34,22 @@ public:
 	std::vector<Figure*> GetControlPoints();
 	void RefreshBuffers();
 
-	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc);
-	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc);
+	std::vector<Figure*> virtual CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc);
+	std::vector<Figure*> virtual CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc);
 
     int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
-    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps, int gregoryLoc);
-
-	int virtual CalcSizeU();
-    int virtual CalcSizeV();
+    void virtual CreateFromControlPoints(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, std::vector<Figure*> cps, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc);
 
 	bool virtual IsWrappedU();
     bool virtual IsWrappedV();
 
 	bool ReplaceControlPoint(int idx, Figure *cp);
 	float GetR() { return 0; };
+
+	bool Intersectional() { return true; }
+	glm::vec3 GetValue(float u, float v) override;
+	glm::vec3 GetTangentU(float u, float v) override;
+	glm::vec3 GetTangentV(float u, float v) override;
+	void Print() override;
+	glm::vec2 GetSize() const;
 };

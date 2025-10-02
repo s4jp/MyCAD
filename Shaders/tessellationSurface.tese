@@ -4,6 +4,8 @@ const float eps = 0.0001f;
 
 layout (isolines) in;
 
+out vec2 TexCoord;
+
 uniform mat4 proj;
 uniform int segmentCount;
 uniform int segmentIdx;
@@ -11,6 +13,9 @@ uniform int division;
 uniform bool otherAxis;
 uniform bool bspline;
 uniform bool gregory;
+
+uniform vec2 uvOffset;
+uniform vec2 uvScale;
 
 void main()
 {
@@ -100,4 +105,5 @@ void main()
              W_u[3] * W_v[3] * p15;
 
     gl_Position = proj * vec4(result, 1.f);
+    TexCoord = vec2(u, v) / uvScale + uvOffset;
 }

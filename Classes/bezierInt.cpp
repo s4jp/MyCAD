@@ -23,7 +23,7 @@ int BezierInt::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs)
   return -1;
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 BezierInt::Calculate() const {
   CalculateBspline();
   return BezierC0::Calculate();

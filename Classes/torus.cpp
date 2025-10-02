@@ -5,6 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui.h"
 
+const glm::mat4x4 ROTATION_MATRIX = CAD::rotate(glm::mat4(1.0f), glm::vec3(M_PI_2, 0.f, 0.f));
+
 Torus::Torus(glm::vec3 position, float R1n, float R2n, int n1n, int n2n)
     : Figure(InitializeAndCalculate(R1n, R2n, n1n, n2n), "Torus", position,
              true) {
@@ -13,12 +15,14 @@ Torus::Torus(glm::vec3 position, float R1n, float R2n, int n1n, int n2n)
 
 void Torus::Recalculate() 
 { 
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
-  indices_count = std::get<1>(data).size();
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
+  indices_count = std::get<2>(data).size();
   vbo.ReplaceBufferData(std::get<0>(data).data(),
                         std::get<0>(data).size() * sizeof(GLfloat));
-  ebo.ReplaceBufferData(std::get<1>(data).data(),
-                           std::get<1>(data).size() * sizeof(GLuint));
+  ebo.ReplaceBufferData(std::get<2>(data).data(),
+                        std::get<2>(data).size() * sizeof(GLuint));
+  uvVbo.ReplaceBufferData(std::get<1>(data).data(),
+	                      std::get<1>(data).size() * sizeof(GLfloat));
 }
 
 void Torus::Render(int colorLoc, int modelLoc, bool grayscale)
@@ -33,19 +37,20 @@ void Torus::Render(int colorLoc, int modelLoc, bool grayscale)
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const 
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const 
 {
   std::vector<GLfloat> vertices;
+  std::vector<GLfloat> uvs;
   std::vector<GLuint> indices;
 
   float R1step = 2 * M_PI / n1;
   float R2step = 2 * M_PI / n2;
 
-  for (int i = 0; i < n1; i++) {
+  for (int i = 0; i <= n1; i++) {
     float xyElem = R1 + R2 * cos(i * R1step);
     float z = R2 * sin(i * R1step);
 
-    for (int j = 0; j < n2; j++) {
+    for (int j = 0; j <= n2; j++) {
       // some work-around
       glm::vec4 vertex = glm::vec4(
           xyElem * cos(j * R2step),                 // X
@@ -57,19 +62,32 @@ std::tuple<std::vector<GLfloat>, std::vector<GLuint>> Torus::Calculate() const
       vertices.push_back(vertex.y);
       vertices.push_back(vertex.z);
 
-      // R2 loop
-      indices.push_back(i * n2 + j);              // current
-      indices.push_back(i * n2 + ((j + 1) % n2)); // next
-      // R1 loop
-      indices.push_back(i * n2 + j);              // current
-      indices.push_back(((i + 1) % n1) * n2 + j); // next
+      float u = static_cast<float>(i) / n1;
+      float v = static_cast<float>(j) / n2;
+      uvs.push_back(u);
+      uvs.push_back(v);
     }
   }
 
-  return std::make_tuple(vertices, indices);
+  int stride = n2 + 1;
+  for (int i = 0; i < n1; i++) {
+      for (int j = 0; j < n2; j++) {
+          int curr = i * stride + j;
+
+          // horizontal edge
+          indices.push_back(curr);
+          indices.push_back(curr + 1);
+
+          // vertical edge
+          indices.push_back(curr);
+          indices.push_back(curr + stride);
+      }
+  }
+
+  return std::make_tuple(vertices, uvs, indices);
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 Torus::InitializeAndCalculate(float R1, float R2, int n1, int n2) 
 {
   this->R1 = R1;
@@ -118,4 +136,30 @@ int Torus::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs)
   t.name = name;
   scene.tori.push_back(t);
   return -1;
+}
+
+glm::vec3 Torus::GetValue(float u, float v)
+{
+    float theta = u * 2.0f * M_PI;
+    float phi = v * 2.0f * M_PI;
+
+    float x = (R1 + R2 * cos(theta)) * cos(phi);
+    float y = (R1 + R2 * cos(theta)) * sin(phi);
+    float z = R2 * sin(theta);
+
+    glm::vec4 pos(x, y, z, 1.0f);
+
+    return glm::vec3(model * ROTATION_MATRIX * pos);
+}
+
+glm::vec3 Torus::GetTangentU(float u, float v)
+{
+    return (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
+        / (2.0f * tangentEpsilon);
+}
+
+glm::vec3 Torus::GetTangentV(float u, float v)
+{
+    return (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
+        / (2.0f * tangentEpsilon);
 }

@@ -126,6 +126,12 @@
     <ClCompile Include="Classes\gregoryPatch.cpp">
       <Filter>Source Files\figures</Filter>
     </ClCompile>
+    <ClCompile Include="Classes\IntersectionHelpers.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Intersection.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -217,6 +223,15 @@
     </ClInclude>
     <ClInclude Include="Classes\gregoryPatch.h">
       <Filter>Header Files\figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\IntersectionHelpers.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Intersection.h">
+      <Filter>Header Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\ControlledInputFloat.h">
+      <Filter>Header Files\assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

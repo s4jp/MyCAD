@@ -79,6 +79,14 @@
     <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -102,12 +110,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>imgui;Classes;Serializer\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,12 +144,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>imgui;Classes;Serializer\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -154,6 +168,8 @@
     <ClCompile Include="Classes\gregoryPatch.cpp" />
     <ClCompile Include="Classes\grid.cpp" />
     <ClCompile Include="Classes\helpers.cpp" />
+    <ClCompile Include="Classes\Intersection.cpp" />
+    <ClCompile Include="Classes\IntersectionHelpers.cpp" />
     <ClCompile Include="Classes\point.cpp" />
     <ClCompile Include="Classes\polyline.cpp" />
     <ClCompile Include="Classes\Shader.cpp" />
@@ -179,6 +195,7 @@
     <ClInclude Include="Classes\bezierInt.h" />
     <ClInclude Include="Classes\bicubicPatch.h" />
     <ClInclude Include="Classes\Camera.h" />
+    <ClInclude Include="Classes\ControlledInputFloat.h" />
     <ClInclude Include="Classes\cursor.h" />
     <ClInclude Include="Classes\EBO.h" />
     <ClInclude Include="Classes\figure.h" />
@@ -186,6 +203,8 @@
     <ClInclude Include="Classes\gregoryPatch.h" />
     <ClInclude Include="Classes\grid.h" />
     <ClInclude Include="Classes\helpers.h" />
+    <ClInclude Include="Classes\Intersection.h" />
+    <ClInclude Include="Classes\IntersectionHelpers.h" />
     <ClInclude Include="Classes\point.h" />
     <ClInclude Include="Classes\polyline.h" />
     <ClInclude Include="Classes\Shader.h" />

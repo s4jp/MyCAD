@@ -2,7 +2,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Polyline::Polyline()
-    : Figure(std::tuple<std::vector<GLfloat>, std::vector<GLuint>>(),
+    : Figure(std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>(),
              "Polyline,", glm::vec3(0.f)) {
   this->graph = new Graph();
 }
@@ -23,13 +23,13 @@ void Polyline::Render(int colorLoc, int modelLoc, bool grayscale) {
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 Polyline::InitializeAndCalculate(Graph *graph) {
   this->graph = graph;
   return Calculate();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 Polyline::Calculate() const {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;
@@ -47,7 +47,7 @@ Polyline::Calculate() const {
     }
   }
 
-  return std::make_tuple(vertices, indices);
+  return std::make_tuple(vertices, std::vector<GLfloat>(), indices);
 }
 
 glm::vec4 Polyline::GetAnimatedColor(bool grayscale) {

@@ -6,19 +6,26 @@
 const int renderSegments = 10;
 
 void BezierC0::RefreshBuffers() {
-  std::tuple<std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
-  indices_count = std::get<1>(data).size();
+  std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>> data = Calculate();
+  indices_count = std::get<2>(data).size();
   vbo.ReplaceBufferData(std::get<0>(data).data(),
                         std::get<0>(data).size() * sizeof(GLfloat));
-  ebo.ReplaceBufferData(std::get<1>(data).data(),
-                        std::get<1>(data).size() * sizeof(GLuint));
+  ebo.ReplaceBufferData(std::get<2>(data).data(),
+                        std::get<2>(data).size() * sizeof(GLuint));
+
+  for (size_t i = 0; i < std::get<0>(data).size() / 3; i++) {
+    std::get<1>(data).push_back(0.f);
+    std::get<1>(data).push_back(0.f);
+  }
+  uvVbo.ReplaceBufferData(std::get<1>(data).data(),
+	  std::get<1>(data).size() * sizeof(GLfloat));
 }
 
 void BezierC0::RenderPolyline(int colorLoc, int modelLoc,
                               bool grayscale) {
   vao.Bind();
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-  glLineWidth(1.0f);
+  glLineWidth(polylineWidth);
 
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetPolylineColor(grayscale)));
   glDrawElements(GL_LINE_STRIP, indices_count, GL_UNSIGNED_INT, 0);
@@ -26,7 +33,7 @@ void BezierC0::RenderPolyline(int colorLoc, int modelLoc,
   vao.Unbind();
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 BezierC0::Calculate() const {
   std::vector<GLfloat> vertices;
   std::vector<GLuint> indices;
@@ -40,10 +47,10 @@ BezierC0::Calculate() const {
     indices.push_back(i);
   }
 
-  return std::make_tuple(vertices, indices);
+  return std::make_tuple(vertices, std::vector<GLfloat>(), indices);
 }
 
-std::tuple<std::vector<GLfloat>, std::vector<GLuint>>
+std::tuple<std::vector<GLfloat>, std::vector<GLfloat>, std::vector<GLuint>>
 BezierC0::InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
                                  int segmentIdxLoc, int divisionLoc) {
   this->cpCountLoc = cpCountLoc;
@@ -52,7 +59,7 @@ BezierC0::InitializeAndCalculate(int cpCountLoc, int segmentCountLoc,
   this->divisionLoc = divisionLoc;
 
   //return Calculate();
-  return std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>());
+  return std::make_tuple(std::vector<GLfloat>(), std::vector<GLfloat>(), std::vector<GLuint>());
 }
 
 BezierC0::BezierC0(int cpCountLoc, int segmentCountLoc, int segmentIdxLoc, int divisionLoc,
@@ -66,7 +73,7 @@ void BezierC0::Render(int colorLoc, int modelLoc, bool grayscale) {
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glUniform4fv(colorLoc, 1, glm::value_ptr(GetColor(grayscale)));
   glUniform1i(segmentCountLoc, renderSegments);
-  glLineWidth(3.0f);
+  glLineWidth(curveWidth);
   glUniform1i(divisionLoc, 1);
 
   int count = glm::ceil((indices_count - 1) / 3.0f);
@@ -103,6 +110,12 @@ bool BezierC0::CreateImgui() {
 
 void BezierC0::AddControlPoint(Figure *cp) {
   controlPoints.push_back(cp);
+  RefreshBuffers();
+}
+
+void BezierC0::AddControlPoints(std::vector<Figure*> cps)
+{
+  controlPoints.insert(controlPoints.end(), cps.begin(), cps.end());
   RefreshBuffers();
 }
 

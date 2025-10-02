@@ -1,7 +1,7 @@
 #include "SurfaceC0.h"
 #include "point.h"
 
-std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc)
+std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc)
 {
 	float patchLength = length / xSegments;
 	float patchLengthStep = patchLength / 3.f;
@@ -33,17 +33,23 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
+			glm::vec2 uvOffset(
+				static_cast<float>(j) / xSegments,
+				static_cast<float>(i) / zSegments
+			);
             this->patches.push_back(new BicubicPatch(
                 cpCount, segmentCountLoc, segmentIdxLoc,
                 divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
-                &this->division, gregoryLoc));
+                &this->division, gregoryLoc, uvOffset, uvOffsetLoc));
 		}
 	}
     this->ambit = new Graph(*this);
+	this->uvScaleLoc = uvScaleLoc;
+	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
 	return newPoints;
 }
 
-std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc) 
+std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float radius, float height, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc) 
 {
 	float patchRadius = 2 * M_PI / xSegments;
 	float patchRadiusStep = patchRadius / 3.f;
@@ -90,13 +96,19 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
 				cps.push_back(p);
 				newPoints.push_back(p);
 			}
+			glm::vec2 uvOffset(
+				static_cast<float>(j) / xSegments,
+				static_cast<float>(i) / zSegments
+			);
             this->patches.push_back(new BicubicPatch(
                 cpCount, segmentCountLoc, segmentIdxLoc,
                 divisionLoc, otherAxisLoc, bsplineLoc, false, cps,
-                &this->division, gregoryLoc));
+                &this->division, gregoryLoc, uvOffset, uvOffsetLoc));
 		}
 	}
     this->ambit = new Graph(*this);
+	this->uvScaleLoc = uvScaleLoc;
+	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
 	return newPoints;
 }
 
@@ -105,8 +117,8 @@ int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
   s.name = name;
   s.uWrapped = this->IsWrappedU();
   s.vWrapped = this->IsWrappedV();
-  s.size.x = this->CalcSizeU();
-  s.size.y = this->CalcSizeV();
+  s.size.x = size.x;
+  s.size.y = size.y;
 
   for (int i = 0; i < patches.size(); i++) 
   {
@@ -127,7 +139,8 @@ int SurfaceC0::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) {
 void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
                                         int segmentIdxLoc, int divisionLoc,
                                         int otherAxisLoc, int bsplineLoc,
-                                        std::vector<Figure*> cps, int gregoryLoc) 
+                                        std::vector<Figure*> cps, int gregoryLoc,
+										int uvOffsetLoc, int uvScaleLoc) 
 {
   if (cps.size() % 16 != 0) return;
 
@@ -137,9 +150,23 @@ void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
                                    cps.begin() + i * 16 + 16);
     this->patches.push_back(new BicubicPatch(cpCount, segmentCountLoc, segmentIdxLoc,
                               divisionLoc, otherAxisLoc, bsplineLoc, false,
-                              cpsPatch, &this->division, gregoryLoc));
+                              cpsPatch, &this->division, gregoryLoc, glm::vec2(0.f), uvOffsetLoc));
   }
+
+  this->size = glm::vec2(CalcSizeU(), CalcSizeV());
   this->ambit = new Graph(*this);
+  this->uvScaleLoc = uvScaleLoc;
+
+  for (int iv = 0; iv < size.y; iv++) {
+      for (int iu = 0; iu < size.x; iu++) {
+          int patchIdx = iv * size.x + iu;
+          glm::vec2 uvOffset(
+              iu / static_cast<float>(size.x),
+              iv / static_cast<float>(size.y)
+          );
+          this->patches[patchIdx]->uvOffset = uvOffset;
+      }
+  }
 }
 
 int SurfaceC0::CalcSize(int i, int j) 
@@ -167,7 +194,7 @@ bool SurfaceC0::CheckWrappedU(int i, int j)
     return false;
 
   return patches[0]->GetControlPoints()[j] ==
-         patches[this->CalcSizeU() - 1]->GetControlPoints()[i];
+         patches[size.x - 1]->GetControlPoints()[i];
 }
 
 bool SurfaceC0::CheckWrappedV(int i, int j) {
@@ -175,7 +202,7 @@ bool SurfaceC0::CheckWrappedV(int i, int j) {
     return false;
 
   return patches[0]->GetControlPoints()[j] ==
-         patches[this->CalcSizeU() * (this->CalcSizeV() - 1)]
+         patches[size.x * (size.y - 1)]
              ->GetControlPoints()[i];
 }
 
@@ -199,10 +226,11 @@ bool SurfaceC0::ReplaceControlPoint(int idx, Figure *cp) {
 }
 
 SurfaceC0::SurfaceC0(glm::vec3 position, std::string name)
-	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
+	: Figure(std::make_tuple(std::vector<GLfloat>(), std::vector<GLfloat>(), std::vector<GLuint>()), name, position, true) {}
 
 void SurfaceC0::RenderTess(int colorLoc, int modelLoc, bool grayscale)
 {
+	glUniform2f(uvScaleLoc, size.x, size.y);
 	for (int i = 0; i < patches.size(); i++) {
 		patches[i]->selected = selected;
 		patches[i]->RenderTess(colorLoc, modelLoc, grayscale);
@@ -257,3 +285,44 @@ void SurfaceC0::Render(int colorLoc, int modelLoc, bool grayscale)
 		patches[i]->Render(colorLoc, modelLoc, grayscale);
 	}
 }
+
+glm::vec3 SurfaceC0::GetValue(float u, float v)
+{
+	if (patches.empty()) return glm::vec3(0);
+
+	int uPatchCount = size.x;
+	int vPatchCount = size.y;
+
+	float uScaled = u * uPatchCount;
+	float vScaled = v * vPatchCount;
+
+	int iu = glm::clamp((int)uScaled, 0, uPatchCount - 1);
+	int iv = glm::clamp((int)vScaled, 0, vPatchCount - 1);
+
+	float localU = uScaled - iu;
+	float localV = vScaled - iv;
+
+	int patchIdx = iv * uPatchCount + iu;
+	return patches[patchIdx]->GetValue(localV, localU);
+}
+
+glm::vec3 SurfaceC0::GetTangentU(float u, float v)
+{
+	return (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
+		/ (2.0f * tangentEpsilon);
+}
+
+glm::vec3 SurfaceC0::GetTangentV(float u, float v)
+{
+	return (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
+		/ (2.0f * tangentEpsilon);
+}
+
+void SurfaceC0::Print()
+{
+	Figure::Print();
+	std::cout << std::showpos << std::setw(this->name.length()+2) << std::setfill(' ') << "size: " << std::noshowpos;
+	std::cout << size.x << "x" << size.y << std::endl;
+}
+
+glm::vec2 SurfaceC0::GetSize() const { return size; }

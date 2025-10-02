@@ -2,6 +2,8 @@
 
 layout (isolines) in;
 
+out vec2 TexCoord;
+
 uniform mat4 proj;
 uniform int cpCount;
 uniform int segmentCount;
@@ -47,4 +49,5 @@ void main()
     }
 
     gl_Position = proj * vec4(result, 1.0);
+    TexCoord = vec2(0.0, 0.0);
 }
