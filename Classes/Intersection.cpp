@@ -1,4 +1,5 @@
 #include "Intersection.h"
+
 #include <cmath>
 #include <algorithm>
 #include <point.h>

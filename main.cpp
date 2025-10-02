@@ -109,7 +109,7 @@ bool checkIfSelectedArePartOfSurfaceOrPatch();
 void recalculateSelectedSurfacesAndPatches();
 
 MG1::SceneSerializer serializer;
-std::string filePath = "Scenes\\itersectionsFull.json";
+std::string filePath = "Scenes\\model.json";
 
 int modelLoc, viewLoc, projLoc, colorLoc, displacementLoc,
     textureLoc, trimmingOptionLoc;
@@ -132,7 +132,7 @@ std::vector<GregoryPatch*> patches;
 std::vector<int> selectedPatches;
 void deleteCpsIfFree(std::vector<Figure*> cpsToDelete);
 
-ControlledInputFloat intersectionPrecision = ControlledInputFloat("Precision", 0.1f, 0.01f, 0.01f);
+ControlledInputFloat intersectionPrecision = ControlledInputFloat("Precision", 0.1f, 0.001f, 0.001f);
 bool useCursorAsStartPoint = false;
 void setTextureAndTrimmingOption(Figure* fig, int textureLoc, int trimmingOptionLoc);
 int mapTrimmingOption(bool hideRed, bool hideBlack);
@@ -338,6 +338,7 @@ int main() {
         setTextureAndTrimmingOption(surfaces[i], tessSurfaceTextureLoc, tessSurfaceTrimmingOptionLoc);
         surfaces[i]->RenderTess(tessSurfaceColorLoc, tessSurfaceModelLoc, grayscale);
       }
+      glUniform1i(tessTrimmingOptionLoc, 0);
 
 	  // render patches with surface tessellation shader
 	  for (int i = 0; i < patches.size(); i++) {

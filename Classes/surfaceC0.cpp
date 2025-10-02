@@ -258,16 +258,12 @@ bool SurfaceC0::CreateImgui()
 
 std::vector<Figure*> SurfaceC0::GetControlPoints()
 {
-	//std::cout << "================ " << this->name << " ================" << std::endl << std::endl;
 	std::vector<Figure*> cps = std::vector<Figure*>();
 	for (int i = 0; i < patches.size(); i++) {
-		//std::cout << "PATCH #" << i << std::endl;
 		std::vector<Figure*> tempCps = patches[i]->GetControlPoints();
 		for (int j = 0; j < tempCps.size(); j++) {
 			cps.push_back(tempCps[j]);
-			//std::cout << "[" << j << "] " << tempCps[j]->name << std::endl;
 		}
-		//std::cout << std::endl;
 	}
 	return cps;
 }
@@ -307,7 +303,6 @@ glm::vec3 SurfaceC0::GetValue(float u, float v)
 	float localV = vScaled - iv;
 
 	int patchIdx = iv * uPatchCount + iu;
-	//std::cout << "Patch idx: " << patchIdx << ", (u,v) = (" << localU << "," << localV << ")" << std::endl;
 	return patches[patchIdx]->GetValue(localV, localU);
 }
 

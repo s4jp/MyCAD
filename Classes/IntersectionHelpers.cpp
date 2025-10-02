@@ -1,6 +1,18 @@
 ﻿#include "IntersectionHelpers.h"
-#include <iostream>
-using namespace IntersectionConfig;
+
+constexpr int MONTE_CARLO_SAMPLES = 50000;
+constexpr int GRADIENT_DESCENT_ITERS = 1000;
+constexpr float LEARNING_RATE = 0.01f;
+constexpr float TOLERANCE = 1e-5f;
+constexpr float MONTE_CARLO_THRESHOLD = 1;
+constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-4f;
+constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
+constexpr int NEWTON_MAX_ITERS = 300;
+constexpr float EPS = 1e-3;
+constexpr int INNER_NEWTON_ITERS = 100;
+constexpr float DAMPING = 1e-6f;
+constexpr float SAFE_LR = 1e-3f;
+constexpr float LOOP_CLOSURE_THRESHOLD = 0.7f;
 
 float IntersectionHelpers::DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t) {
     glm::vec3 p1 = A->GetValue(u, v);
@@ -39,7 +51,7 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
             JTr += row * diff[k];
         }
 
-        JTJ += IntersectionConfig::DAMPING * glm::mat4(1.0f);
+        JTJ += DAMPING * glm::mat4(1.0f);
         float det = glm::determinant(JTJ);
 
         if (fabs(det) < 1e-12f) {
@@ -47,8 +59,8 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
                 2.0f * glm::dot(diff, dAv));
             glm::vec2 gradB(-2.0f * glm::dot(diff, dBs),
                 -2.0f * glm::dot(diff, dBt));
-            uvCurr -= IntersectionConfig::SAFE_LR * gradA;
-            stCurr -= IntersectionConfig::SAFE_LR * gradB;
+            uvCurr -= SAFE_LR * gradA;
+            stCurr -= SAFE_LR * gradB;
         }
         else {
             glm::vec4 delta = glm::inverse(JTJ) * (-JTr);
@@ -58,7 +70,7 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
             stCurr.x += delta.z;
             stCurr.y += delta.w;
 
-            if (glm::length(delta) < IntersectionConfig::EPS)
+            if (glm::length(delta) < EPS)
                 break;
         }
 
@@ -107,8 +119,7 @@ bool IntersectionHelpers::AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A
 		glm::vec2 u2(pair.z, pair.w);
         float len1 = glm::abs(pair.x - pair.z);
         float len2 = glm::abs(pair.y - pair.w);
-        //std::cout << len1 << " " << len2 << std::endl;
-		if (len1 < IntersectionConfig::TOO_CLOSE_THRESHOLD || len2 < IntersectionConfig::TOO_CLOSE_THRESHOLD) {
+		if (len1 < TOO_CLOSE_THRESHOLD || len2 < TOO_CLOSE_THRESHOLD) {
 			return true;
 		}
 	}
@@ -180,7 +191,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::FindIntersection(Fig
         std::reverse(backward.points.begin(), backward.points.end());
 
         if (!backward.points.empty() && !forward.points.empty() &&
-            glm::length(backward.points.back().position - forward.points.front().position) < IntersectionConfig::EPS)
+            glm::length(backward.points.back().position - forward.points.front().position) < EPS)
         {
             backward.points.pop_back();
         }
@@ -267,12 +278,12 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
     glm::vec4 last = { start.uv1, start.uv2 };
 
-    for (int i = 0; i < IntersectionConfig::NEWTON_MAX_ITERS; i++) 
+    for (int i = 0; i < NEWTON_MAX_ITERS; i++) 
     {
         glm::vec4 next = last;
 		glm::vec3 p0 = GetPosition(A, B, next);
 
-        for (int j = 0; j < IntersectionConfig::INNER_NEWTON_ITERS; j++) 
+        for (int j = 0; j < INNER_NEWTON_ITERS; j++) 
         {
             glm::vec4 delta = Newton(A, B, p0, step, next);
             next -= delta;
@@ -290,31 +301,17 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
             }
 
             float dist = glm::length(A->GetValue(next.x, next.y) - B->GetValue(next.z, next.w));
-            //std::cout << "inner loop dist iter:" << j << " - " << dist << std::endl;
-
             if (dist < 0.02) break;
         }
 
         glm::vec3 pos = GetPosition(A, B, next);
 
-        if (pts.size() > 1 && glm::length(pos - pts.front().position) < 0.7f * fabs(step)) {
+        if (pts.size() > 1 && glm::length(pos - pts.front().position) < LOOP_CLOSURE_THRESHOLD * fabs(step)) {
             return IntersectionCurve(true, std::move(pts), 0, A, B);
         }
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));
         last = next;
-
-   //     // print distance between last and pre-pre-last point
-   //     if (pts.size() > 2) {
-   //         float dist = glm::length(pts[pts.size() - 1].position - pts[pts.size() - 3].position);
-   //         //std::cout << dist << std::endl;
-   //         if (dist < step * 0.1f) {
-			//	// remove pre-last and pre-pre-last points
-   //             pts.erase(pts.end() - 2);
-			//	pts.erase(pts.end() - 2);
-			//	i -= 2;
-			//}
-   //     }
     }
 
     return IntersectionCurve(false, std::move(pts), 0, A, B);
