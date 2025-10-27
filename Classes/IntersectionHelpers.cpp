@@ -278,7 +278,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
     glm::vec4 last = { start.uv1, start.uv2 };
 
-    for (int i = 0; i < NEWTON_MAX_ITERS; i++) 
+    for (int i = 0; i < NEWTON_MAX_ITERS / step; i++) 
     {
         glm::vec4 next = last;
 		glm::vec3 p0 = GetPosition(A, B, next);

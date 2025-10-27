@@ -43,9 +43,9 @@ std::vector<Figure*> SurfaceC0::CalculatePlane(int cpCount, int segmentCountLoc,
                 &this->division, gregoryLoc, uvOffset, uvOffsetLoc));
 		}
 	}
+	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
     this->ambit = new Graph(*this);
 	this->uvScaleLoc = uvScaleLoc;
-	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
 	return newPoints;
 }
 
@@ -106,9 +106,9 @@ std::vector<Figure*> SurfaceC0::CalculateCylinder(int cpCount, int segmentCountL
                 &this->division, gregoryLoc, uvOffset, uvOffsetLoc));
 		}
 	}
+	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
     this->ambit = new Graph(*this);
 	this->uvScaleLoc = uvScaleLoc;
-	this->size = glm::vec2(CalcSizeU(), CalcSizeV());
 	return newPoints;
 }
 

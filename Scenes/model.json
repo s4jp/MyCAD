@@ -3,7 +3,7 @@
 		{
 			"objectType": "torus",
 			"id": 167,
-			"name": "Torus #56",
+			"name": "eye",
 			"smallRadius": 0.05999999865889549,
 			"largeRadius": 0.1899999976158142,
 			"position": {
@@ -28,7 +28,7 @@
 		},
 		{
 			"objectType": "bezierSurfaceC0",
-			"name": "top fin",
+			"name": "top fin c0",
 			"id": 168,
 			"patches": [
 				{
@@ -161,7 +161,7 @@
 		},
 		{
 			"objectType": "bezierSurfaceC0",
-			"name": "side fins",
+			"name": "side fins c0",
 			"id": 171,
 			"patches": [
 				{
@@ -530,7 +530,7 @@
 		},
 		{
 			"objectType": "bezierSurfaceC2",
-			"name": "torso",
+			"name": "torso c2",
 			"id": 178,
 			"patches": [
 				{
@@ -2669,7 +2669,7 @@
 		},
 		{
 			"objectType": "bezierSurfaceC2",
-			"name": "tail",
+			"name": "tail c2",
 			"id": 215,
 			"patches": [
 				{

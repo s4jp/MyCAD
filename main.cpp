@@ -1863,6 +1863,7 @@ void loadScene()
   // import surface C2
   for (auto &surfC2 : scene.surfacesC2) {
     SurfaceC2 *s = new SurfaceC2(glm::vec3(0.f));
+	s->name = surfC2.name;
     
      std::vector<Figure*> cps = std::vector<Figure*>();
     for (auto &patch : surfC2.patches)
