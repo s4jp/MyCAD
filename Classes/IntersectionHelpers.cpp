@@ -7,7 +7,7 @@ constexpr float TOLERANCE = 1e-5f;
 constexpr float MONTE_CARLO_THRESHOLD = 1;
 constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-4f;
 constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
-constexpr int NEWTON_MAX_ITERS = 300;
+constexpr int NEWTON_MAX_ITERS = 10000;
 constexpr float EPS = 1e-3;
 constexpr int INNER_NEWTON_ITERS = 100;
 constexpr float DAMPING = 1e-6f;
@@ -278,7 +278,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
     glm::vec4 last = { start.uv1, start.uv2 };
 
-    for (int i = 0; i < NEWTON_MAX_ITERS / step; i++) 
+    for (int i = 0; i < NEWTON_MAX_ITERS; i++) 
     {
         glm::vec4 next = last;
 		glm::vec3 p0 = GetPosition(A, B, next);
