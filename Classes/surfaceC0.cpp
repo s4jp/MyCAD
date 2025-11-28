@@ -153,7 +153,7 @@ void SurfaceC0::CreateFromControlPoints(int cpCount, int segmentCountLoc,
                               cpsPatch, &this->division, gregoryLoc, glm::vec2(0.f), uvOffsetLoc));
   }
 
-  this->size = glm::vec2(CalcSizeU(), CalcSizeV());
+  this->size = glm::vec2(CalcSizeU(), patchCount / CalcSizeU()); // FUCKIN PATCH WORK
   this->ambit = new Graph(*this);
   this->uvScaleLoc = uvScaleLoc;
 
