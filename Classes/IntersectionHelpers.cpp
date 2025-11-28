@@ -1,14 +1,14 @@
 ﻿#include "IntersectionHelpers.h"
 
-constexpr int MONTE_CARLO_SAMPLES = 50000;
+constexpr int MONTE_CARLO_SAMPLES = 1000000;
 constexpr int GRADIENT_DESCENT_ITERS = 1000;
 constexpr float LEARNING_RATE = 0.01f;
 constexpr float TOLERANCE = 1e-5f;
-constexpr float MONTE_CARLO_THRESHOLD = 1;
-constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-4f;
+constexpr float MONTE_CARLO_THRESHOLD = 5;
+constexpr float START_POINT_ACCEPTANCE_THRESHOLD = 1e-1f;
 constexpr float TOO_CLOSE_THRESHOLD = 1e-2f;
-constexpr int NEWTON_MAX_ITERS = 10000;
-constexpr float EPS = 1e-3;
+constexpr int NEWTON_MAX_ITERS = 2500;
+constexpr float EPS = 1e-2;
 constexpr int INNER_NEWTON_ITERS = 100;
 constexpr float DAMPING = 1e-6f;
 constexpr float SAFE_LR = 1e-3f;
