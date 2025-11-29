@@ -14,6 +14,7 @@ protected:
 	int division = 4;
 	int uvScaleLoc = -1;
 	glm::vec2 size = glm::vec2(-1, -1);
+	bool bspline = false;
 
 	int CalcSize(int i, int j);
 	int virtual CalcSizeU();

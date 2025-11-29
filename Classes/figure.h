@@ -312,8 +312,8 @@ public:
   const glm::vec3 GetNormal(float u, float v)
   {
       return glm::normalize(glm::cross(GetTangentV(u, v), GetTangentU(u, v)));
-  };
-  virtual glm::vec3 OffsetAlongNormal(const glm::vec3& pos, float u, float v, float R)
+  }
+  const glm::vec3 OffsetAlongNormal(const glm::vec3& pos, float u, float v, float R)
   {
       return R == 0.f ? pos : pos + GetNormal(u, v) * R;
   }

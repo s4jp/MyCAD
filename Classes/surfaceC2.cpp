@@ -1,7 +1,7 @@
 #include "surfaceC2.h"
 #include "point.h"
 
-SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position, name) {}
+SurfaceC2::SurfaceC2(glm::vec3 position, std::string name) : SurfaceC0(position, name) { this->bspline = true; }
 
 std::vector<Figure*> SurfaceC2::CalculatePlane(int cpCount, int segmentCountLoc, int segmentIdxLoc, int divisionLoc, int otherAxisLoc, int bsplineLoc, int xSegments, int zSegments, float length, float width, int gregoryLoc, int uvOffsetLoc, int uvScaleLoc)
 {

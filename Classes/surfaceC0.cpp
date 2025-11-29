@@ -301,9 +301,10 @@ glm::vec3 SurfaceC0::GetValue(float u, float v, float R)
 
 	float localU = uScaled - iu;
 	float localV = vScaled - iv;
-
 	int patchIdx = iv * uPatchCount + iu;
-	return patches[patchIdx]->GetValue(localV, localU, R);
+
+	glm::vec3 pos = patches[patchIdx]->GetValue(localV, localU, 0);
+	return bspline ? patches[patchIdx]->OffsetAlongNormal(pos, localV, localU, R) : pos;
 }
 
 glm::vec3 SurfaceC0::GetTangentU(float u, float v)
