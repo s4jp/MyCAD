@@ -41,7 +41,7 @@
 #include "ControlledInputFloat.h"
 
 const float near = 0.1f;
-const float far = 100.0f;
+const float far = 1000.0f;
 
 std::vector<Figure*> figures;
 std::vector<int> selected;
@@ -109,7 +109,7 @@ bool checkIfSelectedArePartOfSurfaceOrPatch();
 void recalculateSelectedSurfacesAndPatches();
 
 MG1::SceneSerializer serializer;
-std::string filePath = "Scenes\\model.json";
+std::string filePath = "Scenes\\big-model-v3-plane.json";
 
 int modelLoc, viewLoc, projLoc, colorLoc, displacementLoc,
     textureLoc, trimmingOptionLoc;
@@ -124,7 +124,7 @@ int tessSurfaceModelLoc, tessSurfaceViewLoc, tessSurfaceProjLoc,
     tessSurfaceTextureLoc, tessSurfaceTrimmingOptionLoc, 
 	tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc;
 
-bool renderGrid = true;
+bool renderGrid = false;
 std::string serializerErrorMsg = "";
 
 std::vector<Polyline*> cycles;
@@ -144,7 +144,7 @@ int main() {
     // initial values
     int width = 1500;
     int height = 800;
-    glm::vec3 cameraPosition = glm::vec3(25.0f, 10.0f, 25.0f);
+    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 215.0f);
     float fov = M_PI / 4.0f;
     int guiWidth = 300;
 
@@ -347,6 +347,19 @@ int main() {
 	  }
     };
 
+    try {
+        if (!std::filesystem::exists(filePath))
+            throw std::exception("File does not exist!");
+        serializer.LoadScene(filePath);
+        loadScene();
+        //ImGui::OpenPopup("LoadSuccessPopup");
+    }
+    catch (const std::exception& e) {
+        //serializerErrorMsg = e.what();
+        //ImGui::OpenPopup("LoadSaveErrorPopup");
+		std::cout << e.what() << std::endl;
+    }
+
     while (!glfwWindowShouldClose(window)) 
     {
         #pragma region init
@@ -407,8 +420,8 @@ int main() {
             // cursor position & radius slider
             {
                 cursor->CreateImgui();
-                ImGui::SliderInt("Radius", &cursorRadius, glm::max((int)near, 1),
-                    glm::max((int)far, 1));
+                //ImGui::SliderInt("Radius", &cursorRadius, glm::max((int)near, 1),
+                //    glm::max((int)far, 1));
             }
 
             // add object buttons for object add mode
@@ -607,7 +620,7 @@ int main() {
             }
 
 
-            ImGui::BeginChild("figures", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.5f), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::BeginChild("figures", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.3f), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
             // intersection selection
             if (intersections.size() > 0) {
                 ImGui::SeparatorText("Intersections");
@@ -697,25 +710,25 @@ int main() {
                     recalculateSelected();
                 }
             }
-            // other figures selection
-            if (figures.size() > 0 && currentMenuItem != 4) {
-                ImGui::SeparatorText("Other figures");
+            //// other figures selection
+            //if (figures.size() > 0 && currentMenuItem != 4) {
+            //    ImGui::SeparatorText("Other figures");
 
-                for (int i = 0; i < figures.size(); i++) {
-                    if (ImGui::Selectable(figures[i]->name.c_str(),
-                        &figures[i]->selected)) {
-                        if (!ImGui::GetIO().KeyShift) {
-                            bool temp = figures[i]->selected;
-                            std::for_each(figures.begin(), figures.end(), [](Figure* f) {
-                                f->selected = false;
-                                ;
-                                });
-                            figures[i]->selected = temp;
-                        }
-                        recalculateSelected();
-                    }
-                }
-            }
+            //    for (int i = 0; i < figures.size(); i++) {
+            //        if (ImGui::Selectable(figures[i]->name.c_str(),
+            //            &figures[i]->selected)) {
+            //            if (!ImGui::GetIO().KeyShift) {
+            //                bool temp = figures[i]->selected;
+            //                std::for_each(figures.begin(), figures.end(), [](Figure* f) {
+            //                    f->selected = false;
+            //                    ;
+            //                    });
+            //                figures[i]->selected = temp;
+            //            }
+            //            recalculateSelected();
+            //        }
+            //    }
+            //}
 
             ImGui::EndChild();
 
@@ -764,56 +777,56 @@ int main() {
                 ImGui::EndPopup();
             }
 
-            if ((((selectedCurveIdx != -1) != (selectedSurfaces.size() == 1)) != (selectedPatches.size() == 1)) && selected.size() == 0) {
-                // delete complex figure with all its control points
-                if (selectedPatches.size() == 0) {
-                    ImGui::SameLine();
-                    if (ImGui::Button("Delete with cps")) {
-                        std::vector<Figure*> cpsToDelete;
-                        if (selectedCurveIdx != -1) {
-                            cpsToDelete = curves[selectedCurveIdx]->GetControlPoints();
-                            curves.erase(curves.begin() + selectedCurveIdx);
-                            deselectCurve(true);
-                        }
-                        if (selectedSurfaces.size() == 1) {
-                            cpsToDelete = surfaces[selectedSurfaces[0]]->GetControlPoints();
-                            surfaces.erase(surfaces.begin() + selectedSurfaces[0]);
-                            recalculateSelectedSurfacesAndPatches();
-                        }
-                        if (selectedPatches.size() == 1) {
-                            cpsToDelete = patches[selectedPatches[0]]->GetControlPoints();
-                            patches.erase(patches.begin() + selectedPatches[0]);
-                            recalculateSelectedSurfacesAndPatches();
-                        }
-                        deleteCpsIfFree(cpsToDelete);
-                    }
-                }
-                // select all control points
-                if (ImGui::Button("Select all cps")) {
-                    if (selectedCurveIdx != -1) {
-                        std::vector<Figure*> cps = curves[selectedCurveIdx]->GetControlPoints();
-                        for (int i = 0; i < cps.size(); i++) {
-                            cps[i]->selected = true;
-                        }
-                        deselectCurve();
-                    }
-                    if (selectedSurfaces.size() == 1) {
-                        std::vector<Figure*> cps = surfaces[selectedSurfaces[0]]->GetControlPoints();
-                        for (int i = 0; i < cps.size(); i++) {
-                            cps[i]->selected = true;
-                        }
-                        deselectSurfacesAndPatches();
-                    }
-                    if (selectedPatches.size() == 1) {
-                        std::vector<Figure*> cps = patches[selectedPatches[0]]->GetControlPoints();
-                        for (int i = 0; i < cps.size(); i++) {
-                            cps[i]->selected = true;
-                        }
-                        deselectSurfacesAndPatches();
-                    }
-                    recalculateSelected();
-                }
-            }
+            //if ((((selectedCurveIdx != -1) != (selectedSurfaces.size() == 1)) != (selectedPatches.size() == 1)) && selected.size() == 0) {
+            //    // delete complex figure with all its control points
+            //    if (selectedPatches.size() == 0) {
+            //        ImGui::SameLine();
+            //        if (ImGui::Button("Delete with cps")) {
+            //            std::vector<Figure*> cpsToDelete;
+            //            if (selectedCurveIdx != -1) {
+            //                cpsToDelete = curves[selectedCurveIdx]->GetControlPoints();
+            //                curves.erase(curves.begin() + selectedCurveIdx);
+            //                deselectCurve(true);
+            //            }
+            //            if (selectedSurfaces.size() == 1) {
+            //                cpsToDelete = surfaces[selectedSurfaces[0]]->GetControlPoints();
+            //                surfaces.erase(surfaces.begin() + selectedSurfaces[0]);
+            //                recalculateSelectedSurfacesAndPatches();
+            //            }
+            //            if (selectedPatches.size() == 1) {
+            //                cpsToDelete = patches[selectedPatches[0]]->GetControlPoints();
+            //                patches.erase(patches.begin() + selectedPatches[0]);
+            //                recalculateSelectedSurfacesAndPatches();
+            //            }
+            //            deleteCpsIfFree(cpsToDelete);
+            //        }
+            //    }
+            //    // select all control points
+            //    if (ImGui::Button("Select all cps")) {
+            //        if (selectedCurveIdx != -1) {
+            //            std::vector<Figure*> cps = curves[selectedCurveIdx]->GetControlPoints();
+            //            for (int i = 0; i < cps.size(); i++) {
+            //                cps[i]->selected = true;
+            //            }
+            //            deselectCurve();
+            //        }
+            //        if (selectedSurfaces.size() == 1) {
+            //            std::vector<Figure*> cps = surfaces[selectedSurfaces[0]]->GetControlPoints();
+            //            for (int i = 0; i < cps.size(); i++) {
+            //                cps[i]->selected = true;
+            //            }
+            //            deselectSurfacesAndPatches();
+            //        }
+            //        if (selectedPatches.size() == 1) {
+            //            std::vector<Figure*> cps = patches[selectedPatches[0]]->GetControlPoints();
+            //            for (int i = 0; i < cps.size(); i++) {
+            //                cps[i]->selected = true;
+            //            }
+            //            deselectSurfacesAndPatches();
+            //        }
+            //        recalculateSelected();
+            //    }
+            //}
 
             if (selected.size() != 0 || selectedCurveIdx != -1 || selectedSurfaces.size() != 0 || selectedPatches.size() != 0 || isIntersectionSelected()) {
                 ImGui::SameLine();
@@ -840,56 +853,56 @@ int main() {
                 ImGui::Checkbox("Click-out curve", &clickingOutCurve);
             }
 
-            // selected item menu
-            if (selected.size() == 1 && selectedCurveIdx == -1 &&
-                selectedSurfaces.size() == 0 && selectedPatches.size() == 0)
-            {
-                ImGui::Separator();
-                // change name window
-                ImGui::InputText("Change name", &figures[selected[0]]->name);
-                // display selected item position
-                center->SetPosition(figures[selected[0]]->GetPosition());
-                // display selected item menu
-                if (figures[selected[0]]->CreateImgui()) {
-                    updateCurvesSelectedChange();
-                    updateSurfacesAndPatchesSelectedChange();
-                }
-            }
-            if (selected.size() == 0 && selectedCurveIdx != -1 &&
-                selectedSurfaces.size() == 0 && selectedPatches.size() == 0 && currentMenuItem != 4)
-            {
-                ImGui::Separator();
-                // change name window
-                ImGui::InputText("Change name", &curves[selectedCurveIdx]->name);
-                // display selected curve menu
-                if (curves[selectedCurveIdx]->CreateImgui())
-                {
-                    if (curves[selectedCurveIdx]->GetControlPoints().size() == 0)
-                    {
-                        curves.erase(curves.begin() + selectedCurveIdx);
-                        deselectCurve(true);
-                        recalculateSelected(true);
-                    }
-                }
-            }
+            //// selected item menu
+            //if (selected.size() == 1 && selectedCurveIdx == -1 &&
+            //    selectedSurfaces.size() == 0 && selectedPatches.size() == 0)
+            //{
+            //    ImGui::Separator();
+            //    // change name window
+            //    ImGui::InputText("Change name", &figures[selected[0]]->name);
+            //    // display selected item position
+            //    center->SetPosition(figures[selected[0]]->GetPosition());
+            //    // display selected item menu
+            //    if (figures[selected[0]]->CreateImgui()) {
+            //        updateCurvesSelectedChange();
+            //        updateSurfacesAndPatchesSelectedChange();
+            //    }
+            //}
+            //if (selected.size() == 0 && selectedCurveIdx != -1 &&
+            //    selectedSurfaces.size() == 0 && selectedPatches.size() == 0 && currentMenuItem != 4)
+            //{
+            //    ImGui::Separator();
+            //    // change name window
+            //    ImGui::InputText("Change name", &curves[selectedCurveIdx]->name);
+            //    // display selected curve menu
+            //    if (curves[selectedCurveIdx]->CreateImgui())
+            //    {
+            //        if (curves[selectedCurveIdx]->GetControlPoints().size() == 0)
+            //        {
+            //            curves.erase(curves.begin() + selectedCurveIdx);
+            //            deselectCurve(true);
+            //            recalculateSelected(true);
+            //        }
+            //    }
+            //}
 
-            if (selected.size() == 0 && selectedCurveIdx == -1 &&
-                selectedSurfaces.size() == 1 && selectedPatches.size() == 0) {
-                ImGui::Separator();
-                // change name window
-                ImGui::InputText("Change name", &surfaces[selectedSurfaces[0]]->name);
-                // display selected surface menu
-                surfaces[selectedSurfaces[0]]->CreateImgui();
-            }
+            //if (selected.size() == 0 && selectedCurveIdx == -1 &&
+            //    selectedSurfaces.size() == 1 && selectedPatches.size() == 0) {
+            //    ImGui::Separator();
+            //    // change name window
+            //    ImGui::InputText("Change name", &surfaces[selectedSurfaces[0]]->name);
+            //    // display selected surface menu
+            //    surfaces[selectedSurfaces[0]]->CreateImgui();
+            //}
 
-            if (selected.size() == 0 && selectedCurveIdx == -1 &&
-                selectedSurfaces.size() == 0 && selectedPatches.size() == 1) {
-                ImGui::Separator();
-                // change name window
-                ImGui::InputText("Change name", &patches[selectedPatches[0]]->name);
-                // display selected surface menu
-                patches[selectedPatches[0]]->CreateImgui();
-            }
+            //if (selected.size() == 0 && selectedCurveIdx == -1 &&
+            //    selectedSurfaces.size() == 0 && selectedPatches.size() == 1) {
+            //    ImGui::Separator();
+            //    // change name window
+            //    ImGui::InputText("Change name", &patches[selectedPatches[0]]->name);
+            //    // display selected surface menu
+            //    patches[selectedPatches[0]]->CreateImgui();
+            //}
 
             // multiple figures merging & manipulation
             if (selected.size() > 1 && selectedCurveIdx == -1 &&
@@ -1023,257 +1036,258 @@ int main() {
                 curves[selectedCurveIdx]->CreateBsplineImgui();
             }
 
-            //anaglyph menu
-            ImGui::Separator();
-            ImGui::Text("Anaglyph parameters");
-            ImGui::Checkbox("Active", &anaglyphActive);
-            if (ImGui::InputFloat("Convergence", &convergence, 0.01f, 1.f,
-                "%.2f")) {
-                if (convergence <= 0.f) convergence = 0.01f;
+            ////anaglyph menu
+            //ImGui::Separator();
+            //ImGui::Text("Anaglyph parameters");
+            //ImGui::Checkbox("Active", &anaglyphActive);
+            //if (ImGui::InputFloat("Convergence", &convergence, 0.01f, 1.f,
+            //    "%.2f")) {
+            //    if (convergence <= 0.f) convergence = 0.01f;
 
-                camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
-                    projR);
-            };
-            if (ImGui::InputFloat("Eye separation", &eyeSeparation, 0.01f, 1.f,
-                "%.2f")) {
-                if (eyeSeparation < 0.f) eyeSeparation = 0.f;
+            //    camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
+            //        projR);
+            //};
+            //if (ImGui::InputFloat("Eye separation", &eyeSeparation, 0.01f, 1.f,
+            //    "%.2f")) {
+            //    if (eyeSeparation < 0.f) eyeSeparation = 0.f;
 
-                camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
-                    projR);
-                CAD::displacemt(eyeSeparation, displacementL, displacementR);
-            }
+            //    camera->PrepareAnaglyphMatrices(convergence, eyeSeparation, projL,
+            //        projR);
+            //    CAD::displacemt(eyeSeparation, displacementL, displacementR);
+            //}
 
-            // save/load scene
-            ImGui::Separator();
-            ImGui::Text("Scene serialization");
-            ImGui::InputText("Target path", &filePath);
-            if (ImGui::Button("Load")) {
-                try {
-                    if (!std::filesystem::exists(filePath))
-                        throw std::exception("File does not exist!");
-                    serializer.LoadScene(filePath);
-                    loadScene();
-                    ImGui::OpenPopup("LoadSuccessPopup");
-                }
-                catch (const std::exception& e) {
-                    serializerErrorMsg = e.what();
-                    ImGui::OpenPopup("LoadSaveErrorPopup");
-                }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Save")) {
-                try {
-                    if (std::filesystem::exists(filePath))
-                        throw std::exception("File already exists!");
-                    saveScene();
-                    serializer.SaveScene(filePath);
-                    ImGui::OpenPopup("SaveSuccessPopup");
-                }
-                catch (const std::exception& e) {
-                    serializerErrorMsg = e.what();
-                    ImGui::OpenPopup("LoadSaveErrorPopup");
-                }
-            }
+            //// save/load scene
+            //ImGui::Separator();
+            //ImGui::Text("Scene serialization");
+            //ImGui::InputText("Target path", &filePath);
+            //if (ImGui::Button("Load")) {
+            //    try {
+            //        if (!std::filesystem::exists(filePath))
+            //            throw std::exception("File does not exist!");
+            //        serializer.LoadScene(filePath);
+            //        loadScene();
+            //        ImGui::OpenPopup("LoadSuccessPopup");
+            //    }
+            //    catch (const std::exception& e) {
+            //        serializerErrorMsg = e.what();
+            //        ImGui::OpenPopup("LoadSaveErrorPopup");
+            //    }
+            //}
+            //ImGui::SameLine();
+            //if (ImGui::Button("Save")) {
+            //    try {
+            //        if (std::filesystem::exists(filePath))
+            //            throw std::exception("File already exists!");
+            //        saveScene();
+            //        serializer.SaveScene(filePath);
+            //        ImGui::OpenPopup("SaveSuccessPopup");
+            //    }
+            //    catch (const std::exception& e) {
+            //        serializerErrorMsg = e.what();
+            //        ImGui::OpenPopup("LoadSaveErrorPopup");
+            //    }
+            //}
 
-            if (ImGui::BeginPopup("LoadSaveErrorPopup")) {
-                ImGui::Text(serializerErrorMsg.c_str());
-                if (ImGui::Button("OK")) {
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
-            if (ImGui::BeginPopup("LoadSuccessPopup")) {
-                ImGui::Text("Scene loaded from");
-                ImGui::SameLine();
-                ImGui::Text(filePath.c_str());
-                if (ImGui::Button("OK")) {
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
-            if (ImGui::BeginPopup("SaveSuccessPopup")) {
-                ImGui::Text("Scene saved to");
-                ImGui::SameLine();
-                ImGui::Text(filePath.c_str());
-                if (ImGui::Button("OK")) {
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
+            //if (ImGui::BeginPopup("LoadSaveErrorPopup")) {
+            //    ImGui::Text(serializerErrorMsg.c_str());
+            //    if (ImGui::Button("OK")) {
+            //        ImGui::CloseCurrentPopup();
+            //    }
+            //    ImGui::EndPopup();
+            //}
+            //if (ImGui::BeginPopup("LoadSuccessPopup")) {
+            //    ImGui::Text("Scene loaded from");
+            //    ImGui::SameLine();
+            //    ImGui::Text(filePath.c_str());
+            //    if (ImGui::Button("OK")) {
+            //        ImGui::CloseCurrentPopup();
+            //    }
+            //    ImGui::EndPopup();
+            //}
+            //if (ImGui::BeginPopup("SaveSuccessPopup")) {
+            //    ImGui::Text("Scene saved to");
+            //    ImGui::SameLine();
+            //    ImGui::Text(filePath.c_str());
+            //    if (ImGui::Button("OK")) {
+            //        ImGui::CloseCurrentPopup();
+            //    }
+            //    ImGui::EndPopup();
+            //}
 
-            if (selectedSurfaces.size() > 0) {
-                ImGui::SeparatorText("Gregory patch options:");
-                ImGui::Text("Places for patch: ");
-                ImGui::SameLine();
-                ImGui::Text(std::to_string(cycles.size()).c_str());
+            //if (selectedSurfaces.size() > 0) {
+            //    ImGui::SeparatorText("Gregory patch options:");
+            //    ImGui::Text("Places for patch: ");
+            //    ImGui::SameLine();
+            //    ImGui::Text(std::to_string(cycles.size()).c_str());
 
-                if (cycles.size() > 1) {
-                    int selectedCycle = getSelectedCycleIdx();
-                    selectedCycle += 1;
+            //    if (cycles.size() > 1) {
+            //        int selectedCycle = getSelectedCycleIdx();
+            //        selectedCycle += 1;
 
-                    if (ImGui::SliderInt("Selection", &selectedCycle, 1,
-                        cycles.size())) {
-                        for (int i = 0; i < cycles.size(); i++) {
-                            cycles[i]->selected = false;
-                        }
-                        cycles[selectedCycle - 1]->selected = true;
-                    }
-                }
+            //        if (ImGui::SliderInt("Selection", &selectedCycle, 1,
+            //            cycles.size())) {
+            //            for (int i = 0; i < cycles.size(); i++) {
+            //                cycles[i]->selected = false;
+            //            }
+            //            cycles[selectedCycle - 1]->selected = true;
+            //        }
+            //    }
+            //
+            //    if (cycles.size() > 0) {
+            //        if (ImGui::Button("Create Gregory patch")) {
+            //            // prepare cps for gregory patch
+            //            auto findPatchAndCpIdxs = [&](SurfaceC0* surf, Figure* cp) {
+            //                std::vector<Figure*> cps = surf->GetControlPoints();
+            //                std::vector<std::pair<int, int>> cpsIdxs =
+            //                    std::vector<std::pair<int, int>>();
+            //                for (int i = 0; i < cps.size(); i++) {
+            //                    if (cp == cps[i]) {
+            //                        cpsIdxs.push_back(std::pair<int, int>(i / 16, i % 16));
+            //                    }
+            //                }
+            //                return cpsIdxs;
+            //                };
 
-                if (cycles.size() > 0) {
-                    if (ImGui::Button("Create Gregory patch")) {
-                        // prepare cps for gregory patch
-                        auto findPatchAndCpIdxs = [&](SurfaceC0* surf, Figure* cp) {
-                            std::vector<Figure*> cps = surf->GetControlPoints();
-                            std::vector<std::pair<int, int>> cpsIdxs =
-                                std::vector<std::pair<int, int>>();
-                            for (int i = 0; i < cps.size(); i++) {
-                                if (cp == cps[i]) {
-                                    cpsIdxs.push_back(std::pair<int, int>(i / 16, i % 16));
-                                }
-                            }
-                            return cpsIdxs;
-                            };
+            //            auto matchIndices = [](std::vector<std::pair<int, int>> start,
+            //                std::vector<std::pair<int, int>> end) {
+            //                    std::vector<std::pair<int, int>> results =
+            //                        std::vector<std::pair<int, int>>();
+            //                    for (int i = 0; i < start.size(); i++) {
+            //                        for (int j = 0; j < end.size(); j++) {
+            //                            if (start[i].first == end[j].first) {
+            //                                results.push_back(start[i]);
+            //                                results.push_back(end[j]);
+            //                            }
+            //                        }
+            //                    }
+            //                    return results;
+            //                };
 
-                        auto matchIndices = [](std::vector<std::pair<int, int>> start,
-                            std::vector<std::pair<int, int>> end) {
-                                std::vector<std::pair<int, int>> results =
-                                    std::vector<std::pair<int, int>>();
-                                for (int i = 0; i < start.size(); i++) {
-                                    for (int j = 0; j < end.size(); j++) {
-                                        if (start[i].first == end[j].first) {
-                                            results.push_back(start[i]);
-                                            results.push_back(end[j]);
-                                        }
-                                    }
-                                }
-                                return results;
-                            };
+            //            auto areCircularlyEqual = [](const std::vector<Figure*>& v1, const std::vector<Figure*>& v2) -> bool {
+            //                if (v1.size() != v2.size() || v1.empty()) return false;
 
-                        auto areCircularlyEqual = [](const std::vector<Figure*>& v1, const std::vector<Figure*>& v2) -> bool {
-                            if (v1.size() != v2.size() || v1.empty()) return false;
+            //                auto isRotation = [](const std::vector<Figure*>& original, const std::vector<Figure*>& candidate) -> bool {
+            //                    auto it = std::find(candidate.begin(), candidate.end(), original[0]);
+            //                    while (it != candidate.end()) {
+            //                        size_t index = std::distance(candidate.begin(), it);
+            //                        bool match = true;
+            //                        for (size_t i = 0; i < original.size(); ++i) {
+            //                            if (original[i] != candidate[(index + i) % candidate.size()]) {
+            //                                match = false;
+            //                                break;
+            //                            }
+            //                        }
+            //                        if (match) return true;
+            //                        it = std::find(it + 1, candidate.end(), original[0]);
+            //                    }
+            //                    return false;
+            //                    };
 
-                            auto isRotation = [](const std::vector<Figure*>& original, const std::vector<Figure*>& candidate) -> bool {
-                                auto it = std::find(candidate.begin(), candidate.end(), original[0]);
-                                while (it != candidate.end()) {
-                                    size_t index = std::distance(candidate.begin(), it);
-                                    bool match = true;
-                                    for (size_t i = 0; i < original.size(); ++i) {
-                                        if (original[i] != candidate[(index + i) % candidate.size()]) {
-                                            match = false;
-                                            break;
-                                        }
-                                    }
-                                    if (match) return true;
-                                    it = std::find(it + 1, candidate.end(), original[0]);
-                                }
-                                return false;
-                                };
+            //                std::vector<Figure*> reversedV1(v1.rbegin(), v1.rend());
+            //                return isRotation(v1, v2) || isRotation(reversedV1, v2);
+            //                };
 
-                            std::vector<Figure*> reversedV1(v1.rbegin(), v1.rend());
-                            return isRotation(v1, v2) || isRotation(reversedV1, v2);
-                            };
+            //            std::vector<Figure*> gregoryPatchCps = std::vector<Figure*>();
 
-                        std::vector<Figure*> gregoryPatchCps = std::vector<Figure*>();
+            //            for (int i = 0;
+            //                i < cycles[getSelectedCycleIdx()]->graph->vertices.size();
+            //                i++) {
+            //                std::vector<EdgeStruct*> edges =
+            //                    cycles[getSelectedCycleIdx()]
+            //                    ->graph->adjList.getNeighbours(i);
+            //                for (int j = 0; j < edges.size(); j++) {
+            //                    if (edges[j]->v == (i + 1) % cycles[getSelectedCycleIdx()]
+            //                        ->graph->vertices.size()) {
+            //                        std::vector<std::pair<int, int>> startIndices =
+            //                            findPatchAndCpIdxs(edges[j]->baseSurface,
+            //                                cycles[getSelectedCycleIdx()]
+            //                                ->graph->vertices[i]);
+            //                        std::vector<std::pair<int, int>> endIndices =
+            //                            findPatchAndCpIdxs(
+            //                                edges[j]->baseSurface,
+            //                                cycles[getSelectedCycleIdx()]->graph->vertices
+            //                                [(i + 1) % cycles[getSelectedCycleIdx()]
+            //                                ->graph->vertices.size()]);
+            //                        std::vector<std::pair<int, int>> indicesMatch =
+            //                            matchIndices(startIndices, endIndices);
+            //                        std::pair<int, int> resultStart = indicesMatch[0];
+            //                        std::pair<int, int> resultEnd = indicesMatch[1];
 
-                        for (int i = 0;
-                            i < cycles[getSelectedCycleIdx()]->graph->vertices.size();
-                            i++) {
-                            std::vector<EdgeStruct*> edges =
-                                cycles[getSelectedCycleIdx()]
-                                ->graph->adjList.getNeighbours(i);
-                            for (int j = 0; j < edges.size(); j++) {
-                                if (edges[j]->v == (i + 1) % cycles[getSelectedCycleIdx()]
-                                    ->graph->vertices.size()) {
-                                    std::vector<std::pair<int, int>> startIndices =
-                                        findPatchAndCpIdxs(edges[j]->baseSurface,
-                                            cycles[getSelectedCycleIdx()]
-                                            ->graph->vertices[i]);
-                                    std::vector<std::pair<int, int>> endIndices =
-                                        findPatchAndCpIdxs(
-                                            edges[j]->baseSurface,
-                                            cycles[getSelectedCycleIdx()]->graph->vertices
-                                            [(i + 1) % cycles[getSelectedCycleIdx()]
-                                            ->graph->vertices.size()]);
-                                    std::vector<std::pair<int, int>> indicesMatch =
-                                        matchIndices(startIndices, endIndices);
-                                    std::pair<int, int> resultStart = indicesMatch[0];
-                                    std::pair<int, int> resultEnd = indicesMatch[1];
+            //                        int diff =
+            //                            std::get<1>(resultEnd) - std::get<1>(resultStart);
+            //                        for (int k = 0; k < 4; k++) {
+            //                            gregoryPatchCps.push_back(
+            //                                edges[j]->baseSurface->GetControlPoints()
+            //                                [std::get<0>(resultStart) * 16 +
+            //                                std::get<1>(resultStart) + (diff / 3) * k]);
+            //                        }
 
-                                    int diff =
-                                        std::get<1>(resultEnd) - std::get<1>(resultStart);
-                                    for (int k = 0; k < 4; k++) {
-                                        gregoryPatchCps.push_back(
-                                            edges[j]->baseSurface->GetControlPoints()
-                                            [std::get<0>(resultStart) * 16 +
-                                            std::get<1>(resultStart) + (diff / 3) * k]);
-                                    }
+            //                        int stepBack;
+            //                        if (abs(diff) == 12) {
+            //                            stepBack = 1;
+            //                        }
+            //                        else {
+            //                            // (abs(diff) == 3)
+            //                            stepBack = 4;
+            //                        }
+            //                        if (std::get<1>(resultStart) == 15 ||
+            //                            std::get<1>(resultEnd) == 15) {
+            //                            stepBack *= -1;
+            //                        }
+            //                        for (int k = 0; k < 4; k++) {
+            //                            gregoryPatchCps.push_back(
+            //                                edges[j]->baseSurface->GetControlPoints()
+            //                                [std::get<0>(resultStart) * 16 +
+            //                                std::get<1>(resultStart) + (diff / 3) * k +
+            //                                stepBack]);
+            //                        }
+            //                    }
+            //                }
+            //            }
 
-                                    int stepBack;
-                                    if (abs(diff) == 12) {
-                                        stepBack = 1;
-                                    }
-                                    else {
-                                        // (abs(diff) == 3)
-                                        stepBack = 4;
-                                    }
-                                    if (std::get<1>(resultStart) == 15 ||
-                                        std::get<1>(resultEnd) == 15) {
-                                        stepBack *= -1;
-                                    }
-                                    for (int k = 0; k < 4; k++) {
-                                        gregoryPatchCps.push_back(
-                                            edges[j]->baseSurface->GetControlPoints()
-                                            [std::get<0>(resultStart) * 16 +
-                                            std::get<1>(resultStart) + (diff / 3) * k +
-                                            stepBack]);
-                                    }
-                                }
-                            }
-                        }
+            //            // check if gregory patch already exists
+            //            bool exists = false;
+            //            for (int i = 0; i < patches.size(); i++) {
+            //                if (areCircularlyEqual(gregoryPatchCps, patches[i]->GetControlPoints())) {
+            //                    exists = true;
+            //                    break;
+            //                }
+            //            }
 
-                        // check if gregory patch already exists
-                        bool exists = false;
-                        for (int i = 0; i < patches.size(); i++) {
-                            if (areCircularlyEqual(gregoryPatchCps, patches[i]->GetControlPoints())) {
-                                exists = true;
-                                break;
-                            }
-                        }
-
-                        if (exists) {
-                            ImGui::OpenPopup("ExistingPatch");
-                        }
-                        else {
-                            deselectSurfacesAndPatches();
-                            GregoryPatch* gp = new GregoryPatch(
-                                gregoryPatchCps,
-                                tessSurfaceCpCountLoc,
-                                tessSurfaceSegmentCountLoc,
-                                tessSurfaceSegmentIdxLoc,
-                                tessSurfaceDivisionLoc,
-                                tessSurfaceOtherAxisLoc,
-                                tessSurfaceBsplineLoc,
-                                tessSurfaceGregoryLoc);
-                            gp->selected = true;
-                            patches.push_back(gp);
-                            selectedPatches.push_back(patches.size() - 1);
-                        }
-                    }
-                }
-                if (ImGui::BeginPopup("ExistingPatch")) {
-                    ImGui::Text("Area already has a Gregory patch.");
-                    if (ImGui::Button("OK")) {
-                        ImGui::CloseCurrentPopup();
-                    }
-                    ImGui::EndPopup();
-                }
-            }
-            if (selectedCurveIdx == -1 && (
-                (selectedSurfaces.size() == 2 && selected.size() == 0) ||
-                (selectedSurfaces.size() == 1 && selected.size() == 0) ||
-                (selectedSurfaces.size() == 1 && selected.size() == 1) ||
-                (selectedSurfaces.size() == 0 && selected.size() == 2)))
+            //            if (exists) {
+            //                ImGui::OpenPopup("ExistingPatch");
+            //            }
+            //            else {
+            //                deselectSurfacesAndPatches();
+            //                GregoryPatch* gp = new GregoryPatch(
+            //                    gregoryPatchCps,
+            //                    tessSurfaceCpCountLoc,
+            //                    tessSurfaceSegmentCountLoc,
+            //                    tessSurfaceSegmentIdxLoc,
+            //                    tessSurfaceDivisionLoc,
+            //                    tessSurfaceOtherAxisLoc,
+            //                    tessSurfaceBsplineLoc,
+            //                    tessSurfaceGregoryLoc);
+            //                gp->selected = true;
+            //                patches.push_back(gp);
+            //                selectedPatches.push_back(patches.size() - 1);
+            //            }
+            //        }
+            //    }
+            //    if (ImGui::BeginPopup("ExistingPatch")) {
+            //        ImGui::Text("Area already has a Gregory patch.");
+            //        if (ImGui::Button("OK")) {
+            //            ImGui::CloseCurrentPopup();
+            //        }
+            //        ImGui::EndPopup();
+            //    }
+            //}
+            //if (selectedCurveIdx == -1 && (
+            //    (selectedSurfaces.size() == 2 && selected.size() == 0) ||
+            //    (selectedSurfaces.size() == 1 && selected.size() == 0) ||
+            //    (selectedSurfaces.size() == 1 && selected.size() == 1) ||
+            //    (selectedSurfaces.size() == 0 && selected.size() == 2)))
+			if (selectedSurfaces.size() == 2 && selected.size() == 0)
             {
                 //check if all selected surfaces/figures are intersectional
                 bool acceptable = true;
@@ -1290,7 +1304,7 @@ int main() {
 
                 if (acceptable) {
                     ImGui::SeparatorText("Intersections options:");
-                    intersectionPrecision.Render();
+                    //intersectionPrecision.Render();
 					ImGui::Checkbox("Use cursor", &useCursorAsStartPoint);
                     ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
                     if (ImGui::Button("Find intersection"))
@@ -1306,6 +1320,7 @@ int main() {
                         }
                         else {
                             auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint, intersectionPrecision.GetValue());
+                            std::cout << "FIN" << std::endl;
                             intersections.push_back(new Intersection(result, tessCpCountLoc, tessSegmentCountLoc,
                                 tessSegmentIdxLoc, tessDivisionLoc, guiWidth));
 
@@ -1876,6 +1891,8 @@ void loadScene()
         tessSurfaceOtherAxisLoc, tessSurfaceBsplineLoc, cps, tessSurfaceGregoryLoc, tessSurfaceUvOffsetLoc, tessSurfaceUvScaleLoc);
     surfaces.push_back(s);
   }
+
+  std::swap(surfaces[2], surfaces[4]);
 }
 
 void saveScene() 

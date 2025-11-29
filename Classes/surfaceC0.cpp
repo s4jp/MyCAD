@@ -286,7 +286,7 @@ void SurfaceC0::Render(int colorLoc, int modelLoc, bool grayscale)
 	}
 }
 
-glm::vec3 SurfaceC0::GetValue(float u, float v)
+glm::vec3 SurfaceC0::GetValue(float u, float v, float R)
 {
 	if (patches.empty()) return glm::vec3(0);
 
@@ -303,18 +303,18 @@ glm::vec3 SurfaceC0::GetValue(float u, float v)
 	float localV = vScaled - iv;
 
 	int patchIdx = iv * uPatchCount + iu;
-	return patches[patchIdx]->GetValue(localV, localU);
+	return patches[patchIdx]->GetValue(localV, localU, R);
 }
 
 glm::vec3 SurfaceC0::GetTangentU(float u, float v)
 {
-	return (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
+	return (GetValue(u + tangentEpsilon, v, 0) - GetValue(u - tangentEpsilon, v, 0))
 		/ (2.0f * tangentEpsilon);
 }
 
 glm::vec3 SurfaceC0::GetTangentV(float u, float v)
 {
-	return (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
+	return (GetValue(u, v + tangentEpsilon, 0) - GetValue(u, v - tangentEpsilon, 0))
 		/ (2.0f * tangentEpsilon);
 }
 

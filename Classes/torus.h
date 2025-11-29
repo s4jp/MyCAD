@@ -21,7 +21,7 @@ public:
   int Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs) override;
 
   bool Intersectional() { return true; }
-  glm::vec3 GetValue(float u, float v) override;
+  glm::vec3 GetValue(float u, float v, float R) override;
   glm::vec3 GetTangentU(float u, float v) override;
   glm::vec3 GetTangentV(float u, float v) override;
   bool IsWrappedU() override { return true; }

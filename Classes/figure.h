@@ -297,7 +297,7 @@ public:
   virtual float GetR() = 0;
 
   virtual bool Intersectional() = 0;
-  virtual glm::vec3 GetValue(float u, float v) { return glm::vec3(0.f); }
+  virtual glm::vec3 GetValue(float u, float v, float R) { return glm::vec3(0.f); }
   virtual glm::vec3 GetTangentU(float u, float v) { return glm::vec3(0.f); }
   virtual glm::vec3 GetTangentV(float u, float v) { return glm::vec3(0.f); }
   virtual bool IsWrappedU() { return false; }
@@ -308,5 +308,13 @@ public:
           << (this->IsWrappedV() ? "V wrapped " : "")
 		  << (!this->IsWrappedU() && !this->IsWrappedV() ? "NOT wrapped" : "")
           << std::endl;
+  }
+  const glm::vec3 GetNormal(float u, float v)
+  {
+      return glm::normalize(glm::cross(GetTangentV(u, v), GetTangentU(u, v)));
+  };
+  virtual glm::vec3 OffsetAlongNormal(const glm::vec3& pos, float u, float v, float R)
+  {
+      return R == 0.f ? pos : pos + GetNormal(u, v) * R;
   }
 };

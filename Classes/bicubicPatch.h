@@ -43,7 +43,7 @@ public:
 	float GetR() { return 0; };
 
 	bool Intersectional() { return false; }
-	glm::vec3 GetValue(float u, float v) override;
+	glm::vec3 GetValue(float u, float v, float R) override;
 	glm::vec3 GetTangentU(float u, float v) override;
 	glm::vec3 GetTangentV(float u, float v) override;
 };

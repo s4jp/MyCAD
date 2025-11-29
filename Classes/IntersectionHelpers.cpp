@@ -13,10 +13,11 @@ constexpr int INNER_NEWTON_ITERS = 100;
 constexpr float DAMPING = 1e-6f;
 constexpr float SAFE_LR = 1e-3f;
 constexpr float LOOP_CLOSURE_THRESHOLD = 0.7f;
+constexpr float RADIUS = 4.f;
 
 float IntersectionHelpers::DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t) {
-    glm::vec3 p1 = A->GetValue(u, v);
-    glm::vec3 p2 = B->GetValue(s, t);
+    glm::vec3 p1 = A->GetValue(u, v, RADIUS);
+    glm::vec3 p2 = B->GetValue(s, t, RADIUS);
 
     return glm::dot(p1 - p2, p1 - p2);
 }
@@ -28,8 +29,8 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
     glm::vec2 stCurr = st;
 
     for (int iter = 0; iter < GRADIENT_DESCENT_ITERS; iter++) {
-        glm::vec3 P = A->GetValue(uvCurr.x, uvCurr.y);
-        glm::vec3 Q = B->GetValue(stCurr.x, stCurr.y);
+        glm::vec3 P = A->GetValue(uvCurr.x, uvCurr.y, RADIUS);
+        glm::vec3 Q = B->GetValue(stCurr.x, stCurr.y, RADIUS);
         glm::vec3 diff = P - Q;
 
         glm::vec3 dAu = A->GetTangentU(uvCurr.x, uvCurr.y);
@@ -78,8 +79,8 @@ IntersectionHelpers::StartPoint IntersectionHelpers::RefinePoint(
         stCurr = glm::clamp(stCurr, glm::vec2(0.0f), glm::vec2(1.0f));
     }
 
-    glm::vec3 Pfinal = A->GetValue(uvCurr.x, uvCurr.y);
-    glm::vec3 Qfinal = B->GetValue(stCurr.x, stCurr.y);
+    glm::vec3 Pfinal = A->GetValue(uvCurr.x, uvCurr.y, RADIUS);
+    glm::vec3 Qfinal = B->GetValue(stCurr.x, stCurr.y, RADIUS);
     glm::vec3 mid = 0.5f * (Pfinal + Qfinal);
 
     StartPoint result;
@@ -205,8 +206,8 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::FindIntersection(Fig
 
 glm::vec4 IntersectionHelpers::Newton(Figure* A, Figure* B, glm::vec3 initialPoint, float step, glm::vec4 uv)
 {
-    glm::vec3 p = A->GetValue(uv.x, uv.y);
-    glm::vec3 q = B->GetValue(uv.z, uv.w);
+    glm::vec3 p = A->GetValue(uv.x, uv.y, RADIUS);
+    glm::vec3 q = B->GetValue(uv.z, uv.w, RADIUS);
 
     glm::vec3 pdu = A->GetTangentU(uv.x, uv.y);
     glm::vec3 pdv = A->GetTangentV(uv.x, uv.y);
@@ -266,8 +267,8 @@ bool IntersectionHelpers::IsOutOfDomain(glm::vec4 v)
 
 glm::vec3 IntersectionHelpers::GetPosition(Figure* A, Figure* B, glm::vec4 uv)
 {
-    glm::vec3 pA = A->GetValue(uv.x, uv.y);
-    glm::vec3 pB = B->GetValue(uv.z, uv.w);
+    glm::vec3 pA = A->GetValue(uv.x, uv.y, RADIUS);
+    glm::vec3 pB = B->GetValue(uv.z, uv.w, RADIUS);
     return 0.5f * (pA + pB);
 }
 
@@ -300,7 +301,7 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
                 return IntersectionCurve(false, std::move(pts), 0, A, B);
             }
 
-            float dist = glm::length(A->GetValue(next.x, next.y) - B->GetValue(next.z, next.w));
+            float dist = glm::length(A->GetValue(next.x, next.y, RADIUS) - B->GetValue(next.z, next.w, RADIUS));
             if (dist < 0.02) break;
         }
 

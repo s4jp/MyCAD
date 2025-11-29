@@ -138,7 +138,7 @@ int Torus::Serialize(MG1::Scene &scene, std::vector<uint32_t> cpsIdxs)
   return -1;
 }
 
-glm::vec3 Torus::GetValue(float u, float v)
+glm::vec3 Torus::GetValue(float u, float v, float R)
 {
     float theta = u * 2.0f * M_PI;
     float phi = v * 2.0f * M_PI;
@@ -149,17 +149,17 @@ glm::vec3 Torus::GetValue(float u, float v)
 
     glm::vec4 pos(x, y, z, 1.0f);
 
-    return glm::vec3(model * ROTATION_MATRIX * pos);
+    return OffsetAlongNormal(glm::vec3(model * ROTATION_MATRIX * pos), u, v, R);
 }
 
 glm::vec3 Torus::GetTangentU(float u, float v)
 {
-    return (GetValue(u + tangentEpsilon, v) - GetValue(u - tangentEpsilon, v))
+    return (GetValue(u + tangentEpsilon, v, 0) - GetValue(u - tangentEpsilon, v, 0))
         / (2.0f * tangentEpsilon);
 }
 
 glm::vec3 Torus::GetTangentV(float u, float v)
 {
-    return (GetValue(u, v + tangentEpsilon) - GetValue(u, v - tangentEpsilon))
+    return (GetValue(u, v + tangentEpsilon, 0) - GetValue(u, v - tangentEpsilon, 0))
         / (2.0f * tangentEpsilon);
 }

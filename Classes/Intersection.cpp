@@ -48,9 +48,9 @@ Intersection::~Intersection() {
 }
 
 void Intersection::ShowImGui(int previewSize){
-    ImGui::Checkbox("Render", &this->show);
-	ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
-    ImGui::Checkbox("Bspline mode", &this->showInterpolated);
+ //   ImGui::Checkbox("Render", &this->show);
+	//ImGui::SameLine(ImGui::GetWindowContentRegionMin().x + ImGui::GetWindowContentRegionMax().x * 0.5f);
+ //   ImGui::Checkbox("Bspline mode", &this->showInterpolated);
 
     ImGui::SeparatorText(("%s options:",fig1->name).c_str());
     if (sameFig && (fig1hasRed || fig2hasRed))
