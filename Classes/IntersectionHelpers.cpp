@@ -276,6 +276,7 @@ glm::vec3 IntersectionHelpers::GetPosition(Figure* A, Figure* B, glm::vec4 uv)
 
 IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Figure* B, StartPoint start, float step)
 {
+	bool removedFirst = false;
     std::vector<IntersectionPoint> pts;
     pts.push_back(IntersectionPoint(start));
 
@@ -311,6 +312,12 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::March(Figure* A, Fig
 
         if (pts.size() > 1 && glm::length(pos - pts.front().position) < LOOP_CLOSURE_THRESHOLD * fabs(step)) {
             return IntersectionCurve(true, std::move(pts), 0, A, B);
+        }
+
+        if (!removedFirst && pts.size() == 2)
+        {
+            pts.erase(pts.begin());
+            removedFirst = true;
         }
 
         pts.emplace_back(pos, glm::vec2(next.x, next.y), glm::vec2(next.z, next.w));

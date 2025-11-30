@@ -1321,6 +1321,7 @@ int main() {
                         else {
                             auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint, intersectionPrecision.GetValue());
                             std::cout << "FIN" << std::endl;
+                            result.print();
                             cursor->SetPosition(result.points[result.startIdx].position);
                             intersections.push_back(new Intersection(result, tessCpCountLoc, tessSegmentCountLoc,
                                 tessSegmentIdxLoc, tessDivisionLoc, guiWidth));
