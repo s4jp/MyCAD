@@ -53,4 +53,6 @@ public:
 	glm::vec3 GetTangentV(float u, float v) override;
 	void Print() override;
 	glm::vec2 GetSize() const;
+	bool IsC0() const { return !bspline; }
+	std::vector<BicubicPatch*> GetPatches() const { return patches; }
 };

@@ -167,7 +167,7 @@ glm::vec3 BicubicPatch::GetValue(float u, float v, float R)
         }
     }
 
-    return p;
+    return OffsetAlongNormal(p, u, v, R);
 }
 
 glm::vec3 BicubicPatch::GetTangentU(float u, float v)

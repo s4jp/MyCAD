@@ -1,4 +1,5 @@
 ﻿#include "IntersectionHelpers.h"
+#include "surfaceC0.h"
 
 constexpr int MONTE_CARLO_SAMPLES = 1000000;
 constexpr int GRADIENT_DESCENT_ITERS = 1000;
@@ -351,4 +352,78 @@ glm::vec4 IntersectionHelpers::Clamp(glm::vec4 curr, glm::vec4 prev, glm::vec4 d
 	}
 
     return prev - (1 - maxOverflowPercent) * delta;
+}
+
+IntersectionHelpers::IntersectionCurve IntersectionHelpers::Calculate(Figure* A, Figure* B, CursorData cursor, float step)
+{
+	bool isAspecialCase = IsC0SpecialCase(A);
+	bool isBspecialCase = IsC0SpecialCase(B);
+
+    StartPoint startPoint = FindStartPoint(A, B, cursor);
+    if (!startPoint.valid) return {};
+
+    IntersectionCurve result;
+	if (!isAspecialCase && !isBspecialCase) {
+        result = FindIntersection(A, B, startPoint, step);
+	} else if (isAspecialCase && isBspecialCase) {
+		std::cout << "cannot handle both special cases" << std::endl;
+    } else {
+		// special case handling
+		Figure* specialFig = isAspecialCase ? A : B;
+		Figure* otherFig = isAspecialCase ? B : A;
+        SurfaceC0* surf = dynamic_cast<SurfaceC0*>(specialFig);
+		float patchCount = surf->GetSize().x;
+		std::vector<BicubicPatch*> patches = surf->GetPatches();
+		std::vector<IntersectionCurve> partialCurves;
+        for (int i = 0; i < patchCount; i++) {
+            BicubicPatch* patch = patches[i];
+            StartPoint partialStartPoint = FindStartPoint(patch, otherFig, cursor);
+			if (!startPoint.valid) {
+				std::cout << "no valid start point for patch " << i << std::endl;
+                continue;
+			}
+            partialCurves.emplace_back(FindIntersection(isAspecialCase ? patch : otherFig, isBspecialCase ? patch : otherFig, partialStartPoint, step));
+        }
+		if (partialCurves.empty()) {
+			std::cout << "no partial curves found" << std::endl;
+        } else {
+	        
+			for (float i = 0; i < partialCurves.size(); i++) {
+                for (auto& pt : partialCurves[i].points)
+                {
+                    if (isAspecialCase) {
+						std::swap(pt.uv1.x, pt.uv1.y);
+                        pt.uv1.x = (pt.uv1.x + i) / patchCount;
+                    }
+                    else {
+						std::swap(pt.uv2.x, pt.uv2.y);
+                        pt.uv2.x = (pt.uv2.x + i) / patchCount;
+                    }
+                }
+
+            }
+            for (const auto& curve : partialCurves) {
+                result.points.insert(result.points.end(), curve.points.begin(), curve.points.end());
+            }
+			result.figA = A;
+			result.figB = B;
+            result.isLoop = true;
+            result.startIdx = partialCurves[0].points.size();
+        }
+    }
+
+    std::cout << "FIN" << std::endl;
+    //result.print();
+    return result;
+}
+
+bool IntersectionHelpers::IsC0SpecialCase(Figure* fig)
+{
+    SurfaceC0* surf = dynamic_cast<SurfaceC0*>(fig);
+
+    if (surf == nullptr) {
+		return false;
+    }
+
+    return surf->IsC0() && fig->IsWrappedU() && !fig->IsWrappedV() && surf->GetSize().y == 1 && surf->GetSize().x > 1;
 }

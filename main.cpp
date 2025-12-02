@@ -1312,16 +1312,13 @@ int main() {
 						Figure* f1 = candidates[0];
 						Figure* f2 = candidates.size() > 1 ? candidates[1] : candidates[0];
 
-                        IntersectionHelpers::StartPoint startPoint = IntersectionHelpers::FindStartPoint(f1, f2, 
-                            IntersectionHelpers::CursorData(cursor->GetPosition(), useCursorAsStartPoint));
+                        IntersectionHelpers::IntersectionCurve result = IntersectionHelpers::Calculate(f1, f2, 
+                            IntersectionHelpers::CursorData(cursor->GetPosition(), useCursorAsStartPoint), intersectionPrecision.GetValue());
 
-                        if (!startPoint.valid) {
+                        if (result.points.empty()) {
 							ImGui::OpenPopup("NoStartPointFound");
                         }
                         else {
-                            auto result = IntersectionHelpers::FindIntersection(f1, f2, startPoint, intersectionPrecision.GetValue());
-                            std::cout << "FIN" << std::endl;
-                            result.print();
                             cursor->SetPosition(result.points[result.startIdx].position);
                             intersections.push_back(new Intersection(result, tessCpCountLoc, tessSegmentCountLoc,
                                 tessSegmentIdxLoc, tessDivisionLoc, guiWidth));

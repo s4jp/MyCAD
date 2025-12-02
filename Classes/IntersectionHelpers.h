@@ -112,10 +112,11 @@ public:
 		CursorData(glm::vec3 p, bool useCursor) : pos(p), useCursor(useCursor) {}
     };
 
-    static StartPoint FindStartPoint(Figure* A, Figure* B, CursorData cursor);
-    static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step);
+    static IntersectionCurve Calculate(Figure* A, Figure* B, CursorData cursor, float step);
 
 private:
+    static StartPoint FindStartPoint(Figure* A, Figure* B, CursorData cursor);
+    static IntersectionCurve FindIntersection(Figure* A, Figure* B, StartPoint start, float step);
     static float DistanceSquared(Figure* A, float u, float v, Figure* B, float s, float t);
     static StartPoint RefinePoint(Figure* A, Figure* B, glm::vec2 uv, glm::vec2 st);
     static bool AreUVsTooClose(glm::vec2 uv1, glm::vec2 uv2, Figure* A, Figure* B);
@@ -126,4 +127,5 @@ private:
     static glm::vec3 GetPosition(Figure* A, Figure* B, glm::vec4 uv);
     static IntersectionCurve March(Figure* A, Figure* B, StartPoint start, float step);
     static glm::vec4 Clamp(glm::vec4 curr, glm::vec4 prev, glm::vec4 delta);
+    static bool IsC0SpecialCase(Figure* fig);
 };
