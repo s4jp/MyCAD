@@ -377,8 +377,8 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::Calculate(Figure* A,
 		std::vector<IntersectionCurve> partialCurves;
         for (int i = 0; i < patchCount; i++) {
             BicubicPatch* patch = patches[i];
-            StartPoint partialStartPoint = FindStartPoint(patch, otherFig, cursor);
-			if (!startPoint.valid) {
+            StartPoint partialStartPoint = FindStartPoint(isAspecialCase ? patch : otherFig, isBspecialCase ? patch : otherFig, cursor);
+			if (!partialStartPoint.valid) {
 				std::cout << "no valid start point for patch " << i << std::endl;
                 continue;
 			}
@@ -407,13 +407,13 @@ IntersectionHelpers::IntersectionCurve IntersectionHelpers::Calculate(Figure* A,
             }
 			result.figA = A;
 			result.figB = B;
-            result.isLoop = true;
-            result.startIdx = partialCurves[0].points.size();
+            result.isLoop = partialCurves.size() == patchCount;
+            result.startIdx = partialCurves.size() > 1 ? partialCurves[0].points.size() - 1 : partialCurves[0].startIdx;
         }
     }
 
     std::cout << "FIN" << std::endl;
-    //result.print();
+    result.print();
     return result;
 }
 
